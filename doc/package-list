@@ -9,6 +9,7 @@ hillbillies.common.internal.ui
 hillbillies.common.internal.ui.sprites
 hillbillies.common.internal.ui.viewmodel
 hillbillies.common.internal.ui.viewparts
+hillbillies.model
 hillbillies.part1
 hillbillies.part1.facade
 hillbillies.part1.internal

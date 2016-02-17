@@ -1,0 +1,2 @@
+extra cmd javadoc:
+-taglet be.kuleuven.cs.som.taglet.InvarTaglet -taglet be.kuleuven.cs.som.taglet.PreTaglet -taglet be.kuleuven.cs.som.taglet.PostTaglet -taglet be.kuleuven.cs.som.taglet.EffectTaglet -taglet be.kuleuven.cs.som.taglet.ReturnTaglet -taglet be.kuleuven.cs.som.taglet.ThrowsTaglet -taglet be.kuleuven.cs.som.taglet.NoteTaglet -tagletpath "lib\AnnotationsDoclets.jar"
