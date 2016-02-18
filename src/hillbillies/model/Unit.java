@@ -1,7 +1,6 @@
 package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
-import ogp.framework.util.internal.Matrix;
 
 /**
  * ....
@@ -23,6 +22,7 @@ public class Unit {
     private String name;
     private int weight, strength, agility, toughness;
     private double orientation;
+    private int hitpoints, stamina;
 
 
     /**
@@ -95,6 +95,10 @@ public class Unit {
         setStrength(strength);
         setAgility(agility);
         setWeight(weight);
+
+        int maxPoints = getMaxPoints();
+        setHitpoints(maxPoints);
+        setStamina(maxPoints);
 
         setOrientation(Math.PI/2);
     }
@@ -343,6 +347,62 @@ public class Unit {
             toughness = 1;
         this.toughness = toughness;
     }
+
+    /**
+     * Returns the current amount of hitpoints of the unit
+     */
+    @Basic
+    public int getHitpoints() {
+        return this.hitpoints;
+    }
+
+    /**
+     * Sets the current hitpoints to the given amount of hitpoints
+     * @param   hitpoints
+     *          The new hitpoints of the unit
+     * @pre     The hitpoints must be greater or equal than 0 and smaller or equal than max hitpoints
+     *          | (hitpoints <= getMaxPoints()) && (hitpoints >= 0;)
+     * @post    The new hitpoints equal the given hitpoints
+     *          | new.getHitpoints() == hitpoints
+     *
+     */
+    public void setHitpoints(int hitpoints) {
+        assert hitpoints <= getMaxPoints() && hitpoints >= 0;
+        this.hitpoints = hitpoints;
+    }
+
+    /**
+     * Returns the current amount of stamina of the unit
+     */
+    @Basic
+    public int getStamina() {
+        return this.stamina;
+    }
+
+    /**
+     * Sets the current amount of stamina to the given amount of stamina
+     * @param   stamina
+     *          The new amount of stamina of the unit
+     * @pre     The stamina must be greater or equal than 0 and smaller or equal than max stamina
+     *          | (stamina <= getMaxPoints()) && (stamina >= 0;)
+     * @post    The new stamina equal the given stamina
+     *          | new.getStamina() == stamina
+     *
+     */
+    public void setStamina(int stamina){
+        assert stamina <= getMaxPoints();
+        this.stamina = stamina;
+    }
+
+    /**
+     * Return the maximum amount of hitpoints and stamina
+     * @return  Returns 200*weight/100*toughness/100
+     *          | result == ceil(200*weight*toughness/10000)
+     */
+    public int getMaxPoints() {
+        return (200*weight*toughness+9999)/10000;
+    }
+
 
     /**
      * Returns the current orientation

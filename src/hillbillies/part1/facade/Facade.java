@@ -87,22 +87,22 @@ public class Facade implements IFacade {
 
     @Override
     public int getMaxHitPoints(Unit unit) throws ModelException {
-        return 0;
+        return unit.getMaxPoints();
     }
 
     @Override
     public int getCurrentHitPoints(Unit unit) throws ModelException {
-        return 0;
+        return unit.getHitpoints();
     }
 
     @Override
     public int getMaxStaminaPoints(Unit unit) throws ModelException {
-        return 0;
+        return unit.getMaxPoints();
     }
 
     @Override
     public int getCurrentStaminaPoints(Unit unit) throws ModelException {
-        return 0;
+        return unit.getStamina();
     }
 
     @Override
