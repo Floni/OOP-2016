@@ -1,6 +1,7 @@
 package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Value;
 
 /**
  * ....
@@ -22,7 +23,7 @@ public class Unit {
     private String name;
     private int weight, strength, agility, toughness;
     private double orientation;
-    private int hitpoints, stamina;
+    private int hitPoints, stamina;
 
 
     /**
@@ -97,7 +98,7 @@ public class Unit {
         setWeight(weight);
 
         int maxPoints = getMaxPoints();
-        setHitpoints(maxPoints);
+        setHitPoints(maxPoints);
         setStamina(maxPoints);
 
         setOrientation(Math.PI/2);
@@ -349,26 +350,26 @@ public class Unit {
     }
 
     /**
-     * Returns the current amount of hitpoints of the unit
+     * Returns the current amount of hitPoints of the unit
      */
     @Basic
-    public int getHitpoints() {
-        return this.hitpoints;
+    public int getHitPoints() {
+        return this.hitPoints;
     }
 
     /**
-     * Sets the current hitpoints to the given amount of hitpoints
-     * @param   hitpoints
-     *          The new hitpoints of the unit
-     * @pre     The hitpoints must be greater or equal than 0 and smaller or equal than max hitpoints
-     *          | (hitpoints <= getMaxPoints()) && (hitpoints >= 0;)
-     * @post    The new hitpoints equal the given hitpoints
-     *          | new.getHitpoints() == hitpoints
+     * Sets the current hitPoints to the given amount of hitPoints
+     * @param   hitPoints
+     *          The new hitPoints of the unit
+     * @pre     The hitPoints must be greater or equal than 0 and smaller or equal than max hitPoints
+     *          | (hitPoints <= getMaxPoints()) && (hitPoints >= 0;)
+     * @post    The new hitPoints equal the given hitPoints
+     *          | new.getHitPoints() == hitPoints
      *
      */
-    public void setHitpoints(int hitpoints) {
-        assert hitpoints <= getMaxPoints() && hitpoints >= 0;
-        this.hitpoints = hitpoints;
+    public void setHitPoints(int hitPoints) {
+        assert hitPoints <= getMaxPoints() && hitPoints >= 0;
+        this.hitPoints = hitPoints;
     }
 
     /**
@@ -395,7 +396,7 @@ public class Unit {
     }
 
     /**
-     * Return the maximum amount of hitpoints and stamina
+     * Return the maximum amount of hitPoints and stamina
      * @return  Returns 200*weight/100*toughness/100
      *          | result == ceil(200*weight*toughness/10000)
      */

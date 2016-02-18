@@ -92,7 +92,7 @@ public class Facade implements IFacade {
 
     @Override
     public int getCurrentHitPoints(Unit unit) throws ModelException {
-        return unit.getHitpoints();
+        return unit.getHitPoints();
     }
 
     @Override
