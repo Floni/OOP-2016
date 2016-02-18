@@ -3,6 +3,8 @@ package hillbillies.part1.facade;
 import hillbillies.model.Unit;
 import ogp.framework.util.ModelException;
 
+import java.util.IllegalFormatCodePointException;
+
 /**
  *
  *
@@ -11,7 +13,11 @@ import ogp.framework.util.ModelException;
 public class Facade implements IFacade {
     @Override
     public Unit createUnit(String name, int[] initialPosition, int weight, int agility, int strength, int toughness, boolean enableDefaultBehavior) throws ModelException {
-        return new Unit(initialPosition[0], initialPosition[1], initialPosition[2]);
+        try {
+            return new Unit(name, initialPosition[0], initialPosition[1], initialPosition[2]);
+        } catch (IllegalArgumentException err) {
+            throw new ModelException(err.getMessage(), err);
+        }
     }
 
     @Override
@@ -26,12 +32,16 @@ public class Facade implements IFacade {
 
     @Override
     public String getName(Unit unit) throws ModelException {
-        return null;
+        return unit.getName();
     }
 
     @Override
     public void setName(Unit unit, String newName) throws ModelException {
-
+        try {
+            unit.setName(newName);
+        } catch(IllegalFormatCodePointException err){
+            throw new ModelException("Invalid name", err);
+        }
     }
 
     @Override

@@ -8,6 +8,8 @@ import be.kuleuven.cs.som.annotate.Basic;
  *
  * @invar   The position of the unit must be valid
  *          | isValidPosition(this.getPosition())
+ * @invar   The length of the position array is 3 and the position is effective
+ *          | (this.position != null) && (this.position.length == 3)
  */
 public class Unit {
     public static final int X_MAX = 50;
@@ -17,8 +19,10 @@ public class Unit {
     public static final double Lc = 1.0;
 
     private final double[] position = new double[3];
+    private String name;
 
-    public Unit(int x, int y, int z) {
+    public Unit(String name, int x, int y, int z) throws IllegalArgumentException {
+        setName(name);
         setPosition(x + Lc/2, y + Lc/2, z + Lc/2);
     }
 
@@ -99,4 +103,39 @@ public class Unit {
     }
 
 
+    /**
+     * Returns the name of the unit
+     */
+    @Basic
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * Sets the name of the unit
+     * @param   name
+     *          The new name for the unit
+     * @post    The new name is the given name
+     *          | new.getName() == name
+     * @throws  IllegalArgumentException
+     *          The name is not valid
+     *          | !isValidName(name)
+     */
+    public void setName(String name) throws IllegalArgumentException {
+        if (!isValidName(name))
+            throw new IllegalArgumentException("Invalid name");
+        this.name = name;
+    }
+
+    /**
+     * Checks wether the name is valid
+     * @param   name
+     *          The name to be checked
+     * @return  True if name is at least 2 characters long,
+     *          starts with an uppercase letter and contains only letters, spaces and quotes.
+     *          | result == (name.length() > 2) && name.matches("[A-Z][a-zA-Z'\" ]*")
+     */
+    public static boolean isValidName(String name) {
+        return name.length() > 2 && name.matches("[A-Z][a-zA-Z'\" ]*");
+    }
 }
