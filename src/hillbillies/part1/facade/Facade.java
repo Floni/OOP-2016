@@ -9,12 +9,12 @@ import ogp.framework.util.ModelException;
 public class Facade implements IFacade {
     @Override
     public Unit createUnit(String name, int[] initialPosition, int weight, int agility, int strength, int toughness, boolean enableDefaultBehavior) throws ModelException {
-        return null;
+        return new Unit(initialPosition[0], initialPosition[1], initialPosition[2]);
     }
 
     @Override
     public double[] getPosition(Unit unit) throws ModelException {
-        return new double[0];
+        return unit.getPosition();
     }
 
     @Override
