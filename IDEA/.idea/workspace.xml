@@ -2,184 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3480f2e9-c579-49ba-96ed-42ff66aa9bcb" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../bin/hillbillies/model/Unit.class" afterPath="$PROJECT_DIR$/../bin/hillbillies/model/Unit.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../Readme.md" afterPath="$PROJECT_DIR$/../Readme.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/allclasses-frame.html" afterPath="$PROJECT_DIR$/../doc/allclasses-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/allclasses-noframe.html" afterPath="$PROJECT_DIR$/../doc/allclasses-noframe.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/constant-values.html" afterPath="$PROJECT_DIR$/../doc/constant-values.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/deprecated-list.html" afterPath="$PROJECT_DIR$/../doc/deprecated-list.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/help-doc.html" afterPath="$PROJECT_DIR$/../doc/help-doc.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/Constants.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/Constants.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/HillbilliesApplication.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/HillbilliesApplication.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/controller/CubeSelectionMode.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/controller/CubeSelectionMode.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/controller/DefaultInputMode.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/controller/DefaultInputMode.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/controller/GameController.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/controller/GameController.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/controller/UnitSelectionMode.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/controller/UnitSelectionMode.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/controller/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/controller/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/controller/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/controller/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/controller/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/controller/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/inputmodes/InputMode.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/inputmodes/InputMode.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/inputmodes/UserInputHandler.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/inputmodes/UserInputHandler.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/inputmodes/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/inputmodes/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/inputmodes/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/inputmodes/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/inputmodes/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/inputmodes/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/map/IByteMap3D.Listener.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/map/IByteMap3D.Listener.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/map/IByteMap3D.ValueProvider.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/map/IByteMap3D.ValueProvider.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/map/IByteMap3D.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/map/IByteMap3D.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/map/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/map/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/map/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/map/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/map/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/map/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/options/HillbilliesOptions.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/options/HillbilliesOptions.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/options/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/options/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/options/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/options/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/options/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/options/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/providers/ActionExecutor.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/providers/ActionExecutor.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/providers/SelectionProvider.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/providers/SelectionProvider.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/providers/UnitInfoProvider.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/providers/UnitInfoProvider.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/providers/WorldInfoProvider.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/providers/WorldInfoProvider.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/providers/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/providers/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/providers/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/providers/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/providers/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/providers/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/selection/Selection.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/selection/Selection.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/selection/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/selection/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/selection/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/selection/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/selection/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/selection/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/HillbilliesView.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/HillbilliesView.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/ViewProviders.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/ViewProviders.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/sprites/AbstractSprite.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/sprites/AbstractSprite.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/sprites/SpriteFactory.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/sprites/SpriteFactory.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/sprites/SpriteOrientation.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/sprites/SpriteOrientation.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/sprites/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/sprites/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/sprites/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/sprites/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/sprites/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/sprites/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewmodel/ViewModel.NewSpriteListener.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewmodel/ViewModel.NewSpriteListener.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewmodel/ViewModel.RefreshListener.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewmodel/ViewModel.RefreshListener.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewmodel/ViewModel.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewmodel/ViewModel.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewmodel/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewmodel/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewmodel/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewmodel/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewmodel/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewmodel/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/ControlArea.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/ControlArea.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/InfoArea.PartFactory.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/InfoArea.PartFactory.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/InfoArea.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/InfoArea.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/InfoAreaPart.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/InfoAreaPart.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/LevelSlider.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/LevelSlider.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/MiniMap.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/MiniMap.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/WorldView.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/WorldView.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/common/internal/ui/viewparts/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/Part1.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/Part1.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/facade/IFacade.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/facade/IFacade.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/facade/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/facade/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/facade/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/facade/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/facade/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/facade/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/Part1Options.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/Part1Options.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/ActionExecutorPart1.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/ActionExecutorPart1.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/BaseActionExecutor.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/BaseActionExecutor.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/GameControllerPart1.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/GameControllerPart1.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/Part1InputMode.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/Part1InputMode.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/UnitInfoProviderPart1.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/UnitInfoProviderPart1.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/WorldInfoProviderPart1.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/WorldInfoProviderPart1.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/controller/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/map/EmptyMap.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/map/EmptyMap.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/map/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/map/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/map/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/map/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/map/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/map/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/HillbilliesViewPart1.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/HillbilliesViewPart1.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/ViewModelPart1.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/ViewModelPart1.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/sprites/UnitSprite.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/sprites/UnitSprite.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/sprites/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/sprites/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/sprites/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/sprites/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/sprites/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/sprites/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/viewparts/UnitControlArea1.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/viewparts/UnitControlArea1.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/viewparts/UnitInfoAreaPart.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/viewparts/UnitInfoAreaPart.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/viewparts/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/viewparts/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/viewparts/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/viewparts/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/viewparts/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/internal/ui/viewparts/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/part1/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/part1/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/tests/facade/Part1TestPartial.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/tests/facade/Part1TestPartial.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/tests/facade/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/tests/facade/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/tests/facade/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/tests/facade/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/tests/facade/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/tests/facade/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/tests/util/PositionAsserts.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/tests/util/PositionAsserts.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/tests/util/package-frame.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/tests/util/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/tests/util/package-summary.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/tests/util/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/hillbillies/tests/util/package-tree.html" afterPath="$PROJECT_DIR$/../doc/hillbillies/tests/util/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-1.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-1.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-10.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-10.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-11.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-11.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-12.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-12.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-13.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-13.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-14.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-14.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-15.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-15.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-16.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-16.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-17.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-17.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-18.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-18.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-19.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-19.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-2.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-2.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-20.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-20.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-21.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-21.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-22.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-22.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-23.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-23.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-3.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-3.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-4.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-4.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-5.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-5.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-6.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-6.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-7.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-7.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-8.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-8.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index-files/index-9.html" afterPath="$PROJECT_DIR$/../doc/index-files/index-9.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/index.html" afterPath="$PROJECT_DIR$/../doc/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/game/GameLoop.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/game/GameLoop.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/game/IGameController.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/game/IGameController.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/game/IGameView.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/game/IGameView.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/game/package-frame.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/game/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/game/package-summary.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/game/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/game/package-tree.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/game/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/ui/FPSCounter.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/ui/FPSCounter.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/ui/OptionsPanel.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/ui/OptionsPanel.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/ui/SimpleAnimationBuilder.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/ui/SimpleAnimationBuilder.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/ui/SpriteAnimation.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/ui/SpriteAnimation.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/ui/SpriteSheet.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/ui/SpriteSheet.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/ui/package-frame.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/ui/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/ui/package-summary.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/ui/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/ui/package-tree.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/ui/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/util/ModelException.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/util/ModelException.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/util/Util.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/util/Util.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/GenericFactory.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/GenericFactory.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/Matrix.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/Matrix.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/MatrixChangeListener.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/MatrixChangeListener.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/Options.Option.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/Options.Option.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/Options.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/Options.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/ResourceUtils.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/ResourceUtils.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/package-frame.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/package-summary.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/package-tree.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/util/internal/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/util/package-frame.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/util/package-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/util/package-summary.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/util/package-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/ogp/framework/util/package-tree.html" afterPath="$PROJECT_DIR$/../doc/ogp/framework/util/package-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/overview-frame.html" afterPath="$PROJECT_DIR$/../doc/overview-frame.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/overview-summary.html" afterPath="$PROJECT_DIR$/../doc/overview-summary.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/overview-tree.html" afterPath="$PROJECT_DIR$/../doc/overview-tree.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/package-list" afterPath="$PROJECT_DIR$/../doc/package-list" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/serialized-form.html" afterPath="$PROJECT_DIR$/../doc/serialized-form.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src/hillbillies/model/Unit.java" afterPath="$PROJECT_DIR$/../src/hillbillies/model/Unit.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../src/hillbillies/part1/facade/Facade.java" afterPath="$PROJECT_DIR$/../src/hillbillies/part1/facade/Facade.java" />
     </list>
     <ignored path="Proj.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -202,33 +28,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="525">
-      <file leaf-file-name="Part1.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/Part1.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Unit.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Unit.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/../src/hillbillies/model/Unit.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="9" column="37" selection-start-line="9" selection-start-column="37" selection-end-line="9" selection-end-column="37" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Readme.md" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/../Readme.md">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.038516406">
-              <caret line="1" column="252" selection-start-line="1" selection-start-column="252" selection-end-line="1" selection-end-column="252" />
+            <state vertical-scroll-proportion="0.18048128">
+              <caret line="5" column="19" selection-start-line="5" selection-start-column="19" selection-end-line="5" selection-end-column="19" />
               <folding />
             </state>
           </provider>
@@ -238,7 +42,7 @@
         <entry file="file://$PROJECT_DIR$/../src/hillbillies/part1/facade/Facade.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="13" column="0" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+              <caret line="7" column="2" selection-start-line="7" selection-start-column="2" selection-end-line="7" selection-end-column="2" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -270,10 +74,10 @@
         <option value="$PROJECT_DIR$/../src-provided/hillbillies/part1/Part1.java" />
         <option value="$PROJECT_DIR$/../src/hillbillies/part1/Facade.java" />
         <option value="$PROJECT_DIR$/../src/hillbillies/part1/facade/Unit.java" />
-        <option value="$PROJECT_DIR$/../src/hillbillies/part1/facade/Facade.java" />
         <option value="$PROJECT_DIR$/../tests/hillbillies/tests/facade/Part1TestPartial.java" />
-        <option value="$PROJECT_DIR$/../src/hillbillies/model/Unit.java" />
         <option value="$PROJECT_DIR$/../Readme.md" />
+        <option value="$PROJECT_DIR$/../src/hillbillies/part1/facade/Facade.java" />
+        <option value="$PROJECT_DIR$/../src/hillbillies/model/Unit.java" />
       </list>
     </option>
   </component>
@@ -313,6 +117,34 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="PackagesPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Proj" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="OGP1516-Hillbillies" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Proj" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="OGP1516-Hillbillies" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="hillbillies" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
       <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
@@ -430,24 +262,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Proj" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Proj" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="lib" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="AnnotationsDoclets.jar" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiFileNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
       <pane id="Scope">
@@ -456,34 +270,6 @@
             <PATH_ELEMENT USER_OBJECT="Root">
               <option name="myItemId" value="" />
               <option name="myItemType" value="" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-      <pane id="PackagesPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Proj" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="OGP1516-Hillbillies" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Proj" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="OGP1516-Hillbillies" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="hillbillies" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
@@ -946,6 +732,9 @@
     </list>
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="3480f2e9-c579-49ba-96ed-42ff66aa9bcb" name="Default" comment="" />
@@ -954,15 +743,19 @@
       <updated>1455731194006</updated>
       <workItem from="1455731198740" duration="1055000" />
       <workItem from="1455732267347" duration="1109000" />
+      <workItem from="1455733523236" duration="24000" />
+      <workItem from="1455781297537" duration="36000" />
+      <workItem from="1455781778568" duration="31000" />
+      <workItem from="1455788509746" duration="1220000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2164000" />
+    <option name="totallyTimeSpent" value="3475000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-12" y="-12" width="2584" height="1394" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
@@ -970,13 +763,12 @@
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3293617" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3293617" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32851064" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3293617" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25744167" sideWeight="0.5" order="3" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3293617" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -987,7 +779,16 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="6" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3293617" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
+  </component>
+  <component name="Vcs.Log.UiProperties">
+    <option name="RECENTLY_FILTERED_USER_GROUPS">
+      <collection />
+    </option>
+    <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+      <collection />
+    </option>
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
@@ -1004,79 +805,61 @@
     <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/Part1.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/facade/IFacade.java">
+    <entry file="file://$PROJECT_DIR$/../src/hillbillies/model/Unit.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="2" column="29" selection-start-line="2" selection-start-column="29" selection-end-line="2" selection-end-column="29" />
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Readme.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="1" column="252" selection-start-line="1" selection-start-column="252" selection-end-line="1" selection-end-column="252" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src/hillbillies/part1/facade/Facade.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="13" column="0" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/internal/controller/WorldInfoProviderPart1.java">
+    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/Part1.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6666667">
-          <caret line="34" column="19" selection-start-line="34" selection-start-column="19" selection-end-line="34" selection-end-column="19" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/internal/ui/HillbilliesViewPart1.java">
+    <entry file="file://$PROJECT_DIR$/../src/hillbillies/model/Unit.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0952381">
-          <caret line="12" column="13" selection-start-line="12" selection-start-column="13" selection-end-line="12" selection-end-column="13" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/internal/ui/ViewModelPart1.java">
+    <entry file="file://$PROJECT_DIR$/../Readme.md">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0952381">
-          <caret line="14" column="13" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/facade/IFacade.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-2.2142856">
-          <caret line="70" column="17" selection-start-line="70" selection-start-column="17" selection-end-line="70" selection-end-column="17" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/internal/Part1Options.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0952381">
-          <caret line="4" column="13" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/internal/map/EmptyMap.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0952381">
-          <caret line="4" column="13" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../tests/hillbillies/tests/facade/Part1TestPartial.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.21428572">
-          <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="1" column="252" selection-start-line="1" selection-start-column="252" selection-end-line="1" selection-end-column="252" />
           <folding />
         </state>
       </provider>
@@ -1111,8 +894,156 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../Readme.md">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.038516406">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src/hillbillies/part1/facade/Facade.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="13" column="0" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/Part1.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src/hillbillies/model/Unit.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="9" column="37" selection-start-line="9" selection-start-column="37" selection-end-line="9" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Readme.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src/hillbillies/part1/facade/Facade.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="13" column="0" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/Part1.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/facade/IFacade.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="2" column="29" selection-start-line="2" selection-start-column="29" selection-end-line="2" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/internal/controller/WorldInfoProviderPart1.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.6666667">
+          <caret line="34" column="19" selection-start-line="34" selection-start-column="19" selection-end-line="34" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/internal/ui/HillbilliesViewPart1.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0952381">
+          <caret line="12" column="13" selection-start-line="12" selection-start-column="13" selection-end-line="12" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/internal/ui/ViewModelPart1.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0952381">
+          <caret line="14" column="13" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/facade/IFacade.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.2142856">
+          <caret line="70" column="17" selection-start-line="70" selection-start-column="17" selection-end-line="70" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/internal/Part1Options.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0952381">
+          <caret line="4" column="13" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/internal/map/EmptyMap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0952381">
+          <caret line="4" column="13" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../tests/hillbillies/tests/facade/Part1TestPartial.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.21428572">
+          <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src-provided/hillbillies/part1/Part1.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Readme.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
           <caret line="1" column="252" selection-start-line="1" selection-start-column="252" selection-end-line="1" selection-end-column="252" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src/hillbillies/part1/facade/Facade.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="7" column="2" selection-start-line="7" selection-start-column="2" selection-end-line="7" selection-end-column="2" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../src/hillbillies/model/Unit.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.18048128">
+          <caret line="5" column="19" selection-start-line="5" selection-start-column="19" selection-end-line="5" selection-end-column="19" />
           <folding />
         </state>
       </provider>
