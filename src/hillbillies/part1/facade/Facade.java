@@ -107,7 +107,7 @@ public class Facade implements IFacade {
 
     @Override
     public void advanceTime(Unit unit, double dt) throws ModelException {
-
+        unit.advanceTime(dt);
     }
 
     @Override
@@ -122,7 +122,7 @@ public class Facade implements IFacade {
 
     @Override
     public boolean isMoving(Unit unit) throws ModelException {
-        return false;
+        return unit.isMoving();
     }
 
     @Override
@@ -137,7 +137,7 @@ public class Facade implements IFacade {
 
     @Override
     public boolean isSprinting(Unit unit) throws ModelException {
-        return false;
+        return unit.isSprinting();
     }
 
     @Override
@@ -157,7 +157,7 @@ public class Facade implements IFacade {
 
     @Override
     public boolean isWorking(Unit unit) throws ModelException {
-        return false;
+        return unit.isWorking();
     }
 
     @Override
@@ -167,17 +167,17 @@ public class Facade implements IFacade {
 
     @Override
     public boolean isAttacking(Unit unit) throws ModelException {
-        return false;
+        return unit.isAttacking();
     }
 
     @Override
     public void rest(Unit unit) throws ModelException {
-
+        unit.rest();
     }
 
     @Override
     public boolean isResting(Unit unit) throws ModelException {
-        return false;
+        return unit.isResting();
     }
 
     @Override

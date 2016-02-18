@@ -2,6 +2,7 @@ package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Value;
+import ogp.framework.util.ModelException;
 
 /**
  * ....
@@ -10,6 +11,16 @@ import be.kuleuven.cs.som.annotate.Value;
  *          | isValidPosition(this.getPosition())
  */
 public class Unit {
+    @Value
+    private enum Activity {
+        WORK,
+        MOVE,
+        SPRINT,
+        REST,
+        ATTACK,
+        NONE
+    }
+
     public static final int X_MAX = 50;
     public static final int Y_MAX = 50;
     public static final int Z_MAX = 50;
@@ -21,6 +32,9 @@ public class Unit {
     private int weight, strength, agility, toughness;
     private double orientation;
     private int hitPoints, stamina;
+
+    private Activity currentActivity = Activity.NONE;
+    private int[] target;
 
 
     /**
@@ -99,6 +113,18 @@ public class Unit {
         setStamina(maxPoints);
 
         setOrientation(Math.PI/2);
+        currentActivity = Activity.MOVE;
+    }
+
+    public void advanceTime(double dt) throws  ModelException {
+        if (dt < 0 || dt >= 0.2)
+            throw new ModelException("Invalid dt");
+        if (isMoving()) {
+            double[] oldPos = getPosition();
+            setPosition(oldPos[0] + dt * Math.cos(getOrientation()), oldPos[1] + dt * Math.sin(getOrientation()), oldPos[2]);
+            setOrientation(getOrientation() + Math.PI / 4 * dt);
+        }
+
     }
 
     /**
@@ -187,6 +213,16 @@ public class Unit {
         return position.clone();
     }
 
+    /**
+     * ...
+     */
+    public int[] getCubePosition() {
+        return new int[] {
+                (int)Math.floor(position[0]),
+                (int)Math.floor(position[1]),
+                (int)Math.floor(position[2])
+        };
+    }
 
     /**
      * Returns the name of the unit
@@ -429,5 +465,59 @@ public class Unit {
      */
     public void setOrientation(double orientation) {
         this.orientation = ((Math.PI*2) + (orientation % (2*Math.PI))) % (2*Math.PI);
+    }
+
+    /**
+     * Returns True if the unit is moving
+     */
+    @Basic
+    public boolean isMoving() {
+        return currentActivity == Activity.MOVE || currentActivity == Activity.SPRINT;
+    }
+
+    public void moveToAdjacent(int dx, int dy, int dz) {
+        currentActivity = Activity.MOVE;
+        target = new int[3];
+        int[] curPos = getCubePosition();
+        target[0] = curPos[0] + dx;
+        target[1] = curPos[1] + dy;
+        target[2] = curPos[2] + dz;
+        //TODO: complete
+    }
+
+    /**
+     * Returns True if the unit is working
+     */
+    @Basic
+    public boolean isWorking() {
+        return currentActivity == Activity.WORK;
+    }
+
+    /**
+     * Returns True if the unit is attacking
+     */
+    @Basic
+    public boolean isAttacking() {
+        return currentActivity == Activity.ATTACK;
+    }
+
+    /**
+     * Returns True if the unit is resting
+     */
+    @Basic
+    public boolean isResting() {
+        return currentActivity == Activity.REST;
+    }
+
+    public void rest() {
+        currentActivity = Activity.REST;
+    }
+
+    /**
+     * Returns True if the unit is sprinting
+     */
+    @Basic
+    public boolean isSprinting() {
+        return currentActivity == Activity.SPRINT;
     }
 }
