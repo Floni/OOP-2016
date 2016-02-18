@@ -142,7 +142,7 @@ public class Facade implements IFacade {
 
     @Override
     public double getOrientation(Unit unit) throws ModelException {
-        return 0;
+        return unit.getOrientation();
     }
 
     @Override

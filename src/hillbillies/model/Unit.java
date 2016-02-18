@@ -1,6 +1,7 @@
 package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import ogp.framework.util.internal.Matrix;
 
 /**
  * ....
@@ -21,6 +22,7 @@ public class Unit {
     private final double[] position = new double[3];
     private String name;
     private int weight, strength, agility, toughness;
+    private double orientation;
 
 
     /**
@@ -93,6 +95,8 @@ public class Unit {
         setStrength(strength);
         setAgility(agility);
         setWeight(weight);
+
+        setOrientation(Math.PI/2);
     }
 
     /**
@@ -338,5 +342,24 @@ public class Unit {
         else if (toughness < 1)
             toughness = 1;
         this.toughness = toughness;
+    }
+
+    /**
+     * Returns the current orientation
+     */
+    @Basic
+    public double getOrientation() {
+        return this.orientation;
+    }
+
+    /**
+     * Sets the orientation of the unit
+     * @param   orientation
+     *          The new orientation
+     * @post    The new orientation is the same as the old orientation but between 0 and 2*PI
+     *          | new.getOrientation() == ((2*Math.PI) + (orientation % (2*Math.PI))) % 2* Math.PI
+     */
+    public void setOrientation(double orientation) {
+        this.orientation = ((Math.PI*2) + (orientation % (2*Math.PI))) % (2*Math.PI);
     }
 }
