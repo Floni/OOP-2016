@@ -21,6 +21,19 @@ public class Unit {
     private final double[] position = new double[3];
     private String name;
 
+
+    /**
+     * Creates a new unit with the given position
+     * @param   x
+     *          The initial x value of the position
+     * @param   y
+     *          The initial y value of the position
+     * @param   z
+     *          The initial z value of the position
+     * @effect  Sets the position to the middle of the block
+     *          | setPosition(x + Lc/2, y + Lc/2, z + Lc/2)
+     *
+     */
     public Unit(String name, int x, int y, int z) throws IllegalArgumentException {
         setName(name);
         setPosition(x + Lc/2, y + Lc/2, z + Lc/2);
