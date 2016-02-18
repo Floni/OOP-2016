@@ -14,7 +14,8 @@ public class Facade implements IFacade {
     @Override
     public Unit createUnit(String name, int[] initialPosition, int weight, int agility, int strength, int toughness, boolean enableDefaultBehavior) throws ModelException {
         try {
-            return new Unit(name, initialPosition[0], initialPosition[1], initialPosition[2]);
+            return new Unit(name, initialPosition[0], initialPosition[1], initialPosition[2],
+                    weight, strength, agility, toughness);
         } catch (IllegalArgumentException err) {
             throw new ModelException(err.getMessage(), err);
         }
@@ -46,42 +47,42 @@ public class Facade implements IFacade {
 
     @Override
     public int getWeight(Unit unit) throws ModelException {
-        return 0;
+        return unit.getWeight();
     }
 
     @Override
     public void setWeight(Unit unit, int newValue) throws ModelException {
-
+        unit.setWeight(newValue);
     }
 
     @Override
     public int getStrength(Unit unit) throws ModelException {
-        return 0;
+        return unit.getStrength();
     }
 
     @Override
     public void setStrength(Unit unit, int newValue) throws ModelException {
-
+        unit.setStrength(newValue);
     }
 
     @Override
     public int getAgility(Unit unit) throws ModelException {
-        return 0;
+        return unit.getAgility();
     }
 
     @Override
     public void setAgility(Unit unit, int newValue) throws ModelException {
-
+        unit.setAgility(newValue);
     }
 
     @Override
     public int getToughness(Unit unit) throws ModelException {
-        return 0;
+        return unit.getToughness();
     }
 
     @Override
     public void setToughness(Unit unit, int newValue) throws ModelException {
-
+        unit.setToughness(newValue);
     }
 
     @Override
