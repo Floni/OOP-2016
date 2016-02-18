@@ -4,12 +4,9 @@ import be.kuleuven.cs.som.annotate.Basic;
 
 /**
  * ....
- * TODO: split isValidPosition in effective & in bounds
  *
  * @invar   The position of the unit must be valid
  *          | isValidPosition(this.getPosition())
- * @invar   The length of the position array is 3 and the position is effective
- *          | (this.position != null) && (this.position.length == 3)
  */
 public class Unit {
     public static final int X_MAX = 50;
@@ -124,12 +121,22 @@ public class Unit {
      * @param   position
      *          The position to be tested.
      * @return  True if the position is effective, has 3 components and is within bounds.
-     *          | result == position != null && position.length == 3 && isValidPosition(position[0], position[1], position[2])
+     *          | result == isEffectivePosition(position) && isValidPosition(position[0], position[1], position[2])
      */
     public static boolean isValidPosition(double[] position) {
-        return position != null && position.length == 3 && isValidPosition(position[0], position[1], position[2]);
+        return isEffectivePosition(position) && isValidPosition(position[0], position[1], position[2]);
     }
 
+    /**
+     * Checks if the given position is effective
+     * @param   position
+     *          The position to be tested
+     * @return  True if the position is effective and the length is 3
+     *          | result == position != null && position.length == 3
+     */
+    public static boolean isEffectivePosition(double[] position) {
+        return position != null && position.length == 3;
+    }
 
     /**
      * Sets the position of the unit.
@@ -165,7 +172,7 @@ public class Unit {
      *          | position == null
      */
     public void setPosition(double[] position) throws IllegalArgumentException {
-        if (!isValidPosition(position))
+        if (!isEffectivePosition(position))
             throw new IllegalArgumentException("The given position is not effective");
         this.setPosition(position[0], position[1], position[2]);
     }
