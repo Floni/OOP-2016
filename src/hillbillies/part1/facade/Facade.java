@@ -1,5 +1,6 @@
 package hillbillies.part1.facade;
 
+import com.sun.javafx.sg.prism.NGShape;
 import hillbillies.model.Unit;
 import ogp.framework.util.ModelException;
 
@@ -28,7 +29,7 @@ public class Facade implements IFacade {
 
     @Override
     public int[] getCubeCoordinate(Unit unit) throws ModelException {
-        return new int[0];
+        return unit.getCubePosition();
     }
 
     @Override
@@ -112,12 +113,16 @@ public class Facade implements IFacade {
 
     @Override
     public void moveToAdjacent(Unit unit, int dx, int dy, int dz) throws ModelException {
-
+        try {
+            unit.moveToAdjacent(dx, dy, dz);
+        } catch (IllegalArgumentException err) {
+            throw new ModelException(err.getMessage(), err);
+        }
     }
 
     @Override
     public double getCurrentSpeed(Unit unit) throws ModelException {
-        return 0;
+        return unit.getSpeedScalar();
     }
 
     @Override
@@ -127,12 +132,12 @@ public class Facade implements IFacade {
 
     @Override
     public void startSprinting(Unit unit) throws ModelException {
-
+        unit.setSprint(true);
     }
 
     @Override
     public void stopSprinting(Unit unit) throws ModelException {
-
+        unit.setSprint(false);
     }
 
     @Override
@@ -147,7 +152,7 @@ public class Facade implements IFacade {
 
     @Override
     public void moveTo(Unit unit, int[] cube) throws ModelException {
-
+        unit.moveTo(cube);
     }
 
     @Override

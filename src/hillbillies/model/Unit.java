@@ -2,7 +2,9 @@ package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Value;
+import com.sun.javaws.exceptions.InvalidArgumentException;
 import ogp.framework.util.ModelException;
+import ogp.framework.util.Util;
 
 /**
  * ....
@@ -15,7 +17,6 @@ public class Unit {
     private enum Activity {
         WORK,
         MOVE,
-        SPRINT,
         REST,
         ATTACK,
         NONE
@@ -34,8 +35,11 @@ public class Unit {
     private int hitPoints, stamina;
 
     private Activity currentActivity = Activity.NONE;
-    private int[] target;
-
+    private double[] target;
+    private double[] speed;
+    private boolean sprinting;
+    private double speedScalar;
+    private double sprintStaminaTimer;
 
     /**
      * Creates a new unit with the given position
@@ -113,21 +117,43 @@ public class Unit {
         setStamina(maxPoints);
 
         setOrientation(Math.PI/2);
-        currentActivity = Activity.MOVE;
     }
 
     public void advanceTime(double dt) throws  ModelException {
         if (dt < 0 || dt >= 0.2)
             throw new ModelException("Invalid dt");
         if (isMoving()) {
-            double[] oldPos = getPosition();
-            setPosition(oldPos[0] + dt * Math.cos(getOrientation()), oldPos[1] + dt * Math.sin(getOrientation()), oldPos[2]);
-            setOrientation(getOrientation() + Math.PI / 4 * dt);
+            double[] pos = getPosition();
+            double mod = 1;
+            if (isSprinting()) {
+                sprintStaminaTimer -= dt;
+                mod = 2;
+                if(sprintStaminaTimer <= 0) {
+                    sprintStaminaTimer += 0.1;
+                    int newStamina = getStamina()  - 1;
+                    if (newStamina >= 0)
+                        setStamina(newStamina);
+                    if (getStamina() == 0) {
+                        mod = 1;
+                        setSprint(false);
+                    }
+                }
+            }
+            setPosition(pos[0] + mod*speed[0] * dt, pos[1] + mod*speed[1] * dt, pos[2] + mod* speed[2] * dt);
+            if (isAtTarget()) {
+                this.currentActivity = Activity.NONE;
+                this.speedScalar = 0;
+                setPosition(this.target);
+            }
         }
 
     }
 
-
+    private boolean isAtTarget() {
+        return  Util.fuzzyEquals(this.position[0], this.target[0], 0.05) &&
+                Util.fuzzyEquals(this.position[1], this.target[1], 0.05) &&
+                Util.fuzzyEquals(this.position[2], this.target[2], 0.05);
+    }
 
     /**
      * Checks if the given position is valid
@@ -216,7 +242,9 @@ public class Unit {
     }
 
     /**
-     * ...
+     * Returns the coordinates of the cube that the unit currently occupies
+     * @return  Returns the rounded down position of the unit
+     *          | result == {floor(getPosition()[0]),floor(getPosition()[1]),floor(getPosition()[2]}
      */
     public int[] getCubePosition() {
         return new int[] {
@@ -436,7 +464,7 @@ public class Unit {
      *
      */
     public void setStamina(int stamina){
-        assert stamina <= getMaxPoints();
+        assert stamina <= getMaxPoints() && stamina >= 0;
         this.stamina = stamina;
     }
 
@@ -474,17 +502,30 @@ public class Unit {
      */
     @Basic
     public boolean isMoving() {
-        return currentActivity == Activity.MOVE || currentActivity == Activity.SPRINT;
+        return currentActivity == Activity.MOVE;
     }
 
-    public void moveToAdjacent(int dx, int dy, int dz) {
-        currentActivity = Activity.MOVE;
-        target = new int[3];
+    public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException {
+        this.target = new double[3];
         int[] curPos = getCubePosition();
-        target[0] = curPos[0] + dx;
-        target[1] = curPos[1] + dy;
-        target[2] = curPos[2] + dz;
-        //TODO: complete
+        this.target[0] = curPos[0] + dx + Lc / 2;
+        this.target[1] = curPos[1] + dy + Lc / 2;
+        this.target[2] = curPos[2] + dz + Lc / 2;
+        this.speed = calculateSpeed(this.target);
+        setOrientation(Math.atan2(this.speed[1], this.speed[0]));
+        if (!isValidPosition(this.target)) {
+            this.target = null;
+            this.speed = null;
+            this.speedScalar = 0;
+            throw new IllegalArgumentException("target out of bounds");
+        } else {
+            currentActivity = Activity.MOVE;
+        }
+    }
+
+    public void moveTo(int[] target) {
+        int[] pos = getCubePosition();
+        moveToAdjacent(target[0] - pos[0], target[1] - pos[1], target[2] - pos[2]);
     }
 
     /**
@@ -515,11 +556,60 @@ public class Unit {
         currentActivity = Activity.REST;
     }
 
+
+    /**
+     *
+     */
+    public void setSprint(boolean sprint) {
+        if (getStamina() == 0 && sprint && !isMoving()) {
+            return;
+        }
+        if (!this.isSprinting() && sprint) {
+            sprintStaminaTimer = 0.1;
+        }
+        this.sprinting = sprint;
+    }
     /**
      * Returns True if the unit is sprinting
      */
     @Basic
     public boolean isSprinting() {
-        return currentActivity == Activity.SPRINT;
+        return this.sprinting;
+    }
+
+    private double[] calculateSpeed(double[] target){
+        double vb = 1.5*(getStrength()+getAgility())/(2*(getWeight()));
+        double[] pos = getPosition();
+        double dx = (target[0] - pos[0]);
+        double dy = (target[1] - pos[1]);
+        double dz = (target[2] - pos[2]);
+        double d = Math.sqrt(dx*dx+dy*dy+dz*dz);
+        dx /= d;
+        dy /= d;
+        dz /= d;
+        double vw = vb;
+        if (Util.fuzzyEquals(pos[2] - target[2], -1.0, 1e-1)) {
+            vw = 0.5*vb;
+        }
+        else if (Util.fuzzyEquals(pos[2] - target[2], 1.0, 1e-1)) {
+            vw = 1.2*vb;
+        }
+        speedScalar = vw;
+        return new double[] {
+                dx*vw,
+                dy*vw,
+                dz*vw
+        };
+    }
+
+    /**
+     *
+     */
+    @Basic
+    public double getSpeedScalar() {
+        if (isSprinting()) {
+            return 2*speedScalar;
+        }
+        return speedScalar;
     }
 }
