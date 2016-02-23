@@ -41,6 +41,7 @@ public class Unit {
     private double speedScalar;
     private double sprintStaminaTimer;
 
+    //<editor-fold desc="Constructor">
     /**
      * Creates a new unit with the given position
      * @param   x
@@ -118,6 +119,7 @@ public class Unit {
 
         setOrientation(Math.PI/2);
     }
+    //</editor-fold>
 
     public void advanceTime(double dt) throws  ModelException {
         if (dt < 0 || dt >= 0.2)
@@ -183,6 +185,7 @@ public class Unit {
         return true;
     }
 
+    //<editor-fold desc="Position">
     /**
      * Checks if the given position is valid
      * @param   x
@@ -281,7 +284,9 @@ public class Unit {
                 (int)Math.floor(position[2])
         };
     }
+    //</editor-fold>
 
+    //<editor-fold desc="Name">
     /**
      * Returns the name of the unit
      */
@@ -317,7 +322,9 @@ public class Unit {
     public static boolean isValidName(String name) {
         return name.length() > 2 && name.matches("[A-Z][a-zA-Z'\" ]*");
     }
+    //</editor-fold>
 
+    //<editor-fold desc="Properties">
     /**
      * Returns the weight of the unit
      */
@@ -504,8 +511,9 @@ public class Unit {
     public int getMaxPoints() {
         return (200*weight*toughness+9999)/10000;
     }
+    //</editor-fold>
 
-
+    //<editor-fold desc="Orientation">
     /**
      * Returns the current orientation
      */
@@ -524,7 +532,9 @@ public class Unit {
     public void setOrientation(double orientation) {
         this.orientation = ((Math.PI*2) + (orientation % (2*Math.PI))) % (2*Math.PI);
     }
+    //</editor-fold>
 
+    //<editor-fold desc="Movement">
     /**
      * Returns True if the unit is moving
      */
@@ -574,58 +584,9 @@ public class Unit {
             throw new IllegalArgumentException("invalid target");
         }
     }
+    //</editor-fold>
 
-    /**
-     * Returns True if the unit is working
-     */
-    @Basic
-    public boolean isWorking() {
-        return currentActivity == Activity.WORK;
-    }
-
-    /**
-     * Returns True if the unit is attacking
-     */
-    @Basic
-    public boolean isAttacking() {
-        return currentActivity == Activity.ATTACK;
-    }
-
-    /**
-     * Returns True if the unit is resting
-     */
-    @Basic
-    public boolean isResting() {
-        return currentActivity == Activity.REST;
-    }
-
-    public void rest() {
-        if (isMoving())
-            return;
-        currentActivity = Activity.REST;
-    }
-
-
-    /**
-     *
-     */
-    public void setSprint(boolean sprint) {
-        if (getStamina() == 0 && sprint && !isMoving()) {
-            return;
-        }
-        if (!this.isSprinting() && sprint) {
-            sprintStaminaTimer = 0.1;
-        }
-        this.sprinting = sprint;
-    }
-    /**
-     * Returns True if the unit is sprinting
-     */
-    @Basic
-    public boolean isSprinting() {
-        return this.sprinting;
-    }
-
+    //<editor-fold desc="Speed">
     private double[] calculateSpeed(double[] target){
         double vb = 1.5*(getStrength()+getAgility())/(2*(getWeight()));
         double[] pos = getPosition();
@@ -661,4 +622,59 @@ public class Unit {
         }
         return speedScalar;
     }
+    //</editor-fold>
+
+    //<editor-fold desc="Sprinting">
+    /**
+     *
+     */
+    public void setSprint(boolean sprint) {
+        if (getStamina() == 0 && sprint && !isMoving()) {
+            return;
+        }
+        if (!this.isSprinting() && sprint) {
+            sprintStaminaTimer = 0.1;
+        }
+        this.sprinting = sprint;
+    }
+    /**
+     * Returns True if the unit is sprinting
+     */
+    @Basic
+    public boolean isSprinting() {
+        return this.sprinting;
+    }
+    //</editor-fold>
+
+    /**
+     * Returns True if the unit is working
+     */
+    @Basic
+    public boolean isWorking() {
+        return currentActivity == Activity.WORK;
+    }
+
+    /**
+     * Returns True if the unit is attacking
+     */
+    @Basic
+    public boolean isAttacking() {
+        return currentActivity == Activity.ATTACK;
+    }
+
+    //<editor-fold desc="Resting">
+    /**
+     * Returns True if the unit is resting
+     */
+    @Basic
+    public boolean isResting() {
+        return currentActivity == Activity.REST;
+    }
+
+    public void rest() {
+        if (isMoving())
+            return;
+        currentActivity = Activity.REST;
+    }
+    //</editor-fold>
 }
