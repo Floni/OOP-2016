@@ -2,11 +2,10 @@ package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Value;
-import com.sun.javaws.exceptions.InvalidArgumentException;
 import ogp.framework.util.ModelException;
 import ogp.framework.util.Util;
 
-// TODO: define Vector value class for storing position.
+import java.util.IllegalFormatCodePointException;
 
 /**
  * ....
@@ -30,10 +29,10 @@ public class Unit {
     public static final int Z_MAX = 50;
 
     public static final double Lc = 1.0;
-    public static final double posEps = 0.05;
+    public static final double POS_EPS = 0.05;
     //</editor-fold>
 
-    private final double[] position = new double[3];
+    private Vector position;
     private String name;
     private int weight, strength, agility, toughness;
     private double orientation;
@@ -41,11 +40,10 @@ public class Unit {
 
     private Activity currentActivity = Activity.NONE;
 
-    private double[] target;
-    private double[] targetNeighbour;
+    private Vector target;
+    private Vector targetNeighbour;
 
-    private double[] speed;
-    private double speedScalar;
+    private Vector speed;
 
     private boolean sprinting;
     private double sprintStaminaTimer;
@@ -83,6 +81,9 @@ public class Unit {
      *          | then new.getToughness() == 100
      *          | else if toughness < 25
      *          | then new.getToughness() == 25
+     * @post    Sets the hit points to their maximum value
+     *          | new.getHitPoints() == new.getMaxPoints()
+     *          | && new.getStamina() == new.getMaxPoints()
      * @effect  Sets the position to the middle of the block
      *          | setPosition(x + Lc/2, y + Lc/2, z + Lc/2)
      * @effect  Sets the name
@@ -90,6 +91,8 @@ public class Unit {
      * @effect  Sets the attributes
      *          | setToughness(toughness) && setStrength(strength)
      *          | && setAgility(agility) && setWeight(weight)
+     * @effect  Sets the orientation to 90 degrees
+     *          | setOrientation(Math.PI/2)
      *
      */
     public Unit(String name, int x, int y, int z, int weight, int strength, int agility, int toughness)
@@ -130,13 +133,12 @@ public class Unit {
     }
     //</editor-fold>
 
+    //<editor-fold desc="advanceTime">
     public void advanceTime(double dt) throws  ModelException {
         if (dt < 0 || dt >= 0.2)
             throw new ModelException("Invalid dt");
         if (isMoving()) {
-            double[] pos = getPosition();
             double mod = 1;
-
             if (isSprinting()) {
                 sprintStaminaTimer -= dt;
                 mod = 2;
@@ -152,21 +154,24 @@ public class Unit {
                 }
             }
 
-            setPosition(pos[0] + mod*speed[0] * dt, pos[1] + mod*speed[1] * dt, pos[2] + mod* speed[2] * dt);
+            // setPosition(pos[0] + mod*speed[0] * dt, pos[1] + mod*speed[1] * dt, pos[2] + mod* speed[2] * dt);
+            //this.position = this.position.add(this.speed.multiply(mod*dt));
+            setPosition(this.position.add(this.speed.multiply(mod*dt)));
             if (isAtNeighbour()) {
-                setPosition(this.targetNeighbour);
+                this.position = this.targetNeighbour;
                 if (this.target == null || isAtTarget()) {
                     this.currentActivity = Activity.NONE;
-                    this.speedScalar = 0;
+                    this.speed = null;
                     this.target = null;
+                    this.targetNeighbour = null;
                 } else {
                     int[] posC = getCubePosition(getPosition());
-                    int[] targetC = getCubePosition(this.target);
+                    int[] targetC = getCubePosition(this.target.toDoubleArray());
                     int[] dp = new int[3];
                     for (int i = 0; i < 3; i++) {
                         if (posC[i] == targetC[i])
                             dp[i] = 0;
-                        else if (posC[0] < targetC[i])
+                        else if (posC[i] < targetC[i])
                             dp[i] = 1;
                         else
                             dp[i] = -1;
@@ -181,16 +186,13 @@ public class Unit {
     }
 
     private boolean isAtTarget() {
-        return  Util.fuzzyEquals(this.position[0], this.target[0], posEps) &&
-                Util.fuzzyEquals(this.position[1], this.target[1], posEps) &&
-                Util.fuzzyEquals(this.position[2], this.target[2], posEps);
+        return this.position.isEqualsTo(this.target, POS_EPS);
     }
 
     private boolean isAtNeighbour() {
-        return  Util.fuzzyEquals(this.position[0], this.targetNeighbour[0], posEps) &&
-                Util.fuzzyEquals(this.position[1], this.targetNeighbour[1], posEps) &&
-                Util.fuzzyEquals(this.position[2], this.targetNeighbour[2], posEps);
+        return this.position.isEqualsTo(this.targetNeighbour, POS_EPS);
     }
+    //</editor-fold>
 
     //<editor-fold desc="Position">
     /**
@@ -248,9 +250,7 @@ public class Unit {
     public void setPosition(double x,double y,double z) throws IllegalArgumentException {
         if (!isValidPosition(x, y, z))
             throw new IllegalArgumentException("The given position is out of bounds");
-        this.position[0] = x;
-        this.position[1] = y;
-        this.position[2] = z;
+        this.position = new Vector(x, y, z);
     }
 
 
@@ -270,13 +270,29 @@ public class Unit {
         this.setPosition(position[0], position[1], position[2]);
     }
 
+    /**
+     * Sets the position of the unit.
+     * @param   position
+     *          The new position for this unit
+     * @post    The new position is equal to the given position
+     *          | new.getPosition() == position.toDoubleArray()
+     * @throws  IllegalArgumentException
+     *          When the given position is not valid
+     *          | !isValidPosition(position.toDoubleArray())
+     */
+    public void setPosition(Vector position) throws IllegalArgumentException {
+        if (!isValidPosition(position.toDoubleArray()))
+            throw new IllegalArgumentException("The given position is not valid");
+        this.position = position;
+    }
+
 
     /**
      * Gets the position of the unit
      */
     @Basic
     public double[] getPosition() {
-        return position.clone();
+        return position.toDoubleArray();
     }
 
     /**
@@ -294,6 +310,18 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Name">
+    /**
+     * Checks wether the name is valid
+     * @param   name
+     *          The name to be checked
+     * @return  True if name is at least 2 characters long,
+     *          starts with an uppercase letter and contains only letters, spaces and quotes.
+     *          | result == (name.length() > 2) && name.matches("[A-Z][a-zA-Z'\" ]*")
+     */
+    public static boolean isValidName(String name) {
+        return name.length() > 2 && name.matches("[A-Z][a-zA-Z'\" ]*");
+    }
+
     /**
      * Returns the name of the unit
      */
@@ -317,21 +345,10 @@ public class Unit {
             throw new IllegalArgumentException("Invalid name");
         this.name = name;
     }
-
-    /**
-     * Checks wether the name is valid
-     * @param   name
-     *          The name to be checked
-     * @return  True if name is at least 2 characters long,
-     *          starts with an uppercase letter and contains only letters, spaces and quotes.
-     *          | result == (name.length() > 2) && name.matches("[A-Z][a-zA-Z'\" ]*")
-     */
-    public static boolean isValidName(String name) {
-        return name.length() > 2 && name.matches("[A-Z][a-zA-Z'\" ]*");
-    }
     //</editor-fold>
 
     //<editor-fold desc="Properties">
+    //TODO: make isValid* for each property
     /**
      * Returns the weight of the unit
      */
@@ -550,80 +567,94 @@ public class Unit {
         return currentActivity == Activity.MOVE;
     }
 
-    public void moveToAdjacent(int dx, int dy, int dz) {
+    /**
+     * Starts the unit moving towards one of the adjacent cubes.
+     * @param   dx
+     *          the x direction
+     * @param   dy
+     *          the y direction
+     * @param   dz
+     *          the z direction
+     * @throws  IllegalArgumentException
+     *          If the target cube is not within the world bounds
+     *          | !isValidPosition(this.getPosition()[0] + dx,this.getPosition()[1] + dy,this.getPosition()[2] + dz)
+     */
+    public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException {
         if (isMoving()) {
             //TODO: fixme
             return;
         }
         int[] curPos = getCubePosition(getPosition());
-        double[] target = new double[3];
-        target[0] = curPos[0] + dx + Lc / 2;
-        target[1] = curPos[1] + dy + Lc / 2;
-        target[2] = curPos[2] + dz + Lc / 2;
+        Vector target = new Vector(curPos[0] + dx, curPos[1] + dy, curPos[2] + dz);
+        target = target.add(Lc/2);
+        //target = target.map((double val) -> val + Lc/2);
         this.targetNeighbour = target;
 
         this.speed = calculateSpeed(target);
-        setOrientation(Math.atan2(this.speed[1], this.speed[0]));
+        setOrientation(Math.atan2(this.speed.getY(), this.speed.getX()));
 
-        if (!isValidPosition(target)) {
+        if (!isValidPosition(target.toDoubleArray())) {
             this.targetNeighbour = null;
             this.speed = null;
-            this.speedScalar = 0;
             throw new IllegalArgumentException("target out of bounds");
         } else {
             currentActivity = Activity.MOVE;
         }
     }
 
-    public void moveTo(int[] target) {
-        this.target = new double[] {
-                target[0] + Lc/2,
-                target[1] + Lc/2,
-                target[2] + Lc/2
-        };
-        this.targetNeighbour = this.getPosition();
-        this.speed = new double[3];
-        currentActivity = Activity.MOVE;
-        if (!isValidPosition(this.target)) {
+    /**
+     * Starts the units movement to the given target cube.
+     * @param   target
+     *          The coordinates of the target cubes
+     * @throws  IllegalArgumentException
+     *          If the given target is not valid
+     *          | !isValidPosition(target[0], target[1], target[2])
+     */
+    public void moveTo(int[] target) throws IllegalArgumentException {
+        this.target = new Vector(target[0], target[1], target[2]);
+        this.target = this.target.add(Lc/2);
+        this.targetNeighbour = this.position;
+
+        this.speed = new Vector(0, 0, 0);
+        if (!isValidPosition(this.target.toDoubleArray())) {
             this.target = null;
+            this.targetNeighbour = null;
+            this.speed = null;
             throw new IllegalArgumentException("invalid target");
         }
+        currentActivity = Activity.MOVE;
     }
     //</editor-fold>
 
     //<editor-fold desc="Speed">
-    private double[] calculateSpeed(double[] target){
+    private Vector calculateSpeed(Vector target){
         double vb = 1.5*(getStrength()+getAgility())/(2*(getWeight()));
-        double[] pos = getPosition();
-        // TODO: use array and for loop
-        double dx = (target[0] - pos[0]);
-        double dy = (target[1] - pos[1]);
-        double dz = (target[2] - pos[2]);
-        double d = Math.sqrt(dx*dx+dy*dy+dz*dz);
-        dx /= d;
-        dy /= d;
-        dz /= d;
+        Vector diff = target.substract(this.position);
+        double d = diff.norm();
+        diff = diff.divide(d);
+
         double vw = vb;
-        // TODO: use ints/cubePosition for comparison?
-        if (Util.fuzzyEquals(pos[2] - target[2], -1.0, posEps)) {
+        if (diff.getZ() > POS_EPS) {
             vw = 0.5*vb;
         }
-        else if (Util.fuzzyEquals(pos[2] - target[2], 1.0, posEps)) {
+        else if (diff.getZ() < -POS_EPS) {
             vw = 1.2*vb;
         }
-        speedScalar = vw;
-        return new double[] {
-                dx*vw,
-                dy*vw,
-                dz*vw
-        };
+        return diff.multiply(vw);
     }
 
     /**
-     *
+     * Gets the units movement speed.
      */
     @Basic
     public double getSpeedScalar() {
+        double speedScalar;
+        if (this.speed != null) {
+            speedScalar = this.speed.norm();
+        } else {
+            speedScalar = 0;
+        }
+
         if (isSprinting()) {
             return 2*speedScalar;
         }
@@ -633,7 +664,9 @@ public class Unit {
 
     //<editor-fold desc="Sprinting">
     /**
-     *
+     * Enables or disables sprint mode.
+     * @post    ...
+     *          | ...
      */
     public void setSprint(boolean sprint) {
         if (getStamina() == 0 && sprint && !isMoving()) {
@@ -678,6 +711,9 @@ public class Unit {
         return currentActivity == Activity.REST;
     }
 
+    /**
+     * ....
+     */
     public void rest() {
         if (isMoving())
             return;
