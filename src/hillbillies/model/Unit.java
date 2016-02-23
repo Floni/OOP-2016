@@ -242,7 +242,9 @@ public class Unit {
      * @param   z
      *          The z value of the new position
      * @post    The new position of this unit is equal to the given position
-     *          | new.getPosition() == {x, y, z}
+     *          | new.getPosition()[0] == x &&
+     *          | new.getPosition()[1] == y &&
+     *          | new.getPosition()[2] == z
      * @throws  IllegalArgumentException
      *          The given position is not valid
      *          | !isValidPosition(x,y,z)
