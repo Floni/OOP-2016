@@ -6,6 +6,8 @@ import com.sun.javaws.exceptions.InvalidArgumentException;
 import ogp.framework.util.ModelException;
 import ogp.framework.util.Util;
 
+// TODO: define Vector value class for storing position.
+
 /**
  * ....
  *
@@ -22,11 +24,14 @@ public class Unit {
         NONE
     }
 
+    //<editor-fold desc="Constants">
     public static final int X_MAX = 50;
     public static final int Y_MAX = 50;
     public static final int Z_MAX = 50;
 
     public static final double Lc = 1.0;
+    public static final double posEps = 0.05;
+    //</editor-fold>
 
     private final double[] position = new double[3];
     private String name;
@@ -35,10 +40,14 @@ public class Unit {
     private int hitPoints, stamina;
 
     private Activity currentActivity = Activity.NONE;
+
     private double[] target;
+    private double[] targetNeighbour;
+
     private double[] speed;
-    private boolean sprinting;
     private double speedScalar;
+
+    private boolean sprinting;
     private double sprintStaminaTimer;
 
     //<editor-fold desc="Constructor">
@@ -144,11 +153,12 @@ public class Unit {
             }
 
             setPosition(pos[0] + mod*speed[0] * dt, pos[1] + mod*speed[1] * dt, pos[2] + mod* speed[2] * dt);
-            if (isAtCubeCentre()) {
-                if (isAtTarget()) {
+            if (isAtNeighbour()) {
+                setPosition(this.targetNeighbour);
+                if (this.target == null || isAtTarget()) {
                     this.currentActivity = Activity.NONE;
                     this.speedScalar = 0;
-                    setPosition(this.target);
+                    this.target = null;
                 } else {
                     int[] posC = getCubePosition(getPosition());
                     int[] targetC = getCubePosition(this.target);
@@ -162,7 +172,7 @@ public class Unit {
                             dp[i] = -1;
                     }
                     this.currentActivity = Activity.NONE;
-                    moveToAdjacent(dp[0], dp[1], dp[2], false);
+                    moveToAdjacent(dp[0], dp[1], dp[2]);
 
                 }
             }
@@ -171,18 +181,15 @@ public class Unit {
     }
 
     private boolean isAtTarget() {
-        return  Util.fuzzyEquals(this.position[0], this.target[0], 0.05) &&
-                Util.fuzzyEquals(this.position[1], this.target[1], 0.05) &&
-                Util.fuzzyEquals(this.position[2], this.target[2], 0.05);
+        return  Util.fuzzyEquals(this.position[0], this.target[0], posEps) &&
+                Util.fuzzyEquals(this.position[1], this.target[1], posEps) &&
+                Util.fuzzyEquals(this.position[2], this.target[2], posEps);
     }
 
-    private boolean isAtCubeCentre() {
-        for (int i = 0; i < 3; i++) {
-            if (!Util.fuzzyEquals(0.5, this.position[i] - Math.floor(this.position[i]), 0.05)) {
-                return false;
-            }
-        }
-        return true;
+    private boolean isAtNeighbour() {
+        return  Util.fuzzyEquals(this.position[0], this.targetNeighbour[0], posEps) &&
+                Util.fuzzyEquals(this.position[1], this.targetNeighbour[1], posEps) &&
+                Util.fuzzyEquals(this.position[2], this.targetNeighbour[2], posEps);
     }
 
     //<editor-fold desc="Position">
@@ -543,22 +550,23 @@ public class Unit {
         return currentActivity == Activity.MOVE;
     }
 
-    public void moveToAdjacent(int dx, int dy, int dz, boolean setTarget) {
+    public void moveToAdjacent(int dx, int dy, int dz) {
+        if (isMoving()) {
+            //TODO: fixme
+            return;
+        }
         int[] curPos = getCubePosition(getPosition());
         double[] target = new double[3];
         target[0] = curPos[0] + dx + Lc / 2;
         target[1] = curPos[1] + dy + Lc / 2;
         target[2] = curPos[2] + dz + Lc / 2;
-        if (setTarget) {
-            if (isMoving()) {
-                return;
-            }
-            this.target = target;
-        }
+        this.targetNeighbour = target;
+
         this.speed = calculateSpeed(target);
         setOrientation(Math.atan2(this.speed[1], this.speed[0]));
+
         if (!isValidPosition(target)) {
-            this.target = null;
+            this.targetNeighbour = null;
             this.speed = null;
             this.speedScalar = 0;
             throw new IllegalArgumentException("target out of bounds");
@@ -567,16 +575,13 @@ public class Unit {
         }
     }
 
-    public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException {
-        moveToAdjacent(dx, dy, dz, true);
-    }
-
     public void moveTo(int[] target) {
         this.target = new double[] {
                 target[0] + Lc/2,
                 target[1] + Lc/2,
                 target[2] + Lc/2
         };
+        this.targetNeighbour = this.getPosition();
         this.speed = new double[3];
         currentActivity = Activity.MOVE;
         if (!isValidPosition(this.target)) {
@@ -590,6 +595,7 @@ public class Unit {
     private double[] calculateSpeed(double[] target){
         double vb = 1.5*(getStrength()+getAgility())/(2*(getWeight()));
         double[] pos = getPosition();
+        // TODO: use array and for loop
         double dx = (target[0] - pos[0]);
         double dy = (target[1] - pos[1]);
         double dz = (target[2] - pos[2]);
@@ -598,10 +604,11 @@ public class Unit {
         dy /= d;
         dz /= d;
         double vw = vb;
-        if (Util.fuzzyEquals(pos[2] - target[2], -1.0, 1e-1)) {
+        // TODO: use ints/cubePosition for comparison?
+        if (Util.fuzzyEquals(pos[2] - target[2], -1.0, posEps)) {
             vw = 0.5*vb;
         }
-        else if (Util.fuzzyEquals(pos[2] - target[2], 1.0, 1e-1)) {
+        else if (Util.fuzzyEquals(pos[2] - target[2], 1.0, posEps)) {
             vw = 1.2*vb;
         }
         speedScalar = vw;
