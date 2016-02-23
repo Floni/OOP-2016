@@ -349,6 +349,18 @@ public class Unit {
 
     //<editor-fold desc="Properties">
     //TODO: make isValid* for each property
+
+    /**
+     * Returns whether the weight is valid
+     * @return  Returns true if the weight is larger or equal to 1,
+     *          larger or equal to (strength + agility)/2,
+     *          smaller or equal to 200
+     *          | result ==  (weight >= 1) && (weight <= 200) && (weight >= (getAgility()+getStrength())/2)
+     */
+    public boolean isValidWeight(int weight) {
+        return (weight >= 1) && (weight <= 200) && (weight >= (getAgility()+getStrength())/2);
+    }
+
     /**
      * Returns the weight of the unit
      */
@@ -385,6 +397,16 @@ public class Unit {
     }
 
     /**
+     * Returns whether the strength is valid
+     * @return  Returns true if the strength is larger or equal to 1,
+     *          and smaller or equal to 200.
+     *          | result == strength <= 200 && strength >= 1
+     */
+    public boolean isValidStrenth(int strength) {
+        return strength <= 200 && strength >= 1;
+    }
+
+    /**
      * Returns the strength of the unit
      */
     @Basic
@@ -416,6 +438,17 @@ public class Unit {
             strength = 200;
         this.strength = strength;
         setWeight(getWeight());
+    }
+
+
+    /**
+     * Returns whether the agility is valid
+     * @return  Returns true if the agility is larger or equal to 1,
+     *          and smaller or equal to 200.
+     *          | result == agility <= 200 && agility >= 1
+     */
+    public boolean isValidAgility(int agility) {
+        return agility <= 200 && agility >= 1;
     }
 
     /**
@@ -452,6 +485,17 @@ public class Unit {
         setWeight(getWeight());
     }
 
+
+    /**
+     * Returns whether the toughness is valid
+     * @return  Returns true if the toughness is larger or equal to 1,
+     *          and smaller or equal to 200.
+     *          | result == toughness <= 200 && toughness >= 1
+     */
+    public boolean isValidToughness(int toughness) {
+        return toughness <= 200 && toughness>= 1;
+    }
+
     /**
      * Returns the toughness of the current unit
      */
@@ -482,6 +526,16 @@ public class Unit {
     }
 
     /**
+     * Returns whether the hitpoints are valid
+     * @return  Returns true if the hitpoints are larger than or equal to 0
+     *          and smaller than or equal to the maximum amount of hitpoints
+     *          | result == (hitPoints <= getMaxPoints()) && (hitPoints >= 0)
+     */
+    public boolean isValidHitPoints(int hitPoints) {
+        return hitPoints <= getMaxPoints() && hitPoints >= 0;
+    }
+
+    /**
      * Returns the current amount of hitPoints of the unit
      */
     @Basic
@@ -502,6 +556,17 @@ public class Unit {
     public void setHitPoints(int hitPoints) {
         assert hitPoints <= getMaxPoints() && hitPoints >= 0;
         this.hitPoints = hitPoints;
+    }
+
+
+    /**
+     * Returns whether the amount of stamina is valid
+     * @return  Returns true if the amount of stamina is larger than or equal to 0
+     *          and smaller than or equal to the maximum amount of hitpoints
+     *          | result == (stamina <= getMaxPoints()) && (stamina >= 0)
+     */
+    public boolean isValidStamina(int stamina) {
+        return stamina <= getMaxPoints() && stamina >= 0;
     }
 
     /**
@@ -538,6 +603,17 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Orientation">
+
+    /**
+     * Returns whether the orientation is valid
+     * @return  Returns true if the orientation is equal to or larger than 0
+     *          and smaller than 2*PI
+     *          | result == (orientation < 2*Math.PI) && (orientation >= 0)
+     */
+    public boolean isValidOrientation(double orientation) {
+        return orientation < 2*Math.PI && orientation >= 0;
+    }
+
     /**
      * Returns the current orientation
      */
@@ -712,11 +788,16 @@ public class Unit {
     }
 
     /**
-     * ....
+     * Starts resting
+     * @post    The unit is resting
+     *          | new.isResting() == true
+     * @throws  RuntimeException
+     *          Throws if the unit is moving
+     *          | this.isMoving()
      */
-    public void rest() {
+    public void rest() throws RuntimeException {
         if (isMoving())
-            return;
+            throw new RuntimeException("Can't rest right now");
         currentActivity = Activity.REST;
     }
     //</editor-fold>
