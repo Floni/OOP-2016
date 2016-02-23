@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component inheritJdk="true">
 	<exclude-output/>
-	<contentEntry url="file://$MODULE_DIR$/.."/>
+	<contentEntry url="file://$MODULE_DIR$"/>
 	<lib name="AnnotationsDoclets.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/../lib/AnnotationsDoclets.jar!/"/>
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/AnnotationsDoclets.jar!/"/>
 	</lib>
 </component>
