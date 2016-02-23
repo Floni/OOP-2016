@@ -300,7 +300,9 @@ public class Unit {
     /**
      * Returns the coordinates of the cube that the unit currently occupies
      * @return  Returns the rounded down position of the unit
-     *          | result == {floor(getPosition()[0]),floor(getPosition()[1]),floor(getPosition()[2]}
+     *          | result[0] == floor(getPosition()[0]) &&
+     *          | result[1] == floor(getPosition()[1]) &&
+     *          | result[2] == floor(getPosition()[2]}
      */
     public static int[] getCubePosition(double[] position) {
         return new int[] {
