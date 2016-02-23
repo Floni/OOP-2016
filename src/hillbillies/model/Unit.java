@@ -125,6 +125,7 @@ public class Unit {
         if (isMoving()) {
             double[] pos = getPosition();
             double mod = 1;
+
             if (isSprinting()) {
                 sprintStaminaTimer -= dt;
                 mod = 2;
@@ -139,11 +140,29 @@ public class Unit {
                     }
                 }
             }
+
             setPosition(pos[0] + mod*speed[0] * dt, pos[1] + mod*speed[1] * dt, pos[2] + mod* speed[2] * dt);
-            if (isAtTarget()) {
-                this.currentActivity = Activity.NONE;
-                this.speedScalar = 0;
-                setPosition(this.target);
+            if (isAtCubeCentre()) {
+                if (isAtTarget()) {
+                    this.currentActivity = Activity.NONE;
+                    this.speedScalar = 0;
+                    setPosition(this.target);
+                } else {
+                    int[] posC = getCubePosition(getPosition());
+                    int[] targetC = getCubePosition(this.target);
+                    int[] dp = new int[3];
+                    for (int i = 0; i < 3; i++) {
+                        if (posC[i] == targetC[i])
+                            dp[i] = 0;
+                        else if (posC[0] < targetC[i])
+                            dp[i] = 1;
+                        else
+                            dp[i] = -1;
+                    }
+                    this.currentActivity = Activity.NONE;
+                    moveToAdjacent(dp[0], dp[1], dp[2], false);
+
+                }
             }
         }
 
@@ -153,6 +172,15 @@ public class Unit {
         return  Util.fuzzyEquals(this.position[0], this.target[0], 0.05) &&
                 Util.fuzzyEquals(this.position[1], this.target[1], 0.05) &&
                 Util.fuzzyEquals(this.position[2], this.target[2], 0.05);
+    }
+
+    private boolean isAtCubeCentre() {
+        for (int i = 0; i < 3; i++) {
+            if (!Util.fuzzyEquals(0.5, this.position[i] - Math.floor(this.position[i]), 0.05)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -246,7 +274,7 @@ public class Unit {
      * @return  Returns the rounded down position of the unit
      *          | result == {floor(getPosition()[0]),floor(getPosition()[1]),floor(getPosition()[2]}
      */
-    public int[] getCubePosition() {
+    public static int[] getCubePosition(double[] position) {
         return new int[] {
                 (int)Math.floor(position[0]),
                 (int)Math.floor(position[1]),
@@ -505,15 +533,21 @@ public class Unit {
         return currentActivity == Activity.MOVE;
     }
 
-    public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException {
-        this.target = new double[3];
-        int[] curPos = getCubePosition();
-        this.target[0] = curPos[0] + dx + Lc / 2;
-        this.target[1] = curPos[1] + dy + Lc / 2;
-        this.target[2] = curPos[2] + dz + Lc / 2;
-        this.speed = calculateSpeed(this.target);
+    public void moveToAdjacent(int dx, int dy, int dz, boolean setTarget) {
+        int[] curPos = getCubePosition(getPosition());
+        double[] target = new double[3];
+        target[0] = curPos[0] + dx + Lc / 2;
+        target[1] = curPos[1] + dy + Lc / 2;
+        target[2] = curPos[2] + dz + Lc / 2;
+        if (setTarget) {
+            if (isMoving()) {
+                return;
+            }
+            this.target = target;
+        }
+        this.speed = calculateSpeed(target);
         setOrientation(Math.atan2(this.speed[1], this.speed[0]));
-        if (!isValidPosition(this.target)) {
+        if (!isValidPosition(target)) {
             this.target = null;
             this.speed = null;
             this.speedScalar = 0;
@@ -523,9 +557,22 @@ public class Unit {
         }
     }
 
+    public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException {
+        moveToAdjacent(dx, dy, dz, true);
+    }
+
     public void moveTo(int[] target) {
-        int[] pos = getCubePosition();
-        moveToAdjacent(target[0] - pos[0], target[1] - pos[1], target[2] - pos[2]);
+        this.target = new double[] {
+                target[0] + Lc/2,
+                target[1] + Lc/2,
+                target[2] + Lc/2
+        };
+        this.speed = new double[3];
+        currentActivity = Activity.MOVE;
+        if (!isValidPosition(this.target)) {
+            this.target = null;
+            throw new IllegalArgumentException("invalid target");
+        }
     }
 
     /**
@@ -553,6 +600,8 @@ public class Unit {
     }
 
     public void rest() {
+        if (isMoving())
+            return;
         currentActivity = Activity.REST;
     }
 

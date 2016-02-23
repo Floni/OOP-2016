@@ -29,7 +29,7 @@ public class Facade implements IFacade {
 
     @Override
     public int[] getCubeCoordinate(Unit unit) throws ModelException {
-        return unit.getCubePosition();
+        return Unit.getCubePosition(unit.getPosition());
     }
 
     @Override
