@@ -1,6 +1,7 @@
 package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Value;
 import ogp.framework.util.Util;
 
@@ -190,7 +191,7 @@ public class Vector {
     /**
      * Returns the x coordinate of the vector.
      */
-    @Basic
+    @Basic @Immutable
     public double getX() {
         return X;
     }
@@ -198,7 +199,7 @@ public class Vector {
     /**
      * Returns the y coordinate of the vector.
      */
-    @Basic
+    @Basic @Immutable
     public double getY() {
         return Y;
     }
@@ -206,7 +207,7 @@ public class Vector {
     /**
      * Returns the z coordinate of the vector.
      */
-    @Basic
+    @Basic @Immutable
     public double getZ() {
         return Z;
     }

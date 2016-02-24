@@ -157,7 +157,7 @@ public class Facade implements IFacade {
 
     @Override
     public void work(Unit unit) throws ModelException {
-
+        unit.work();
     }
 
     @Override
@@ -167,7 +167,11 @@ public class Facade implements IFacade {
 
     @Override
     public void fight(Unit attacker, Unit defender) throws ModelException {
-
+        try {
+            attacker.attack(defender);
+        } catch (IllegalArgumentException err) {
+            throw new ModelException(err.getMessage(), err);
+        }
     }
 
     @Override
@@ -187,11 +191,15 @@ public class Facade implements IFacade {
 
     @Override
     public void setDefaultBehaviorEnabled(Unit unit, boolean value) throws ModelException {
-
+        if (value) {
+            unit.startDefaultBehaviour();
+        } else {
+            unit.stopDefaultBehaviour();
+        }
     }
 
     @Override
     public boolean isDefaultBehaviorEnabled(Unit unit) throws ModelException {
-        return false;
+        return unit.isDefaultEnabled();
     }
 }

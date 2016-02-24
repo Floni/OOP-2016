@@ -5,6 +5,7 @@ import be.kuleuven.cs.som.annotate.Value;
 import ogp.framework.util.ModelException;
 import ogp.framework.util.Util;
 
+import java.util.ArrayList;
 import java.util.IllegalFormatCodePointException;
 
 /**
@@ -36,7 +37,7 @@ public class Unit {
     private String name;
     private int weight, strength, agility, toughness;
     private double orientation;
-    private int hitPoints, stamina;
+    private double hitPoints, stamina;
 
     private Activity currentActivity = Activity.NONE;
 
@@ -47,6 +48,17 @@ public class Unit {
 
     private boolean sprinting;
     private double sprintStaminaTimer;
+
+    private double workTimer;
+
+    private double attackTimer;
+    private Unit defender;
+
+    private double restTimer;
+    private boolean initialRest;
+    private double restMinuteTimer;
+
+    private boolean defaultEnabled;
 
     //<editor-fold desc="Constructor">
     /**
@@ -137,50 +149,88 @@ public class Unit {
     public void advanceTime(double dt) throws  ModelException {
         if (dt < 0 || dt >= 0.2)
             throw new ModelException("Invalid dt");
-        if (isMoving()) {
-            double mod = 1;
-            if (isSprinting()) {
-                sprintStaminaTimer -= dt;
-                mod = 2;
-                if(sprintStaminaTimer <= 0) {
-                    sprintStaminaTimer += 0.1;
-                    int newStamina = getStamina()  - 1;
-                    if (newStamina >= 0)
-                        setStamina(newStamina);
-                    if (getStamina() == 0) {
-                        mod = 1;
+        switch(currentActivity) {
+            case MOVE:
+                double mod = 1;
+                if (isSprinting()) {
+                    sprintStaminaTimer -= dt;
+                    mod = 2;
+                    if(sprintStaminaTimer <= 0) {
+                        sprintStaminaTimer += 0.1;
+                        int newStamina = getStamina()  - 1;
+                        if (newStamina >= 0)
+                            setStamina(newStamina);
+                        if (getStamina() == 0) {
+                            mod = 1;
+                            setSprint(false);
+                        }
+                    }
+                }
+
+                // setPosition(pos[0] + mod*speed[0] * dt, pos[1] + mod*speed[1] * dt, pos[2] + mod* speed[2] * dt);
+                //this.position = this.position.add(this.speed.multiply(mod*dt));
+                setPosition(this.position.add(this.speed.multiply(mod*dt)));
+                if (isAtNeighbour()) {
+                    this.position = this.targetNeighbour;
+                    if (this.target == null || isAtTarget()) {
                         setSprint(false);
+                        this.currentActivity = Activity.NONE;
+                        this.speed = null;
+                        this.target = null;
+                        this.targetNeighbour = null;
+                    } else {
+                        int[] posC = getCubePosition(getPosition());
+                        int[] targetC = getCubePosition(this.target.toDoubleArray());
+                        int[] dp = new int[3];
+                        for (int i = 0; i < 3; i++) {
+                            if (posC[i] == targetC[i])
+                                dp[i] = 0;
+                            else if (posC[i] < targetC[i])
+                                dp[i] = 1;
+                            else
+                                dp[i] = -1;
+                        }
+                        this.currentActivity = Activity.NONE;
+                        moveToAdjacent(dp[0], dp[1], dp[2]);
+
                     }
                 }
-            }
-
-            // setPosition(pos[0] + mod*speed[0] * dt, pos[1] + mod*speed[1] * dt, pos[2] + mod* speed[2] * dt);
-            //this.position = this.position.add(this.speed.multiply(mod*dt));
-            setPosition(this.position.add(this.speed.multiply(mod*dt)));
-            if (isAtNeighbour()) {
-                this.position = this.targetNeighbour;
-                if (this.target == null || isAtTarget()) {
-                    this.currentActivity = Activity.NONE;
-                    this.speed = null;
-                    this.target = null;
-                    this.targetNeighbour = null;
-                } else {
-                    int[] posC = getCubePosition(getPosition());
-                    int[] targetC = getCubePosition(this.target.toDoubleArray());
-                    int[] dp = new int[3];
-                    for (int i = 0; i < 3; i++) {
-                        if (posC[i] == targetC[i])
-                            dp[i] = 0;
-                        else if (posC[i] < targetC[i])
-                            dp[i] = 1;
-                        else
-                            dp[i] = -1;
-                    }
-                    this.currentActivity = Activity.NONE;
-                    moveToAdjacent(dp[0], dp[1], dp[2]);
-
+                break;
+            case WORK:
+                workTimer -= dt;
+                if (workTimer <= 0) {
+                    workTimer = 0;
+                    currentActivity = Activity.NONE;
                 }
-            }
+                break;
+            case ATTACK:
+                this.attackTimer -= dt;
+                if (this.attackTimer <= 0) {
+                    this.defender.defend(this);
+                    this.attackTimer = 0;
+                    this.currentActivity = Activity.NONE;
+                }
+                break;
+            case REST:
+                this.restTimer -= dt;
+                if (this.restTimer <= 0) {
+                    this.initialRest = false;
+                    this.restTimer += 0.2; //TODO: add restDuration constant
+                    if (getHitPoints() != getMaxPoints()) {
+                        setHitPoints(this.hitPoints + (getToughness()/200.0));
+                    } else if (getStamina() != getMaxPoints()) {
+
+                        setStamina(this.stamina + (getToughness()/100.0));
+                    } else {
+                        this.currentActivity = Activity.NONE;
+                    }
+                }
+                break;
+            case NONE:
+                if (defaultEnabled) {
+                    //TODO: select random task
+                }
+                break;
         }
 
     }
@@ -544,7 +594,7 @@ public class Unit {
      */
     @Basic
     public int getHitPoints() {
-        return this.hitPoints;
+        return (int)Math.floor(this.hitPoints);
     }
 
     /**
@@ -557,7 +607,7 @@ public class Unit {
      *          | new.getHitPoints() == hitPoints
      *
      */
-    public void setHitPoints(int hitPoints) {
+    public void setHitPoints(double hitPoints) {
         assert hitPoints <= getMaxPoints() && hitPoints >= 0;
         this.hitPoints = hitPoints;
     }
@@ -578,7 +628,7 @@ public class Unit {
      */
     @Basic
     public int getStamina() {
-        return this.stamina;
+        return (int)Math.floor(this.stamina);
     }
 
     /**
@@ -591,7 +641,7 @@ public class Unit {
      *          | new.getStamina() == stamina
      *
      */
-    public void setStamina(int stamina){
+    public void setStamina(double stamina){
         assert stamina <= getMaxPoints() && stamina >= 0;
         this.stamina = stamina;
     }
@@ -677,9 +727,8 @@ public class Unit {
             this.targetNeighbour = null;
             this.speed = null;
             throw new IllegalArgumentException("target out of bounds");
-        } else {
-            currentActivity = Activity.MOVE;
         }
+        currentActivity = Activity.MOVE;
     }
 
     /**
@@ -693,12 +742,14 @@ public class Unit {
     public void moveTo(int[] target) throws IllegalArgumentException {
         this.target = new Vector(target[0], target[1], target[2]);
         this.target = this.target.add(Lc/2);
-        this.targetNeighbour = this.position;
+        if (this.targetNeighbour == null)
+            this.targetNeighbour = this.position;
 
-        this.speed = new Vector(0, 0, 0);
+        if (this.speed == null)
+            this.speed = new Vector(0, 0, 0);
+
         if (!isValidPosition(this.target.toDoubleArray())) {
             this.target = null;
-            this.targetNeighbour = null;
             this.speed = null;
             throw new IllegalArgumentException("invalid target");
         }
@@ -749,7 +800,7 @@ public class Unit {
      *          | ...
      */
     public void setSprint(boolean sprint) {
-        if (getStamina() == 0 && sprint && !isMoving()) {
+        if (sprint && (getStrength() == 0 || !isMoving())) {
             return;
         }
         if (!this.isSprinting() && sprint) {
@@ -775,11 +826,93 @@ public class Unit {
     }
 
     /**
+     * Start working
+     */
+    public void work() {
+        //TODO: interrupt moveTo but not moveToAdjacent
+        this.currentActivity = Activity.WORK;
+        this.workTimer = 500.0 / getStrength();
+    }
+
+    /**
      * Returns True if the unit is attacking
      */
     @Basic
     public boolean isAttacking() {
         return currentActivity == Activity.ATTACK;
+    }
+
+    /**
+     * Attacks an other unit
+     *
+     */
+    public void attack(Unit other) throws IllegalArgumentException {
+        if (other == null)
+            throw new IllegalArgumentException("the other unit is invalid");
+        Vector otherPos = new Vector(other.getPosition());
+        int[] otherCube = getCubePosition(otherPos.toDoubleArray());
+        int[] posCube = getCubePosition(this.getPosition());
+
+        for (int i = 0; i < 3; i++) {
+            int diff = otherCube[i] - posCube[i];
+            if (diff > 1 || diff < -1) {
+                throw new IllegalArgumentException("the other unit is to far away");
+            }
+        }
+
+        //TODO: if other is moving, interrupt
+        if (other.currentActivity == Activity.MOVE)
+            other.currentActivity = Activity.NONE;
+
+        Vector diff = otherPos.substract(this.position);
+        this.setOrientation(Math.atan2(diff.getY(), diff.getX()));
+
+        currentActivity = Activity.ATTACK;
+        attackTimer = 1;
+        this.defender = other;
+    }
+
+    public void defend(Unit attacker) {
+        Vector otherPos = new Vector(attacker.getPosition());
+        Vector diff = otherPos.substract(this.position);
+        this.setOrientation(Math.atan2(diff.getY(), diff.getX()));
+
+        boolean continueMoving = false;
+        if (this.target != null) {
+            continueMoving = true;
+        }
+
+        double probabilityDodge = 0.20 * (this.getAgility() / attacker.getAgility());
+        if (Math.random() <= probabilityDodge) {
+            // dodge
+            ArrayList<int[]> possiblePositions = new ArrayList<>();
+            for (int dx = -1; dx < 2; dx++) {
+                for (int dy = -1; dy < 2; dy++) {
+                    for (int dz = -1; dz < 2; dz++) {
+                        if (!(dx == 0 && dy == 0 && dz == 0)) {
+                            Vector pos = this.position.add(new Vector(dx, dy, dz));
+                            if (isValidPosition(pos.toDoubleArray())) {
+                                possiblePositions.add(new int[]{dx, dy, dz});
+                            }
+                        }
+                    }
+                }
+            }
+            int randIndex = (int)Math.floor(Math.random() * possiblePositions.size());
+            int[] dp = possiblePositions.get(randIndex);
+            moveToAdjacent(dp[0], dp[1], dp[2]);
+        } else {
+            double probabilityBlock = 0.25 *
+                    ((this.getStrength()+this.getAgility())/(attacker.getStrength()+attacker.getAgility()));
+            if (Math.random() > probabilityBlock) {
+                setHitPoints(getHitPoints() - (attacker.getStrength()/10));
+            }
+        }
+
+        if (continueMoving) {
+            this.moveTo(getCubePosition(this.target.toDoubleArray()));
+        }
+
     }
 
     //<editor-fold desc="Resting">
@@ -800,9 +933,24 @@ public class Unit {
      *          | this.isMoving()
      */
     public void rest() throws RuntimeException {
+        //TODO: use initial rest?
         if (isMoving())
             throw new RuntimeException("Can't rest right now");
         currentActivity = Activity.REST;
+        this.restTimer = 0.2;
+        this.initialRest = true;
     }
     //</editor-fold>
+
+    public void startDefaultBehaviour() {
+        this.defaultEnabled = true;
+    }
+
+    public void stopDefaultBehaviour() {
+        this.defaultEnabled = false;
+    }
+
+    public boolean isDefaultEnabled() {
+        return  this.defaultEnabled;
+    }
 }
