@@ -528,7 +528,7 @@ public class Unit {
      *          and smaller or equal to 200.
      *          | result == strength <= 200 && strength >= 1
      */
-    public boolean isValidStrenth(int strength) {
+    public boolean isValidStrength(int strength) {
         return strength <= 200 && strength >= 1;
     }
 
