@@ -5,4 +5,7 @@
 	<lib name="AnnotationsDoclets.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/AnnotationsDoclets.jar!/"/>
 	</lib>
+	<levels>
+		<level name="org.hamcrest:hamcrest-junit:2.0.0.0" value="project"/>
+	</levels>
 </component>

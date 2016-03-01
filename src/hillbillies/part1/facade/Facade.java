@@ -1,10 +1,7 @@
 package hillbillies.part1.facade;
 
-import com.sun.javafx.sg.prism.NGShape;
 import hillbillies.model.Unit;
 import ogp.framework.util.ModelException;
-
-import java.util.IllegalFormatCodePointException;
 
 /**
  *
@@ -41,7 +38,7 @@ public class Facade implements IFacade {
     public void setName(Unit unit, String newName) throws ModelException {
         try {
             unit.setName(newName);
-        } catch(IllegalFormatCodePointException err){
+        } catch(IllegalArgumentException err){
             throw new ModelException("Invalid name", err);
         }
     }
