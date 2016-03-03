@@ -405,7 +405,7 @@ public class Unit {
      *          When the given position is not valid
      *          | !isValidPosition(position.toDoubleArray())
      */
-    public void setPosition(Vector position) throws IllegalArgumentException {
+    private void setPosition(Vector position) throws IllegalArgumentException {
         if (!isValidPosition(position.toDoubleArray()))
             throw new IllegalArgumentException("The given position is not valid");
         this.position = position;
@@ -423,9 +423,9 @@ public class Unit {
     /**
      * Returns the coordinates of the cube that the unit currently occupies
      * @return  Returns the rounded down position of the unit
-     *          | result[0] == floor(getPosition()[0]) &&
-     *          | result[1] == floor(getPosition()[1]) &&
-     *          | result[2] == floor(getPosition()[2]}
+     *          | result[0] == floor(position[0]) &&
+     *          | result[1] == floor(position[1]) &&
+     *          | result[2] == floor(position[2]}
      */
     public static int[] getCubePosition(double[] position) {
         return new int[] {
@@ -965,6 +965,7 @@ public class Unit {
 
         this.currentActivity = Activity.NONE; // switch back to default activity
 
+        // TODO: dodge to random(0..1) instead of 1
         double probabilityDodge = 0.20 * (this.getAgility() / attacker.getAgility());
         if (Math.random() <= probabilityDodge) {
             // dodge
