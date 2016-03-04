@@ -5,7 +5,6 @@ import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Value;
 import ogp.framework.util.ModelException;
 
-//TODO: all docs
 //TODO: loop invariants
 /**
  * ....
@@ -209,7 +208,7 @@ public class Unit {
      * @post    If the unit is attacking another unit the attackTimer is decreased,
      *              if it runs out the other unit has to defend and the unit stops attacking.
      * @post    If the unit is resting, the restTimer is decreased. If the timer runs out the timer is first reset.
-     *
+     * TODO: finish
      * @throws  ModelException
      *          The given time step was to big or negative.
      */
@@ -502,7 +501,7 @@ public class Unit {
 
     /**
      * Starts moving towards the next neighbour on the path to the target.
-     *
+     * TODO: finish
      * @effect
      *          | moveToAdjacent(...);
      *
@@ -1046,8 +1045,11 @@ public class Unit {
      * @param   dz
      *          the z direction
      *
-     * @post    ...
-     *          |...
+     * @post    The unit will be moving
+     *          | new.isMoving() == True
+     * @post    The orientation will be ...
+     *
+     * @effect  ....TODO
      *
      * @throws  IllegalArgumentException
      *          If the target cube is not within the world bounds
@@ -1083,19 +1085,27 @@ public class Unit {
      * Starts the units movement to the given target cube.
      *
      * @param   target
-     *          The coordinates of the target cubes
+     *          The coordinates of the target cubes.
      *
-     * @post    ...
-     *          |...
+     * @post    The unit starts moving.
+     *          | new.isMoving() == true
+     *
+     * @post    The unit will move to the target when calling advanceTime().
+     *
      *
      * @throws  IllegalArgumentException
-     *          If the given target is not valid
+     *          If the given target is not valid.
      *          | !isValidPosition(target[0], target[1], target[2])
+     * @throws  IllegalStateException
+     *          If the unit can't move.
+     *          | !this.canHaveAsActivity(Activity.MOVE)
+     *
      */
-    public void moveTo(int[] target) throws IllegalArgumentException {
+    public void moveTo(int[] target) throws IllegalArgumentException, IllegalStateException {
         if (!canHaveAsActivity(Activity.MOVE)) {
-            throw new IllegalArgumentException("can't path right now");
+            throw new IllegalStateException("can't path right now");
         }
+
         Vector newTarget = new Vector(target[0], target[1], target[2]);
         newTarget = newTarget.add(Lc/2);
         if (!isValidPosition(newTarget.toDoubleArray())) {
@@ -1399,11 +1409,13 @@ public class Unit {
 
     /**
      * Starts resting.
+     *
      * @post    If the unit is not resting then reset the rest state.
      *          | if !old.isResting
      *          | then new.initialRest == true && new.restDiff == 0
      * @post    The unit is resting.
      *          | new.isResting() == true
+     *
      * @throws  RuntimeException
      *          Throws if the unit is moving.
      *          | this.isMoving()
@@ -1420,6 +1432,7 @@ public class Unit {
 
     /**
      * Reset the rest state of the unit.
+     *
      * @post    Enables the initial rest and resets the rest counter.
      *          | new.initialRest == true && new.restDiff == 0
      */
@@ -1433,6 +1446,7 @@ public class Unit {
 
     /**
      * Starts the default behavior.
+     *
      * @post    The default behavior is enabled.
      *          | new.isDefaultEnabled == True
      */
@@ -1442,6 +1456,7 @@ public class Unit {
 
     /**
      * Stops the default behavior.
+     *
      * @post    The default behavior has stopped.
      *          | new.isDefaultEnabled == False
      */
