@@ -1034,6 +1034,8 @@ public class Unit {
         return currentActivity == Activity.MOVE;
     }
 
+
+    // TODO: moveToAdjacent commends
     /**
      * Starts the unit moving towards one of the adjacent cubes.
      *
@@ -1075,6 +1077,8 @@ public class Unit {
         setCurrentActivity(Activity.MOVE);
     }
 
+
+    // TODO: moveTO commends
     /**
      * Starts the units movement to the given target cube.
      *
@@ -1300,7 +1304,7 @@ public class Unit {
         if (!canHaveAsActivity(Activity.ATTACK)) {
             throw new IllegalArgumentException("can't attack right now");
         }
-        Vector otherPos = new Vector(other.getPosition());
+        Vector otherPos = other.getPositionVec();
         int[] otherCube = getCubePosition(otherPos.toDoubleArray());
         int[] posCube = getCubePosition(this.getPosition());
 
@@ -1362,7 +1366,7 @@ public class Unit {
                     newY = 2 * newRandom - 1;
             }
             newX += getPositionVec().getX();
-            newY += getPositionVec().getZ();
+            newY += getPositionVec().getY();
             if (newX < 0 || newX >= X_MAX){
                 newX = -newX;
             }
@@ -1370,6 +1374,9 @@ public class Unit {
                 newY = -newY;
             }
             setPosition(newX, newY, getPositionVec().getZ());
+            Vector diff = attacker.getPositionVec().substract(this.position);
+            this.setOrientation(Math.atan2(diff.getY(), diff.getX()));
+            attacker.setOrientation(Math.atan2(-diff.getY(), -diff.getX()));
         } else {
             double probabilityBlock = 0.25 *
                     ((this.getStrength()+this.getAgility())/(attacker.getStrength()+attacker.getAgility()));
