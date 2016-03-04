@@ -55,6 +55,8 @@ public class Unit {
     private Activity currentActivity = Activity.NONE;
     private Activity lastActivity = Activity.NONE;
 
+    private Activity pendingActivity = Activity.NONE;
+
     private Vector target;
     private Vector targetNeighbour;
 
@@ -78,50 +80,67 @@ public class Unit {
 
     //<editor-fold desc="Constructor">
     /**
-     * Creates a new unit with the given position
+     * Creates a new unit with the given position.
+     *
+     * @param   name
+     *          The name of the new unit.
      * @param   x
-     *          The initial x value of the position
+     *          The initial x value of the position.
      * @param   y
-     *          The initial y value of the position
+     *          The initial y value of the position.
      * @param   z
-     *          The initial z value of the position
+     *          The initial z value of the position.
+     * @param   weight
+     *          The initial weight of the unit.
+     * @param   strength
+     *          The initial strength of the unit.
+     * @param   agility
+     *          The initial agility of the unit.
+     * @param   toughness
+     *          The initial toughness of the unit.
+     *
      * @post    If the given strength is less then 25 then the initial strength is set to 25.
      *          If the given strength is more then 100 then the initial strength is set to 100.
+     *          Otherwise the initial strength is set to the given strength.
      *          | if strength > 100
      *          | then new.getStrength() == 100
      *          | else if strength < 25
      *          | then new.getStrength() == 25
+     *          | else new.getStrength() == strength
      * @post    If the given agility is less then 25 then the initial agility is set to 25.
      *          If the given agility is more then 100 then the initial agility is set to 100.
+     *          Otherwise the initial agility is set to the given agility.
      *          | if agility > 100
      *          | then new.getAgility() == 100
      *          | else if agility < 25
      *          | then new.getAgility() == 25
+     *          | else new.getAgility() == agility
      * @post    If the given weight is less then 25 then the initial weight is set to 25.
      *          If the given weight is more then 100 then the initial weight is set to 100.
+     *          Otherwise the initial weight is set to the given weight.
      *          | if weight > 100
      *          | then new.getWeight() == 100
      *          | else if weight < 25
      *          | then new.getWeight() == 25
+     *          | else new.getWeight() == weight
      * @post    If the given toughness is less then 25 then the initial toughness is set to 25.
      *          If the given toughness is more then 100 then the initial toughness is set to 100.
+     *          Otherwise the initial toughness is set to the given toughness.
      *          | if toughness > 100
      *          | then new.getToughness() == 100
      *          | else if toughness < 25
      *          | then new.getToughness() == 25
-     * @post    Sets the hit points to their maximum value
+     *          | else new.getToughness() == toughness
+     * @post    Sets the hit points to their maximum value.
      *          | new.getHitPoints() == new.getMaxPoints()
      *          | && new.getStamina() == new.getMaxPoints()
-     * @effect  Sets the position to the middle of the block
-     *          | setPosition(x + Lc/2, y + Lc/2, z + Lc/2)
-     * @effect  Sets the name
-     *          | setName(name)
-     * @effect  Sets the attributes
-     *          | setToughness(toughness) && setStrength(strength)
-     *          | && setAgility(agility) && setWeight(weight)
-     * @effect  Sets the orientation to 90 degrees
-     *          | setOrientation(Math.PI/2)
      *
+     * @effect  Set the name to the given name.
+     *          | setName(name)
+     * @effect  Set the position to the middle of the given block.
+     *          | setPosition(x + Lc/2, y + Lc/2, z + Lc/2)
+     * @effect  Sets the orientation to 90 degrees.
+     *          | setOrientation(Math.PI/2)
      */
     public Unit(String name, int x, int y, int z, int weight, int strength, int agility, int toughness)
             throws IllegalArgumentException {
@@ -168,13 +187,36 @@ public class Unit {
     //<editor-fold desc="advanceTime">
 
     /**
-     * LOL!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-     * @param dt
-     * @throws ModelException
+     * Updates the units state.
+     *
+     * @param   dt
+     *          The time step taken between frames.
+     *
+     * @post    If the unit is moving then:
+     *          1: If the unit is sprinting the unit's stamina is decreased with one:
+     *              1.1: if the stamina timer is smaller than 0, the unit's stamina is decreased with 1.
+     *              1.2: if the unit's stamina is zero, the unit stops sprinting.
+     *          2: If the unit isn't sprinting and the default behaviour is enabled,
+     *                  the unit has a small change to start sprinting.
+     *          3: The next position is calculated as position + v*dt.
+     *          4: If the next position is further away from the target neighbour the unit has arrived
+     *                  and the unit's position is set to the position of the target neighbour.
+     *                  3.1: If we have a pendingActivity we switch to that activity.
+     *                  3.2: If the unit is at the target or the unit has no other target, the unit stops moving.
+     *                  3.3: Otherwise the unit moves to the next neighbour.
+     *          5: Otherwise we set the position to the next position.
+     * @post    If the unit is working then the workTimer is decreased. If the work timer has run the unit stops working.
+     * @post    If the unit is attacking another unit the attackTimer is decreased,
+     *              if it runs out the other unit has to defend and the unit stops attacking.
+     * @post    If the unit is resting, the restTimer is decreased. If the timer runs out the timer is first reset.
+     *
+     * @throws  ModelException
+     *          The given time step was to big or negative.
      */
     public void advanceTime(double dt) throws  ModelException {
         if (dt < 0 || dt >= 0.2)
             throw new ModelException("Invalid dt");
+
         switch(getCurrentActivity()) {
             case MOVE:
                 double mod = 1;
@@ -200,7 +242,11 @@ public class Unit {
                 Vector newPosition = getPositionVec().add(getSpeed().multiply(mod*dt));
                 if (isAtNeighbour(newPosition)) {
                     setPosition(getTargetNeighbour());
-                    if (getTarget() == null || isAtTarget()) {
+                    if (this.pendingActivity != Activity.NONE) {
+                        this.currentActivity = this.pendingActivity;
+                        this.pendingActivity = Activity.NONE;
+                        this.lastActivity = Activity.MOVE;
+                    } else if (getTarget() == null || isAtTarget()) {
                         setSprint(false);
                         finishCurrentActivity();
                         setSpeed(null);
@@ -286,8 +332,9 @@ public class Unit {
     }
 
     /**
-     * Checks if we arrived
-     * @return  True if we are at the target
+     * Checks whether the unit has arrived at the target
+     *
+     * @return  True if the unit's position equals the target position.
      *          | result == this.position.isEqualTo(this.target, POS_EPS)
      */
     private boolean isAtTarget() {
@@ -295,10 +342,13 @@ public class Unit {
     }
 
     /**
-     * Checks wether we are going to arive in the current or next step
+     * Checks whether we arrived at the target neighbour.
+     *
      * @param   newPosition
      *          The position after advanceTime
+     *
      * @return  True if we are going to be further from the target in the next step
+     *          | result == dist(newPosition, targetNeighbour) > dist(position, targetNeighbour)
      */
     private boolean isAtNeighbour(Vector newPosition) {
         double dist_new = newPosition.substract(getTargetNeighbour()).norm();
@@ -310,7 +360,7 @@ public class Unit {
     //<editor-fold desc="Activity">
 
     /**
-     * ...
+     * Returns the current activity.
      */
     @Basic
     private Activity getCurrentActivity() {
@@ -318,16 +368,27 @@ public class Unit {
     }
 
     /**
-     *  Sets the current activity
+     * Sets the current activity.
+     *
      * @param   newActivity
-     *          the new activity
-     * @pre     The unit must be able to switch to the new activity
+     *          The new activity.
+     *
+     * @pre     The unit must be able to switch to the new activity.
      *          | canHaveAsActivity(newActivity)
-     * @post    The new activity is set
-     *          | new.getCurrentActivity() == newActivity
-     * @post    lastActivity is set to the current activity
+     *
+     * @post    If we are moving and the newActivity isn't moving or defending we set the pendingActivity.
+     *          Otherwise we set the currentActivity
+     *          | if this.isMoving() && newActivity != Activity.MOVE && newActivity != Activity.DEFEND
+     *          | then new.pendingActivity == newActivity
+     *          | else new.getCurrentActivity() == newActivity
+     *
+     * @post    lastActivity is set to the current activity.
      *          | if this.getCurrentActivity() != newActivity
      *          | then new.lastActivity == this.getCurrentActivity()
+     *
+     * @effect If the unit is resting we reset the rest timers.
+     *          | if this.isResting()
+     *          | then this.resetRest()
      */
     private void setCurrentActivity(Activity newActivity) {
         assert canHaveAsActivity(newActivity);
@@ -337,11 +398,16 @@ public class Unit {
         // reset rest time, do same with work?
         if (isResting())
             resetRest();
-        this.currentActivity = newActivity;
+
+        if (isMoving() && newActivity != Activity.MOVE && newActivity != Activity.DEFEND)
+            this.pendingActivity = newActivity;
+        else
+            this.currentActivity = newActivity;
     }
 
     /**
-     * finishes the current activity.
+     * Finishes the current activity.
+     *
      * @post    The new activity will be the last activity (for when interrupted)
      *          | new.getCurrentActivity() == this.
      * @post    The lastActivity is set to None
@@ -355,10 +421,16 @@ public class Unit {
     /**
      * Checks whether the current activity can be interrupted by newActivity
      *
-     * @param   newActivity The new activity to test
+     * @param   newActivity
+     *          The new activity to test
+     *
      * @return  True if we may change the current activity
-     *          | ....
+     *          | result == (getCurrentActivity() == WORK ||
+     *          |           getCurrentActivity() == NONE ||
+     *                      (getCurrentActivity() == REST && !initialRest) ||
+     *                      (getCurrentActivity() == MOVE && this.target != null))
      */
+    @Model
     private boolean canHaveAsActivity(Activity newActivity) {
         //TODO: check this method and write documentation
         // can always defend and a character can always rest?
@@ -388,18 +460,20 @@ public class Unit {
 
     //<editor-fold desc="Target">
     /**
+     * Sets the distant target.
      *
-     * @param target
+     * @param   target
      *          The new target
-     * @post    target is set
-     *          | this.getTarget
+     *
+     * @post    The target is set
+     *          | new.getTarget() == target
      */
     private void setTarget(Vector target) {
         this.target = target;
     }
 
     /**
-     * ...
+     * Returns the distant target
      */
     @Basic
     private Vector getTarget() {
@@ -408,9 +482,10 @@ public class Unit {
 
     /**
      * Sets the target neighbour
+     *
      * @param   targetNeighbour
-     *          The target
-     * @post    ...
+     *          The target neighbour
+     * @post    The new target neighbour is set.
      *          | new.getTargetNeighbour() == targetNeighbour
      */
     private void setTargetNeighbour(Vector targetNeighbour) {
@@ -426,7 +501,11 @@ public class Unit {
     }
 
     /**
-     * LOL!!!!!!
+     * Starts moving towards the next neighbour on the path to the target.
+     *
+     * @effect
+     *          | moveToAdjacent(...);
+     *
      */
     private void goToNextNeighbour() {
         int[] posC = getCubePosition(getPosition());
@@ -448,14 +527,16 @@ public class Unit {
 
     //<editor-fold desc="Position">
     /**
-     * Checks if the given position is valid
+     * Checks whether the given position is valid.
+     *
      * @param   x
-     *          The x value of the unit's position
+     *          The x value of the unit's position.
      * @param   y
-     *          The y value of the unit's position
+     *          The y value of the unit's position.
      * @param   z
-     *          The z value of the unit's position
-     * @return  True if the given position is within the boundaries of the world
+     *          The z value of the unit's position.
+     *
+     * @return  True if the given position is within the boundaries of the world.
      *          | result == ((x >= 0) && (x < X_MAX) && (y >= 0) && (y < Y_MAX) && (z >= 0) && (z < Z_MAX))
      */
     public static boolean isValidPosition(double x,double y,double z) {
@@ -464,9 +545,11 @@ public class Unit {
 
 
     /**
-     * Checks if the given position is valid
+     * Checks whether the given position is valid and effective.
+     *
      * @param   position
      *          The position to be tested.
+     *
      * @return  True if the position is effective, has 3 components and is within bounds.
      *          | result == isEffectivePosition(position) && isValidPosition(position[0], position[1], position[2])
      */
@@ -475,10 +558,12 @@ public class Unit {
     }
 
     /**
-     * Checks if the given position is effective
+     * Checks whether the given position is effective.
+     *
      * @param   position
-     *          The position to be tested
-     * @return  True if the position is effective and the length is 3
+     *          The position to be tested.
+     *
+     * @return  True if the position is effective and the length is 3.
      *          | result == position != null && position.length == 3
      */
     public static boolean isEffectivePosition(double[] position) {
@@ -487,21 +572,24 @@ public class Unit {
 
     /**
      * Sets the position of the unit.
+     *
      * @param   x
-     *          The x value of the new position
+     *          The x value of the new position.
      * @param   y
-     *          The y value of the new position
+     *          The y value of the new position.
      * @param   z
-     *          The z value of the new position
-     * @post    The new position of this unit is equal to the given position
+     *          The z value of the new position.
+     *
+     * @post    The new position of this unit is equal to the given position.
      *          | new.getPosition()[0] == x &&
      *          | new.getPosition()[1] == y &&
      *          | new.getPosition()[2] == z
+     *
      * @throws  IllegalArgumentException
-     *          The given position is not valid
-     *          | !isValidPosition(x,y,z)
+     *          The given position is not valid.
+     *          | !isValidPosition(x, y, z)
      */
-    public void setPosition(double x,double y,double z) throws IllegalArgumentException {
+    public void setPosition(double x, double y, double z) throws IllegalArgumentException {
         if (!isValidPosition(x, y, z))
             throw new IllegalArgumentException("The given position is out of bounds");
         this.position = new Vector(x, y, z);
@@ -510,13 +598,16 @@ public class Unit {
 
     /**
      * Sets the position of the unit.
+     *
      * @param   position
-     *          The new position as an array
-     * @effect  The new position of this unit is equal to the given position
+     *          The new position as an array.
+     *
+     * @effect  The new position of this unit is equal to the given position.
      *          | this.setPosition(position[0], position[1], position[2])
+     *
      * @throws  IllegalArgumentException
-     *          The given position is not effective
-     *          | position == null
+     *          The given position is not effective.
+     *          | !isEffectivePosition(position)
      */
     public void setPosition(double[] position) throws IllegalArgumentException {
         if (!isEffectivePosition(position))
@@ -526,12 +617,16 @@ public class Unit {
 
     /**
      * Sets the position of the unit.
+     *
      * @param   position
-     *          The new position for this unit
-     * @post    The new position is equal to the given position
+     *          The new position for this unit.
+     *
+     * @post    The new position is equal to the given position.
      *          | new.getPosition() == position.toDoubleArray()
+     *          | new.getPositionVec() == position
+     *
      * @throws  IllegalArgumentException
-     *          When the given position is not valid
+     *          When the given position is not valid.
      *          | !isValidPosition(position.toDoubleArray())
      */
     private void setPosition(Vector position) throws IllegalArgumentException {
@@ -542,7 +637,7 @@ public class Unit {
 
 
     /**
-     * Gets the position of the unit
+     * Gets the position of the unit.
      */
     @Basic
     public double[] getPosition() {
@@ -550,7 +645,7 @@ public class Unit {
     }
 
     /**
-     * Gets the current position as a vector
+     * Gets the current position as a vector.
      */
     @Basic
     private Vector getPositionVec() {
@@ -558,8 +653,12 @@ public class Unit {
     }
 
     /**
-     * Returns the coordinates of the cube that the unit currently occupies
-     * @return  Returns the rounded down position of the unit
+     * Returns the coordinates of the cube that the unit currently occupies.
+     *
+     * @param   position
+     *          The position to be converted.
+     *
+     * @return  Returns the rounded down position.
      *          | result[0] == floor(position[0]) &&
      *          | result[1] == floor(position[1]) &&
      *          | result[2] == floor(position[2]}
@@ -575,9 +674,11 @@ public class Unit {
 
     //<editor-fold desc="Name">
     /**
-     * Checks wether the name is valid
+     * Checks whether the name is valid.
+     *
      * @param   name
-     *          The name to be checked
+     *          The name to be checked.
+     *
      * @return  True if name is at least 2 characters long,
      *          starts with an uppercase letter and contains only letters, spaces and quotes.
      *          | result == (name.length() > 2) && name.matches("[A-Z][a-zA-Z'\" ]*")
@@ -587,7 +688,7 @@ public class Unit {
     }
 
     /**
-     * Returns the name of the unit
+     * Returns the name of the unit.
      */
     @Basic
     public String getName() {
@@ -595,13 +696,16 @@ public class Unit {
     }
 
     /**
-     * Sets the name of the unit
+     * Sets the name of the unit.
+     *
      * @param   name
-     *          The new name for the unit
-     * @post    The new name is the given name
+     *          The new name for the unit.
+     *
+     * @post    The new name is the given name.
      *          | new.getName() == name
+     *
      * @throws  IllegalArgumentException
-     *          The name is not valid
+     *          The name is not valid.
      *          | !isValidName(name)
      */
     public void setName(String name) throws IllegalArgumentException {
@@ -614,18 +718,19 @@ public class Unit {
     //<editor-fold desc="Properties">
 
     /**
-     * Returns whether the weight is valid
-     * @return  Returns true if the weight is larger or equal to 1,
+     * Returns whether or not the weight is valid.
+     *
+     * @return  Returns true if the weight is larger or equal to MIN_ATTRIBUTE,
      *          larger or equal to (strength + agility)/2,
-     *          smaller or equal to 200
-     *          | result ==  (weight >= 1) && (weight <= 200) && (weight >= (getAgility()+getStrength())/2)
+     *          smaller or equal to MAX_ATTRIBUTE.
+     *          | result ==  (weight >= MIN_ATTRIBUTE) && (weight <= MAX_ATTRIBUTE) && (weight >= (getAgility()+getStrength())/2)
      */
     public boolean isValidWeight(int weight) {
         return (weight >= MIN_ATTRIBUTE) && (weight <= MAX_ATTRIBUTE) && (weight >= (getAgility()+getStrength())/2);
     }
 
     /**
-     * Returns the weight of the unit
+     * Returns the weight of the unit.
      */
     @Basic
     public int getWeight() {
@@ -633,19 +738,21 @@ public class Unit {
     }
 
     /**
-     * Sets the units weight to the new weight
+     * Sets the units weight to the new weight.
+     *
      * @param   weight
-     *          The new weight
-     * @post    If the weight is less then (strength+agility)/2, it's set to this value
+     *          The new weight.
+     *
+     * @post    If the weight is less then (strength+agility)/2, it's set to this value.
      *          | if weight < (this.strength + this.agility)/2
      *          | then new.getWeight() == (this.strength + this.agility)/2
-     *          Otherwise if the weight is more then 200, it's set to 200
-     *          | if weight > 200
-     *          | then new.getWeight() == 200
-     *          If the weight is still less then one, it's set to one
-     *          | if weight < 1
+     *          Otherwise if the weight is more then MAX_ATTRIBUTE, it's set to MAX_ATTRIBUTE.
+     *          | if weight > MAX_ATTRIBUTE
+     *          | then new.getWeight() == MAX_ATTRIBUTE
+     *          If the weight is still less than MIN_ATTRIBUTE, it's set to MIN_ATTRIBUTE.
+     *          | if weight < MIN_ATTRIBUTE
      *          | then new.getWeight == min(1, (this.strength + this.agility)/2)
-     *          Otherwise the weight is set to the given weight
+     *          Otherwise the weight is set to the given weight.
      *          | else new.getWeight() == weight
      */
     public void setWeight(int weight) {
@@ -660,17 +767,18 @@ public class Unit {
     }
 
     /**
-     * Returns whether the strength is valid
-     * @return  Returns true if the strength is larger or equal to 1,
-     *          and smaller or equal to 200.
-     *          | result == strength <= 200 && strength >= 1
+     * Returns whether the strength is valid.
+     *
+     * @return  Returns true if the strength is larger or equal to MIN_ATTRIBUTE
+     *          and smaller or equal to MAX_ATTRIBUTE.
+     *          | result == strength <= MAX_ATTRIBUTE && strength >= MIN_ATTRIBUTE
      */
     public boolean isValidStrength(int strength) {
         return strength <= MAX_ATTRIBUTE && strength >= MIN_ATTRIBUTE;
     }
 
     /**
-     * Returns the strength of the unit
+     * Returns the strength of the unit.
      */
     @Basic
     public int getStrength() {
@@ -678,18 +786,20 @@ public class Unit {
     }
 
     /**
-     * Sets the strength of the unity
+     * Sets the strength of the unit.
+     *
      * @param   strength
-     *          The new strength for the unit
-     * @post    If the given strength is less then one, the new strength is one
-     *          | if strength < 1
-     *          | then new.getStrength() == 1
-     *          If the given strength is more then 200, the new strength is 200
-     *          | else if strength > 200
-     *          | then new.getStrength() == 200
+     *          The new strength for the unit.
+     *
+     * @post    If the given strength is less than MIN_ATTRIBUTE, the new strength is MIN_ATTRIBUTE.
+     *          | if strength < MIN_ATTRIBUTE
+     *          | then new.getStrength() == MIN_ATTRIBUTE
+     *          If the given strength is more then MAX_ATTRIBUTE, the new strength is MAX_ATTRIBUTE.
+     *          | else if strength > MAX_ATTRIBUTE
+     *          | then new.getStrength() == MAX_ATTRIBUTE
      *          Otherwise the new strength is the given strength
      *          | else new.getStrength() == strength
-     * @post    The weight is adapted to match the new strength
+     * @post    The weight is adapted to match the new strength.
      *          | if this.getWeight < (strength + this.agility)/2
      *          | then new.getWeight() == (strength + this.agility)/2
      *          | else new.getWeight() == this.getWeight()
@@ -706,16 +816,17 @@ public class Unit {
 
     /**
      * Returns whether the agility is valid
-     * @return  Returns true if the agility is larger or equal to 1,
-     *          and smaller or equal to 200.
-     *          | result == agility <= 200 && agility >= 1
+     *
+     * @return  Returns true if the agility is larger or equal to MIN_ATTRIBUTE,
+     *          and smaller or equal to MAX_ATTRIBUTE.
+     *          | result == agility <= MAX_ATTRIBUTE && agility >= MIN_ATTRIBUTE
      */
     public boolean isValidAgility(int agility) {
         return agility <= MAX_ATTRIBUTE && agility >= MIN_ATTRIBUTE;
     }
 
     /**
-     * Returns the agility of the unit
+     * Returns the agility of the unit.
      */
     @Basic
     public int getAgility() {
@@ -723,18 +834,20 @@ public class Unit {
     }
 
     /**
-     * Sets the agility of the unit
+     * Sets the agility of the unit.
+     *
      * @param   agility
-     *          The new agility
-     * @post    If the given agility is less then one, the new agility is one
-     *          | if agility < 1
-     *          | then new.getAgility() == 1
-     *          If the given agility is more then 200, the new agility is 200
-     *          | else if agility > 200
-     *          | then new.getAgility() == 200
-     *          Otherwise the new agility is the given agility
+     *          The new agility.
+     *
+     * @post    If the given agility is less then MIN_ATTRIBUTE, the new agility is MIN_ATTRIBUTE.
+     *          | if agility < MIN_ATTRIBUTE
+     *          | then new.getAgility() == MIN_ATTRIBUTE
+     *          If the given agility is more then MAX_ATTRIBUTE, the new agility is MAX_ATTRIBUTE.
+     *          | else if agility > MAX_ATTRIBUTE
+     *          | then new.getAgility() == MAX_ATTRIBUTE
+     *          Otherwise the new agility is the given agility.
      *          | else new.getAgility() == agility
-     * @post    The weight is adapted to match the new agility
+     * @post    The weight is adapted to match the new agility.
      *          | if this.getWeight < (this.strength + agility)/2
      *          | then new.getWeight() == (this.strength + agility)/2
      *          | else new.getWeight() == this.getWeight()
@@ -750,10 +863,11 @@ public class Unit {
 
 
     /**
-     * Returns whether the toughness is valid
-     * @return  Returns true if the toughness is larger or equal to 1,
-     *          and smaller or equal to 200.
-     *          | result == toughness <= 200 && toughness >= 1
+     * Returns whether the toughness is valid.
+     *
+     * @return  Returns true if the toughness is larger or equal to MIN_ATTRIBUTE,
+     *          and smaller or equal to MAX_ATTRIBUTE.
+     *          | result == toughness <= MAX_ATTRIBUTE && toughness >= MIN_ATTRIBUTE
      */
     public boolean isValidToughness(int toughness) {
         return toughness <= MAX_ATTRIBUTE && toughness>= MIN_ATTRIBUTE;
@@ -769,15 +883,17 @@ public class Unit {
 
     /**
      * Sets the toughness of the current unit
+     *
      * @param   toughness
-     *          The new toughness
-     * @post    If the given toughness is less then one, the new toughness is one
-     *          | if toughness < 1
-     *          | then new.getToughness() == 1
-     *          If the given toughness is more then 200, the new toughness is 200
-     *          | else if toughness > 200
-     *          | then new.getToughness() == 200
-     *          Otherwise the new toughness is the given toughness
+     *          The new toughness.
+     *
+     * @post    If the given toughness is less then MIN_ATTRIBUTE, the new toughness is MIN_ATTRIBUTE.
+     *          | if toughness < MIN_ATTRIBUTE
+     *          | then new.getToughness() == MIN_ATTRIBUTE
+     *          If the given toughness is more then MAX_ATTRIBUTE, the new toughness is MAX_ATTRIBUTE.
+     *          | else if toughness > MAX_ATTRIBUTE
+     *          | then new.getToughness() == MAX_ATTRIBUTE
+     *          Otherwise the new toughness is the given toughness.
      *          | else new.getToughness() == toughness
      */
     public void setToughness(int toughness) {
@@ -789,9 +905,10 @@ public class Unit {
     }
 
     /**
-     * Returns whether the hitpoints are valid
-     * @return  Returns true if the hitpoints are larger than or equal to 0
-     *          and smaller than or equal to the maximum amount of hitpoints
+     * Returns whether the hitPoints are valid.
+     *
+     * @return  Returns true if the hitPoints are larger than or equal to 0
+     *          and smaller than or equal to the maximum amount of hitPoints.
      *          | result == (hitPoints <= getMaxPoints()) && (hitPoints >= 0)
      */
     public boolean isValidHitPoints(int hitPoints) {
@@ -807,12 +924,15 @@ public class Unit {
     }
 
     /**
-     * Sets the current hitPoints to the given amount of hitPoints
+     * Sets the current hitPoints to the given amount of hitPoints.
+     *
      * @param   hitPoints
-     *          The new hitPoints of the unit
-     * @pre     The hitPoints must be greater or equal than 0 and smaller or equal than max hitPoints
-     *          | (hitPoints <= getMaxPoints()) && (hitPoints >= 0;)
-     * @post    The new hitPoints equal the given hitPoints
+     *          The new hitPoints of the unit.
+     *
+     * @pre     The hitPoints must be greater or equal than 0 and smaller or equal than max hitPoints.
+     *          | (hitPoints <= getMaxPoints()) && (hitPoints >= 0)
+     *
+     * @post    The new hitPoints equal the given hitPoints.
      *          | new.getHitPoints() == hitPoints
      *
      */
@@ -823,9 +943,10 @@ public class Unit {
 
 
     /**
-     * Returns whether the amount of stamina is valid
+     * Returns whether the stamina is valid.
+     *
      * @return  Returns true if the amount of stamina is larger than or equal to 0
-     *          and smaller than or equal to the maximum amount of hitpoints
+     *          and smaller than or equal to the maximum amount of hitPoints.
      *          | result == (stamina <= getMaxPoints()) && (stamina >= 0)
      */
     public boolean isValidStamina(int stamina) {
@@ -833,7 +954,7 @@ public class Unit {
     }
 
     /**
-     * Returns the current amount of stamina of the unit
+     * Returns the current stamina of the unit.
      */
     @Basic
     public int getStamina() {
@@ -841,12 +962,15 @@ public class Unit {
     }
 
     /**
-     * Sets the current amount of stamina to the given amount of stamina
+     * Sets the current amount of stamina to the given stamina.
+     *
      * @param   stamina
      *          The new amount of stamina of the unit
+     *
      * @pre     The stamina must be greater or equal than 0 and smaller or equal than max stamina
-     *          | (stamina <= getMaxPoints()) && (stamina >= 0;)
-     * @post    The new stamina equal the given stamina
+     *          | (stamina <= getMaxPoints()) && (stamina >= 0)
+     *
+     * @post    The new stamina equals the given stamina.
      *          | new.getStamina() == stamina
      *
      */
@@ -856,8 +980,9 @@ public class Unit {
     }
 
     /**
-     * Return the maximum amount of hitPoints and stamina
-     * @return  Returns 200*weight/100*toughness/100
+     * Return the maximum amount of hitPoints and stamina.
+     *
+     * @return  Returns 200*(weight/100)*(toughness/100) as an integer
      *          | result == ceil(200*weight*toughness/10000)
      */
     public int getMaxPoints() {
@@ -868,7 +993,8 @@ public class Unit {
     //<editor-fold desc="Orientation">
 
     /**
-     * Returns whether the orientation is valid
+     * Returns whether the orientation is valid.
+     *
      * @return  Returns true if the orientation is equal to or larger than 0
      *          and smaller than 2*PI
      *          | result == (orientation < 2*Math.PI) && (orientation >= 0)
@@ -878,7 +1004,7 @@ public class Unit {
     }
 
     /**
-     * Returns the current orientation
+     * Returns the current orientation.
      */
     @Basic
     public double getOrientation() {
@@ -886,10 +1012,12 @@ public class Unit {
     }
 
     /**
-     * Sets the orientation of the unit
+     * Sets the orientation of the unit.
+     *
      * @param   orientation
-     *          The new orientation
-     * @post    The new orientation is the same as the old orientation but between 0 and 2*PI
+     *          The new orientation.
+     *
+     * @post    The new orientation is the same as the old orientation but between 0 and 2*PI.
      *          | new.getOrientation() == ((2*Math.PI) + (orientation % (2*Math.PI))) % 2* Math.PI
      */
     public void setOrientation(double orientation) {
@@ -899,7 +1027,7 @@ public class Unit {
 
     //<editor-fold desc="Movement">
     /**
-     * Returns True if the unit is moving
+     * Returns True if the unit is moving.
      */
     @Basic
     public boolean isMoving() {
@@ -908,12 +1036,17 @@ public class Unit {
 
     /**
      * Starts the unit moving towards one of the adjacent cubes.
+     *
      * @param   dx
      *          the x direction
      * @param   dy
      *          the y direction
      * @param   dz
      *          the z direction
+     *
+     * @post    ...
+     *          |...
+     *
      * @throws  IllegalArgumentException
      *          If the target cube is not within the world bounds
      *          | !isValidPosition(this.getPosition()[0] + dx,this.getPosition()[1] + dy,this.getPosition()[2] + dz)
@@ -944,8 +1077,13 @@ public class Unit {
 
     /**
      * Starts the units movement to the given target cube.
+     *
      * @param   target
      *          The coordinates of the target cubes
+     *
+     * @post    ...
+     *          |...
+     *
      * @throws  IllegalArgumentException
      *          If the given target is not valid
      *          | !isValidPosition(target[0], target[1], target[2])
