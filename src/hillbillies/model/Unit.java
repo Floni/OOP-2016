@@ -534,7 +534,7 @@ public class Unit {
      *          When the given position is not valid
      *          | !isValidPosition(position.toDoubleArray())
      */
-    public void setPosition(Vector position) throws IllegalArgumentException {
+    private void setPosition(Vector position) throws IllegalArgumentException {
         if (!isValidPosition(position.toDoubleArray()))
             throw new IllegalArgumentException("The given position is not valid");
         this.position = position;
@@ -560,9 +560,9 @@ public class Unit {
     /**
      * Returns the coordinates of the cube that the unit currently occupies
      * @return  Returns the rounded down position of the unit
-     *          | result[0] == floor(getPosition()[0]) &&
-     *          | result[1] == floor(getPosition()[1]) &&
-     *          | result[2] == floor(getPosition()[2]}
+     *          | result[0] == floor(position[0]) &&
+     *          | result[1] == floor(position[1]) &&
+     *          | result[2] == floor(position[2]}
      */
     public static int[] getCubePosition(double[] position) {
         return new int[] {
@@ -665,7 +665,7 @@ public class Unit {
      *          and smaller or equal to 200.
      *          | result == strength <= 200 && strength >= 1
      */
-    public boolean isValidStrenth(int strength) {
+    public boolean isValidStrength(int strength) {
         return strength <= MAX_ATTRIBUTE && strength >= MIN_ATTRIBUTE;
     }
 
@@ -918,9 +918,13 @@ public class Unit {
      *          If the target cube is not within the world bounds
      *          | !isValidPosition(this.getPosition()[0] + dx,this.getPosition()[1] + dy,this.getPosition()[2] + dz)
      */
-    public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException {
+    public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException, IllegalStateException {
         if (!canHaveAsActivity(Activity.MOVE)) {
-            throw new IllegalArgumentException("can't move right now");
+            throw new IllegalStateException("Can't move right now");
+        }
+
+        if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+            throw new IllegalArgumentException("Illegal dx and/or dy");
         }
 
         int[] curPos = getCubePosition(getPosition());
