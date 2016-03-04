@@ -1,11 +1,12 @@
 package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Value;
 import ogp.framework.util.ModelException;
 
-import java.util.ArrayList;
-
+//TODO: all docs
+//TODO: loop invariants
 /**
  * ....
  * TODO: class invariants
@@ -19,6 +20,7 @@ public class Unit {
         MOVE,
         REST,
         ATTACK,
+        DEFEND,
         NONE
     }
 
@@ -31,7 +33,16 @@ public class Unit {
     public static final double POS_EPS = 0.05;
 
     public static final double REST_DELAY = 0.2;
+    public static final double REST_MINUTE = 3*60;
+
     public static final double SPRINT_DELAY = 0.1;
+
+    public static final int MIN_ATTRIBUTE = 1;
+    public static final int MAX_ATTRIBUTE = 200;
+
+    public static final double INIT_ORIENTATION = Math.PI / 2;
+    public static final double ATTACK_DELAY = 1;
+
     //</editor-fold>
 
     //<editor-fold desc="Variables">
@@ -39,9 +50,10 @@ public class Unit {
     private String name;
     private int weight, strength, agility, toughness;
     private double orientation;
-    private double hitPoints, stamina;
+    private int hitPoints, stamina;
 
     private Activity currentActivity = Activity.NONE;
+    private Activity lastActivity = Activity.NONE;
 
     private Vector target;
     private Vector targetNeighbour;
@@ -58,7 +70,7 @@ public class Unit {
 
     private double restTimer;
     private boolean initialRest;
-    private double restHPDiff;
+    private double restDiff;
     private double restMinuteTimer;
 
     private boolean defaultEnabled;
@@ -147,17 +159,23 @@ public class Unit {
 
         setOrientation(Math.PI/2);
 
-        this.restMinuteTimer = 3*60;
+        this.restMinuteTimer = REST_MINUTE;
 
         //TODO: enable default behavior at start?
     }
     //</editor-fold>
 
     //<editor-fold desc="advanceTime">
+
+    /**
+     * LOL!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     * @param dt
+     * @throws ModelException
+     */
     public void advanceTime(double dt) throws  ModelException {
         if (dt < 0 || dt >= 0.2)
             throw new ModelException("Invalid dt");
-        switch(currentActivity) {
+        switch(getCurrentActivity()) {
             case MOVE:
                 double mod = 1;
                 if (isSprinting()) {
@@ -173,76 +191,72 @@ public class Unit {
                             setSprint(false);
                         }
                     }
+                } else if (isDefaultEnabled()) {
+                    // TODO: fix with timer? or just once while moving?
+                    if (Math.random() >= 0.9999 && getStamina() != 0)
+                        setSprint(true);
                 }
 
-                // setPosition(pos[0] + mod*speed[0] * dt, pos[1] + mod*speed[1] * dt, pos[2] + mod* speed[2] * dt);
-                //this.position = this.position.add(this.speed.multiply(mod*dt));
-                setPosition(this.position.add(this.speed.multiply(mod*dt)));
-                if (isAtNeighbour()) {
-                    this.position = this.targetNeighbour;
-                    if (this.target == null || isAtTarget()) {
+                Vector newPosition = getPositionVec().add(getSpeed().multiply(mod*dt));
+                if (isAtNeighbour(newPosition)) {
+                    setPosition(getTargetNeighbour());
+                    if (getTarget() == null || isAtTarget()) {
                         setSprint(false);
-                        this.currentActivity = Activity.NONE;
-                        this.speed = null;
-                        this.target = null;
-                        this.targetNeighbour = null;
+                        finishCurrentActivity();
+                        setSpeed(null);
+                        setTarget(null);
+                        setTargetNeighbour(null);
                     } else {
-                        int[] posC = getCubePosition(getPosition());
-                        int[] targetC = getCubePosition(this.target.toDoubleArray());
-                        int[] dp = new int[3];
-                        for (int i = 0; i < 3; i++) {
-                            if (posC[i] == targetC[i])
-                                dp[i] = 0;
-                            else if (posC[i] < targetC[i])
-                                dp[i] = 1;
-                            else
-                                dp[i] = -1;
-                        }
-                        this.currentActivity = Activity.NONE;
-                        moveToAdjacent(dp[0], dp[1], dp[2]);
-
+                        goToNextNeighbour();
                     }
+                } else {
+                    setPosition(newPosition);
                 }
                 break;
             case WORK:
                 workTimer -= dt;
                 if (workTimer <= 0) {
                     workTimer = 0;
-                    currentActivity = Activity.NONE;
+                    finishCurrentActivity();
                 }
                 break;
             case ATTACK:
                 this.attackTimer -= dt;
                 if (this.attackTimer <= 0) {
-                    this.defender.defend(this);
                     this.attackTimer = 0;
-                    this.currentActivity = Activity.NONE;
+                    this.defender.defend(this);
+                    finishCurrentActivity();
                 }
                 break;
             case REST:
                 this.restTimer -= dt;
                 if (this.restTimer <= 0) {
                     this.restTimer += REST_DELAY;
+
                     if (getHitPoints() != getMaxPoints()) {
-                        double diff = (getToughness()/200.0);
-                        restHPDiff += diff;
-                        setHitPoints(this.hitPoints + diff);
+                        restDiff += (getToughness()/200.0);
                         // recover at least 1 HP
-                        if (restHPDiff >= 1)
+                        if (restDiff >= 1) {
                             initialRest = false;
+                            restDiff -= 1;
+                            setHitPoints(getHitPoints()+1);
+                        }
                     } else if (getStamina() != getMaxPoints()) {
                         initialRest = false;
-                        setStamina(this.stamina + (getToughness()/100.0));
+                        restDiff += (getToughness()/100.0);
+                        if (restDiff >= 1) {
+                            restDiff -= 1;
+                            setStamina(getStamina() + 1);
+                        }
                     } else {
-                        this.currentActivity = Activity.NONE;
+                        finishCurrentActivity();
                     }
                 }
                 break;
             case NONE:
-                if (target != null) {
-                    // continue moving if moving got interrupted
-                    this.currentActivity = Activity.MOVE;
-                } else if (defaultEnabled) {
+                if (this.lastActivity != Activity.NONE) {
+                    finishCurrentActivity(); // we still have an interrupted activity
+                } else if (isDefaultEnabled()) {
                     int random = (int)Math.floor(Math.random()*3);
                     switch (random) {
                         case 0: // move to random location
@@ -265,31 +279,92 @@ public class Unit {
 
         restMinuteTimer -= dt;
         if (restMinuteTimer <= 0) {
-            restMinuteTimer += 3 * 60;
+            restMinuteTimer += REST_MINUTE;
             rest();
         }
 
     }
 
+    /**
+     * Checks if we arrived
+     * @return  True if we are at the target
+     *          | result == this.position.isEqualsTo(this.target, POS_EPS)
+     */
     private boolean isAtTarget() {
-        return this.position.isEqualsTo(this.target, POS_EPS);
+        return this.getPositionVec().isEqualsTo(this.getTarget(), POS_EPS);
     }
 
-    private boolean isAtNeighbour() {
-        return this.position.isEqualsTo(this.targetNeighbour, POS_EPS);
+    /**
+     * Checks wether we are going to arive in the current or next step
+     * @param   newPosition
+     *          The position after advanceTime
+     * @return  True if we are going to be further from the target in the next step
+     */
+    private boolean isAtNeighbour(Vector newPosition) {
+        double dist_new = newPosition.substract(getTargetNeighbour()).norm();
+        double dist_cur = getPositionVec().substract(getTargetNeighbour()).norm();
+        return dist_new > dist_cur;
     }
     //</editor-fold>
 
+    //<editor-fold desc="Activity">
+
+    /**
+     * ...
+     */
+    @Basic
     private Activity getCurrentActivity() {
         return this.currentActivity;
     }
 
+    /**
+     *  Sets the current activity
+     * @param   newActivity
+     *          the new activity
+     * @pre     The unit must be able to switch to the new activity
+     *          | canHaveAsActivity(newActivity)
+     * @post    The new activity is set
+     *          | new.getCurrentActivity() == newActivity
+     * @post    lastActivity is set to the current activity
+     *          | if this.getCurrentActivity() != newActivity
+     *          | then new.lastActivity == this.getCurrentActivity()
+     */
     private void setCurrentActivity(Activity newActivity) {
         assert canHaveAsActivity(newActivity);
+        // don't do the same activity twice
+        if (getCurrentActivity() != newActivity)
+            this.lastActivity = getCurrentActivity();
+        // reset rest time, do same with work?
+        if (isResting())
+            resetRest();
         this.currentActivity = newActivity;
     }
 
+    /**
+     * finishes the current activity.
+     * @post    The new activity will be the last activity (for when interrupted)
+     *          | new.getCurrentActivity() == this.
+     * @post    The lastActivity is set to None
+     *          | new.lastActivity == Activity.NONE
+     */
+    private void finishCurrentActivity() {
+        this.currentActivity = this.lastActivity;
+        this.lastActivity = Activity.NONE;
+    }
+
+    /**
+     * Checks whether the current activity can be interrupted by newActivity
+     *
+     * @param   newActivity The new activity to test
+     * @return  True if we may change the current activity
+     *          | ....
+     */
     private boolean canHaveAsActivity(Activity newActivity) {
+        //TODO: check this method and write documentation
+        // can always defend and a character can always rest?
+        if (newActivity == Activity.DEFEND)
+            return true;
+
         switch (getCurrentActivity()) {
             case WORK:
                 return true;
@@ -299,23 +374,77 @@ public class Unit {
                 return !initialRest; // can't interrupt the initial rest period
             case MOVE:
                 // moveToAdjacent only when attacked
-                //TODO: return false, except when needing to rest -> moveToAdjacent first then rest?
                 // moveTo yes, but must resume when done.
                 return this.target != null;
             case ATTACK:
                 // can't stop an attack?
                 return false;
+            case DEFEND:
+                return false;
         }
         return false;
     }
+    //</editor-fold>
 
+    //<editor-fold desc="Target">
+    /**
+     *
+     * @param target
+     *          The new target
+     * @post    target is set
+     *          | this.getTarget
+     */
     private void setTarget(Vector target) {
         this.target = target;
     }
 
+    /**
+     * ...
+     */
+    @Basic
+    private Vector getTarget() {
+        return this.target;
+    }
+
+    /**
+     * Sets the target neighbour
+     * @param   targetNeighbour
+     *          The target
+     * @post    ...
+     *          | new.getTargetNeighbour() == targetNeighbour
+     */
     private void setTargetNeighbour(Vector targetNeighbour) {
         this.targetNeighbour = targetNeighbour;
     }
+
+    /**
+     * Returns the target neighbour
+     */
+    @Basic
+    private Vector getTargetNeighbour() {
+        return this.targetNeighbour;
+    }
+
+    /**
+     * LOL!!!!!!
+     */
+    private void goToNextNeighbour() {
+        int[] posC = getCubePosition(getPosition());
+        int[] targetC = getCubePosition(getTarget().toDoubleArray());
+        int[] dp = new int[3];
+        for (int i = 0; i < 3; i++) {
+            if (posC[i] == targetC[i])
+                dp[i] = 0;
+            else if (posC[i] < targetC[i])
+                dp[i] = 1;
+            else
+                dp[i] = -1;
+        }
+        // to prevent moveToAdjacent from checking if we can move
+        // this.currentActivity = Activity.NONE;
+        moveToAdjacent(dp[0], dp[1], dp[2]);
+    }
+    //</editor-fold>
 
     //<editor-fold desc="Position">
     /**
@@ -421,6 +550,14 @@ public class Unit {
     }
 
     /**
+     * Gets the current position as a vector
+     */
+    @Basic
+    private Vector getPositionVec() {
+        return this.position;
+    }
+
+    /**
      * Returns the coordinates of the cube that the unit currently occupies
      * @return  Returns the rounded down position of the unit
      *          | result[0] == floor(getPosition()[0]) &&
@@ -484,7 +621,7 @@ public class Unit {
      *          | result ==  (weight >= 1) && (weight <= 200) && (weight >= (getAgility()+getStrength())/2)
      */
     public boolean isValidWeight(int weight) {
-        return (weight >= 1) && (weight <= 200) && (weight >= (getAgility()+getStrength())/2);
+        return (weight >= MIN_ATTRIBUTE) && (weight <= MAX_ATTRIBUTE) && (weight >= (getAgility()+getStrength())/2);
     }
 
     /**
@@ -512,10 +649,10 @@ public class Unit {
      *          | else new.getWeight() == weight
      */
     public void setWeight(int weight) {
-        if (weight < 1)
-            weight = 1;
-        else if (weight > 200)
-            weight = 200;
+        if (weight < MIN_ATTRIBUTE)
+            weight = MIN_ATTRIBUTE;
+        else if (weight > MAX_ATTRIBUTE)
+            weight = MAX_ATTRIBUTE;
         int min = (strength + agility) / 2;
         if (weight < min)
             weight = min;
@@ -529,7 +666,7 @@ public class Unit {
      *          | result == strength <= 200 && strength >= 1
      */
     public boolean isValidStrenth(int strength) {
-        return strength <= 200 && strength >= 1;
+        return strength <= MAX_ATTRIBUTE && strength >= MIN_ATTRIBUTE;
     }
 
     /**
@@ -558,10 +695,10 @@ public class Unit {
      *          | else new.getWeight() == this.getWeight()
      */
     public void setStrength(int strength) {
-        if (strength < 1)
-            strength = 1;
-        else if (strength > 200)
-            strength = 200;
+        if (strength < MIN_ATTRIBUTE)
+            strength = MIN_ATTRIBUTE;
+        else if (strength > MAX_ATTRIBUTE)
+            strength = MAX_ATTRIBUTE;
         this.strength = strength;
         setWeight(getWeight());
     }
@@ -574,7 +711,7 @@ public class Unit {
      *          | result == agility <= 200 && agility >= 1
      */
     public boolean isValidAgility(int agility) {
-        return agility <= 200 && agility >= 1;
+        return agility <= MAX_ATTRIBUTE && agility >= MIN_ATTRIBUTE;
     }
 
     /**
@@ -603,10 +740,10 @@ public class Unit {
      *          | else new.getWeight() == this.getWeight()
      */
     public void setAgility(int agility) {
-        if (agility < 1)
-            agility = 1;
-        else if (agility > 200)
-            agility = 200;
+        if (agility < MIN_ATTRIBUTE)
+            agility = MIN_ATTRIBUTE;
+        else if (agility > MAX_ATTRIBUTE)
+            agility = MAX_ATTRIBUTE;
         this.agility = agility;
         setWeight(getWeight());
     }
@@ -619,7 +756,7 @@ public class Unit {
      *          | result == toughness <= 200 && toughness >= 1
      */
     public boolean isValidToughness(int toughness) {
-        return toughness <= 200 && toughness>= 1;
+        return toughness <= MAX_ATTRIBUTE && toughness>= MIN_ATTRIBUTE;
     }
 
     /**
@@ -644,10 +781,10 @@ public class Unit {
      *          | else new.getToughness() == toughness
      */
     public void setToughness(int toughness) {
-        if (toughness > 200)
-            toughness = 200;
-        else if (toughness < 1)
-            toughness = 1;
+        if (toughness > MAX_ATTRIBUTE)
+            toughness = MAX_ATTRIBUTE;
+        else if (toughness < MIN_ATTRIBUTE)
+            toughness = MIN_ATTRIBUTE;
         this.toughness = toughness;
     }
 
@@ -666,7 +803,7 @@ public class Unit {
      */
     @Basic
     public int getHitPoints() {
-        return (int)Math.floor(this.hitPoints);
+        return this.hitPoints;
     }
 
     /**
@@ -679,7 +816,7 @@ public class Unit {
      *          | new.getHitPoints() == hitPoints
      *
      */
-    public void setHitPoints(double hitPoints) {
+    public void setHitPoints(int hitPoints) {
         assert hitPoints <= getMaxPoints() && hitPoints >= 0;
         this.hitPoints = hitPoints;
     }
@@ -700,7 +837,7 @@ public class Unit {
      */
     @Basic
     public int getStamina() {
-        return (int)Math.floor(this.stamina);
+        return this.stamina;
     }
 
     /**
@@ -713,7 +850,7 @@ public class Unit {
      *          | new.getStamina() == stamina
      *
      */
-    public void setStamina(double stamina){
+    public void setStamina(int stamina){
         assert stamina <= getMaxPoints() && stamina >= 0;
         this.stamina = stamina;
     }
@@ -796,7 +933,7 @@ public class Unit {
         }
         setTargetNeighbour(target);
         setSpeed(calculateSpeed(target));
-        setOrientation(Math.atan2(this.speed.getY(), this.speed.getX()));
+        setOrientation(Math.atan2(getSpeed().getY(), getSpeed().getX()));
 
         setCurrentActivity(Activity.MOVE);
     }
@@ -819,12 +956,14 @@ public class Unit {
             throw new IllegalArgumentException("invalid target");
         }
         setTarget(newTarget);
-
+        /*
         if (this.targetNeighbour == null)
             setTargetNeighbour(this.position); // initial neighbour, gets reset in advanceTime
 
         if (this.speed == null)
             setSpeed(new Vector(0, 0, 0)); // gets calculated in moveToAdjacent, which gets called in advanceTime
+        */
+        goToNextNeighbour();
 
         setCurrentActivity(Activity.MOVE);
     }
@@ -832,13 +971,22 @@ public class Unit {
 
     //<editor-fold desc="Speed">
 
+    /**
+     * Sets the speed
+     * @param   speed
+     */
     private void setSpeed(Vector speed) {
         this.speed = speed;
     }
 
+    /**
+     * ....
+     * @param target
+     * @return
+     */
     private Vector calculateSpeed(Vector target){
         double vb = 1.5*(getStrength()+getAgility())/(2*(getWeight()));
-        Vector diff = target.substract(this.position);
+        Vector diff = target.substract(getPositionVec());
         double d = diff.norm();
         diff = diff.divide(d);
 
@@ -854,12 +1002,12 @@ public class Unit {
 
     /**
      * Gets the units movement speed.
+     * ....
      */
-    @Basic
     public double getSpeedScalar() {
         double speedScalar;
-        if (this.speed != null) {
-            speedScalar = this.speed.norm();
+        if (getSpeed() != null) {
+            speedScalar = getSpeed().norm();
         } else {
             speedScalar = 0;
         }
@@ -869,6 +1017,15 @@ public class Unit {
         }
         return speedScalar;
     }
+
+    /**
+     *
+     * @return
+     */
+    @Basic @Model
+    private Vector getSpeed() {
+        return this.speed;
+    }
     //</editor-fold>
 
     //<editor-fold desc="Sprinting">
@@ -876,13 +1033,15 @@ public class Unit {
      * Enables or disables sprint mode.
      * @post    ...
      *          | ...
+     * @throws  ...
+     *          | ...
      */
-    public void setSprint(boolean sprint) {
+    public void setSprint(boolean sprint) throws IllegalStateException {
         if (sprint && (getStamina() == 0 || !isMoving())) {
-            return;
+            throw new IllegalStateException("Can't sprint right now");
         }
         if (!this.isSprinting() && sprint) {
-            sprintStaminaTimer = 0.1;
+            sprintStaminaTimer = SPRINT_DELAY;
         }
         this.sprinting = sprint;
     }
@@ -891,7 +1050,7 @@ public class Unit {
      */
     @Basic
     public boolean isSprinting() {
-        return this.sprinting;
+        return this.sprinting && isMoving();
     }
     //</editor-fold>
 
@@ -906,13 +1065,13 @@ public class Unit {
 
     /**
      * Start working
+     * ...
      */
     public void work() throws IllegalArgumentException {
-        //TODO: interrupt moveTo but not moveToAdjacent
         if (!canHaveAsActivity(Activity.WORK)) {
             throw new IllegalArgumentException("can't work right now");
         }
-        this.currentActivity = Activity.WORK;
+        setCurrentActivity(Activity.WORK);
         this.workTimer = 500.0 / getStrength();
     }
     //</editor-fold>
@@ -928,10 +1087,10 @@ public class Unit {
 
     /**
      * Attacks an other unit
-     *
+     * ...
      */
     public void attack(Unit other) throws IllegalArgumentException {
-        if (other == null)
+        if (other == null || other == this)
             throw new IllegalArgumentException("the other unit is invalid");
         if (!canHaveAsActivity(Activity.ATTACK)) {
             throw new IllegalArgumentException("can't attack right now");
@@ -947,47 +1106,51 @@ public class Unit {
             }
         }
 
-        //TODO: add method to other?
-        other.currentActivity = Activity.NONE;
+        other.setCurrentActivity(Activity.DEFEND);
 
         Vector diff = otherPos.substract(this.position);
         this.setOrientation(Math.atan2(diff.getY(), diff.getX()));
+        other.setOrientation(Math.atan2(-diff.getY(), -diff.getX()));
 
         currentActivity = Activity.ATTACK;
         attackTimer = 1;
         this.defender = other;
     }
 
-    public void defend(Unit attacker) {
-        Vector otherPos = new Vector(attacker.getPosition());
-        Vector diff = otherPos.substract(this.position);
-        this.setOrientation(Math.atan2(diff.getY(), diff.getX()));
-
-        this.currentActivity = Activity.NONE; // switch back to default activity
+    /**
+     * ...
+     * @param attacker
+     */
+    private void defend(Unit attacker) {
+        // finish defending
+        finishCurrentActivity();
 
         double probabilityDodge = 0.20 * (this.getAgility() / attacker.getAgility());
-        if (Math.random() <= probabilityDodge) {
+        if (Math.random() < probabilityDodge) {
             // dodge
-            ArrayList<int[]> possiblePositions = new ArrayList<>();
-            for (int dx = -1; dx < 2; dx++) {
-                for (int dy = -1; dy < 2; dy++) {
-                    for (int dz = -1; dz < 2; dz++) {
-                        if (!(dx == 0 && dy == 0 && dz == 0)) {
-                            Vector pos = this.position.add(new Vector(dx, dy, dz));
-                            if (isValidPosition(pos.toDoubleArray())) {
-                                possiblePositions.add(new int[]{dx, dy, dz});
-                            }
-                        }
-                    }
-                }
+            double newX = 2 * Math.random() - 1;
+            double newY = 2 * Math.random() - 1;
+            if (newX == 0 && newY == 0) {
+                double range = 1 - POS_EPS;
+                double newRandom = Math.random() * range + POS_EPS;
+                if (Math.random() >= 0.5)
+                    newX = 2 * newRandom - 1;
+                else
+                    newY = 2 * newRandom - 1;
             }
-            int randIndex = (int)Math.floor(Math.random() * possiblePositions.size());
-            int[] dp = possiblePositions.get(randIndex);
-            moveToAdjacent(dp[0], dp[1], dp[2]);
+            newX += getPositionVec().getX();
+            newY += getPositionVec().getZ();
+            if (newX < 0 || newX >= X_MAX){
+                newX = -newX;
+            }
+            if (newY < 0 ||newY >= Y_MAX) {
+                newY = -newY;
+            }
+            setPosition(newX, newY, getPositionVec().getZ());
         } else {
             double probabilityBlock = 0.25 *
                     ((this.getStrength()+this.getAgility())/(attacker.getStrength()+attacker.getAgility()));
-            if (Math.random() > probabilityBlock) {
+            if (Math.random() >= probabilityBlock) {
                 setHitPoints(getHitPoints() - (attacker.getStrength()/10));
             }
         }
@@ -1015,22 +1178,39 @@ public class Unit {
     public void rest() throws RuntimeException {
         if (!canHaveAsActivity(Activity.REST))
             throw new RuntimeException("can't rest right now");
-        currentActivity = Activity.REST;
+        setCurrentActivity(Activity.REST);
+
         this.restTimer = 0.2;
-        this.restHPDiff = 0;
+        resetRest();
+        this.initialRest = true;
+    }
+
+    private void resetRest() {
+        this.restDiff = 0;
         this.initialRest = true;
     }
     //</editor-fold>
 
     //<editor-fold desc="Default behaviour">
+
+    /**
+     *
+     */
     public void startDefaultBehaviour() {
         this.defaultEnabled = true;
     }
 
+    /**
+     *
+     */
     public void stopDefaultBehaviour() {
         this.defaultEnabled = false;
     }
 
+    /**
+     * True if the default behaviour is enabled
+     */
+    @Basic
     public boolean isDefaultEnabled() {
         return  this.defaultEnabled;
     }
