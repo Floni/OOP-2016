@@ -781,11 +781,15 @@ public class Unit {
      *          If the target cube is not within the world bounds
      *          | !isValidPosition(this.getPosition()[0] + dx,this.getPosition()[1] + dy,this.getPosition()[2] + dz)
      */
-    public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException {
+    public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException, IllegalStateException {
         if (!canHaveAsActivity(Activity.MOVE)) {
-            throw new IllegalArgumentException("can't move right now");
+            throw new IllegalStateException("Can't move right now");
         }
 
+        if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+            throw new IllegalArgumentException("Illegal dx and/or dy");
+        }
+        
         int[] curPos = getCubePosition(getPosition());
         Vector target = new Vector(curPos[0] + dx, curPos[1] + dy, curPos[2] + dz);
         target = target.add(Lc/2);
