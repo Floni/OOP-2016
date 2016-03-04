@@ -10,6 +10,7 @@ import ogp.framework.util.Util;
  */
 @Value
 public class Vector {
+
     public interface MapFunc {
         double func(double val);
     }
@@ -162,7 +163,7 @@ public class Vector {
      *          |            && Util.fuzzyEquals(this.getY(), other.getY(), eps)
      *          |            && Util.fuzzyEquals(this.getZ(), other.getZ(), eps))
      */
-    public boolean isEqualsTo(Vector other, double eps) {
+    public boolean isEqualTo(Vector other, double eps) {
         return other != null && Util.fuzzyEquals(getX(), other.getX(), eps)
                 && Util.fuzzyEquals(getY(), other.getY(), eps)
                 && Util.fuzzyEquals(getZ(), other.getZ(), eps);
