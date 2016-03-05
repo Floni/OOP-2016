@@ -2,15 +2,36 @@ package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
+import be.kuleuven.cs.som.annotate.Raw;
 import be.kuleuven.cs.som.annotate.Value;
 import ogp.framework.util.ModelException;
 
-//TODO: loop invariants
+//TODO: check all throws -> in parent methods
+//TODO: @raw
+
+
 /**
- * ....
- * TODO: class invariants
- * @invar   The position of the unit must be valid
+ * The unit class, this class keeps tracks of the unit's position, speed and other attributes.
+ * It provides methods to move, to attack or to rest.
+ *
+ * @invar   The position of the unit must be valid.
  *          | isValidPosition(this.getPosition())
+ * @invar   The orientation fof the unit must be valid.
+ *          | isValidOrientation(this.getOrientation())
+ * @invar   The weight of the unit must be valid.
+ *          | canHaveAsWeight(this.getWeight())
+ * @invar   The Strength of the unit must be valid.
+ *          | isValidStrength(this.getStrength())
+ * @invar   The Agility of the unit must be valid.
+ *          | isValidAgility(this.getAgility())
+ * @invar   The Agility of the unit must be valid.
+ *          | isValidAgility(this.getAgility())
+ * @invar   The Toughness of the unit must be valid.
+ *          | isValidToughness(this.getToughness())
+ * @invar   The HitPoints must be valid.
+ *          | canHaveAsHitPoints(this.getHitPoints())
+ * @invar   The stamina must be valid.
+ *          | canHaveAsStamina(this.getStamina())
  */
 public class Unit {
     @Value
@@ -141,6 +162,7 @@ public class Unit {
      * @effect  Sets the orientation to 90 degrees.
      *          | setOrientation(Math.PI/2)
      */
+    @Raw
     public Unit(String name, int x, int y, int z, int weight, int strength, int agility, int toughness)
             throws IllegalArgumentException {
         setName(name);
@@ -175,11 +197,11 @@ public class Unit {
         setHitPoints(maxPoints);
         setStamina(maxPoints);
 
-        setOrientation(Math.PI/2);
+        setOrientation(INIT_ORIENTATION);
 
         this.restMinuteTimer = REST_MINUTE;
 
-        //TODO: enable default behavior at start?
+        // enable default behavior at start?
     }
     //</editor-fold>
 
@@ -233,7 +255,7 @@ public class Unit {
                         }
                     }
                 } else if (isDefaultEnabled()) {
-                    // TODO: fix with timer? or just once while moving?
+                    // fix with timer? or just once while moving?
                     if (Math.random() >= 0.9999 && getStamina() != 0)
                         setSprint(true);
                 }
@@ -424,14 +446,14 @@ public class Unit {
      *          The new activity to test
      *
      * @return  True if we may change the current activity
-     *          | result == (getCurrentActivity() == WORK ||
+     *          | result == (newActivity == Activity.DEFEND) ||
+     *          |           (getCurrentActivity() == WORK ||
      *          |           getCurrentActivity() == NONE ||
-     *                      (getCurrentActivity() == REST && !initialRest) ||
-     *                      (getCurrentActivity() == MOVE && this.target != null))
+     *          |           (getCurrentActivity() == REST && !initialRest) ||
+     *          |           (getCurrentActivity() == MOVE && this.target != null))
      */
     @Model
     private boolean canHaveAsActivity(Activity newActivity) {
-        //TODO: check this method and write documentation
         // can always defend and a character can always rest?
         if (newActivity == Activity.DEFEND)
             return true;
@@ -497,30 +519,6 @@ public class Unit {
     @Basic
     private Vector getTargetNeighbour() {
         return this.targetNeighbour;
-    }
-
-    /**
-     * Starts moving towards the next neighbour on the path to the target.
-     * TODO: finish
-     * @effect
-     *          | moveToAdjacent(...);
-     *
-     */
-    private void goToNextNeighbour() {
-        int[] posC = getCubePosition(getPosition());
-        int[] targetC = getCubePosition(getTarget().toDoubleArray());
-        int[] dp = new int[3];
-        for (int i = 0; i < 3; i++) {
-            if (posC[i] == targetC[i])
-                dp[i] = 0;
-            else if (posC[i] < targetC[i])
-                dp[i] = 1;
-            else
-                dp[i] = -1;
-        }
-        // to prevent moveToAdjacent from checking if we can move
-        // this.currentActivity = Activity.NONE;
-        moveToAdjacent(dp[0], dp[1], dp[2]);
     }
     //</editor-fold>
 
@@ -724,7 +722,7 @@ public class Unit {
      *          smaller or equal to MAX_ATTRIBUTE.
      *          | result ==  (weight >= MIN_ATTRIBUTE) && (weight <= MAX_ATTRIBUTE) && (weight >= (getAgility()+getStrength())/2)
      */
-    public boolean isValidWeight(int weight) {
+    public boolean canHaveAsWeight(int weight) {
         return (weight >= MIN_ATTRIBUTE) && (weight <= MAX_ATTRIBUTE) && (weight >= (getAgility()+getStrength())/2);
     }
 
@@ -772,7 +770,7 @@ public class Unit {
      *          and smaller or equal to MAX_ATTRIBUTE.
      *          | result == strength <= MAX_ATTRIBUTE && strength >= MIN_ATTRIBUTE
      */
-    public boolean isValidStrength(int strength) {
+    public static boolean isValidStrength(int strength) {
         return strength <= MAX_ATTRIBUTE && strength >= MIN_ATTRIBUTE;
     }
 
@@ -820,7 +818,7 @@ public class Unit {
      *          and smaller or equal to MAX_ATTRIBUTE.
      *          | result == agility <= MAX_ATTRIBUTE && agility >= MIN_ATTRIBUTE
      */
-    public boolean isValidAgility(int agility) {
+    public static boolean isValidAgility(int agility) {
         return agility <= MAX_ATTRIBUTE && agility >= MIN_ATTRIBUTE;
     }
 
@@ -868,7 +866,7 @@ public class Unit {
      *          and smaller or equal to MAX_ATTRIBUTE.
      *          | result == toughness <= MAX_ATTRIBUTE && toughness >= MIN_ATTRIBUTE
      */
-    public boolean isValidToughness(int toughness) {
+    public static boolean isValidToughness(int toughness) {
         return toughness <= MAX_ATTRIBUTE && toughness>= MIN_ATTRIBUTE;
     }
 
@@ -910,7 +908,7 @@ public class Unit {
      *          and smaller than or equal to the maximum amount of hitPoints.
      *          | result == (hitPoints <= getMaxPoints()) && (hitPoints >= 0)
      */
-    public boolean isValidHitPoints(int hitPoints) {
+    public boolean canHaveAsHitPoints(int hitPoints) {
         return hitPoints <= getMaxPoints() && hitPoints >= 0;
     }
 
@@ -948,7 +946,7 @@ public class Unit {
      *          and smaller than or equal to the maximum amount of hitPoints.
      *          | result == (stamina <= getMaxPoints()) && (stamina >= 0)
      */
-    public boolean isValidStamina(int stamina) {
+    public boolean canHaveAsStamina(int stamina) {
         return stamina <= getMaxPoints() && stamina >= 0;
     }
 
@@ -998,7 +996,7 @@ public class Unit {
      *          and smaller than 2*PI
      *          | result == (orientation < 2*Math.PI) && (orientation >= 0)
      */
-    public boolean isValidOrientation(double orientation) {
+    public static boolean isValidOrientation(double orientation) {
         return orientation < 2*Math.PI && orientation >= 0;
     }
 
@@ -1034,7 +1032,7 @@ public class Unit {
     }
 
 
-    // TODO: moveToAdjacent commends
+    // TODO: moveToAdjacent comments
     /**
      * Starts the unit moving towards one of the adjacent cubes.
      *
@@ -1047,21 +1045,29 @@ public class Unit {
      *
      * @post    The unit will be moving
      *          | new.isMoving() == True
-     * @post    The orientation will be ...
      *
-     * @effect  ....TODO
+     * @post    The unit will move to the target when calling advanceTime()
+     *
+     * @effect  Set the unit's orientation
+     *          | setOrientation(Math.atan2(getSpeed().getY(), getSpeed().getX()));
      *
      * @throws  IllegalArgumentException
      *          If the target cube is not within the world bounds
      *          | !isValidPosition(this.getPosition()[0] + dx,this.getPosition()[1] + dy,this.getPosition()[2] + dz)
+     * @throws  IllegalArgumentException
+     *          If the dx, dy or dz values aren't -1, 0 or +1
+     *          | Math.abs(dx) > 1 || Math.abs(dy) > 1 || Math.abs(dz) > 1
+     * @throws  IllegalStateException
+     *          If the unit can't move right now
+     *          | !canHaveAsActivity(Activity.MOVE)
      */
     public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException, IllegalStateException {
         if (!canHaveAsActivity(Activity.MOVE)) {
             throw new IllegalStateException("Can't move right now");
         }
 
-        if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
-            throw new IllegalArgumentException("Illegal dx and/or dy");
+        if (Math.abs(dx) > 1 || Math.abs(dy) > 1 || Math.abs(dz) > 1) {
+            throw new IllegalArgumentException("Illegal dx, dy and/or dz");
         }
 
         int[] curPos = getCubePosition(getPosition());
@@ -1080,7 +1086,7 @@ public class Unit {
     }
 
 
-    // TODO: moveTO commends
+    // TODO: moveTO comments
     /**
      * Starts the units movement to the given target cube.
      *
@@ -1112,17 +1118,36 @@ public class Unit {
             throw new IllegalArgumentException("invalid target");
         }
         setTarget(newTarget);
-        /*
-        if (this.targetNeighbour == null)
-            setTargetNeighbour(this.position); // initial neighbour, gets reset in advanceTime
 
-        if (this.speed == null)
-            setSpeed(new Vector(0, 0, 0)); // gets calculated in moveToAdjacent, which gets called in advanceTime
-        */
         goToNextNeighbour();
 
         setCurrentActivity(Activity.MOVE);
     }
+
+    /**
+     * Starts moving towards the next neighbour on the path to the target.
+     * TODO: finish
+     * @effect
+     *          | moveToAdjacent(...);
+     *
+     */
+    private void goToNextNeighbour() {
+        int[] posC = getCubePosition(getPosition());
+        int[] targetC = getCubePosition(getTarget().toDoubleArray());
+        int[] dp = new int[3];
+        for (int i = 0; i < 3; i++) {
+            if (posC[i] == targetC[i])
+                dp[i] = 0;
+            else if (posC[i] < targetC[i])
+                dp[i] = 1;
+            else
+                dp[i] = -1;
+        }
+        // to prevent moveToAdjacent from checking if we can move
+        // this.currentActivity = Activity.NONE;
+        moveToAdjacent(dp[0], dp[1], dp[2]);
+    }
+
     //</editor-fold>
 
     //<editor-fold desc="Speed">
@@ -1332,7 +1357,7 @@ public class Unit {
         other.setOrientation(Math.atan2(-diff.getY(), -diff.getX()));
 
         setCurrentActivity(Activity.ATTACK);
-        attackTimer = 1;
+        attackTimer = ATTACK_DELAY;
         this.defender = other;
     }
 
@@ -1348,11 +1373,12 @@ public class Unit {
      *          The unit does not take any damage.
      *          | if (random < (0.20 * this.getAgility() / attacker.getAgility()) )
      *          | then new.getPosition()
-     *
      * @post    If the unit did not dodge the attack but blocked it,
      *          the unit will not take any damage.
+     *          | ..
      * @post    If the unit did not dodge or block the attack,
      *          it will take damage equal to the attacker's strength/10.
+     *          | ..
      *
      * @effect  Finishes the current activity.
      *          | finishCurrentActivity()
