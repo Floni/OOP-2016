@@ -327,28 +327,42 @@ public class UnitTest {
     }
 
     @Test
-    public void testIsAttacking() throws Exception {
-
+    public void testAttack() throws Exception {
+        Unit other = new Unit("Florian",1 , 1, 0, 50, 50, 50, 50);
+        unit.attack(other);
+        assertTrue(unit.isAttacking());
     }
 
-    @Test
-    public void testAttack() throws Exception {
-
+    @Test (expected = IllegalArgumentException.class)
+    public void testAttackOutOfRange() throws Exception {
+        Unit other = new Unit("Florian",5 , 5, 0, 50, 50, 50, 50);
+        unit.attack(other);
     }
 
     @Test
     public void testDefend() throws Exception {
-
-    }
-
-    @Test
-    public void testIsResting() throws Exception {
-
+        Unit other = new Unit("Florian",1 , 1, 0, 50, 50, 50, 50);
+        other.attack(unit);
+        assertTrue(unit.isDefending());
     }
 
     @Test
     public void testRest() throws Exception {
-        unit.set
+        unit.rest();
+        assertTrue(unit.isResting());
+    }
+
+
+    @Test
+    public void testRestRegen() throws Exception {
+        unit.setHitPoints(0);
+        unit.setStamina(0);
+        unit.rest();
+        advanceTimeFor(unit, unit.getMaxPoints()/(5*unit.getToughness()/200), 0.19);
+        assertEquals(unit.getMaxPoints(), unit.getHitPoints());
+        assertEquals(unit.getStamina(),0);
+        advanceTimeFor(unit, unit.getMaxPoints()/(5*unit.getToughness()/100),0.1);
+        assertEquals(unit.getMaxPoints(), unit.getStamina());
     }
 
     @Test
