@@ -271,15 +271,18 @@ public class UnitTest {
 
     @Test
     public void testMoveToAdjacent() throws Exception {
-        unit.setPosition(0,0,0);
-        unit.moveToAdjacent(1,0,0);
-        advanceTimeFor(unit,5,0.1);
+        unit.setPosition(0, 0, 0);
+        unit.moveToAdjacent(1, 0, 0);
+        advanceTimeFor(unit, 5, 0.1);
         assertIntegerPositionEquals(1, 0, 0, Unit.getCubePosition(unit.getPosition()));
     }
 
     @Test
     public void testMoveTo() throws Exception {
-
+        unit.setPosition(0, 0, 0);
+        unit.moveTo(new int[] {5, 5, 3});
+        advanceTimeFor(unit, 30, 0.1);
+        assertIntegerPositionEquals(5, 5, 3, Unit.getCubePosition(unit.getPosition()));
     }
 
     @Test

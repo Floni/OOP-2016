@@ -1048,6 +1048,7 @@ public class Unit {
      *          | new.isMoving() == True
      *
      * @post    The unit will move to the target when calling advanceTime()
+     *          |
      *
      * @effect  Set the unit's orientation
      *          | setOrientation(Math.atan2(getSpeed().getY(), getSpeed().getX()));
@@ -1098,7 +1099,7 @@ public class Unit {
      *          | new.isMoving() == true
      *
      * @post    The unit will move to the target when calling advanceTime().
-     *
+     *          | new.getPosition == target.add(Lc/2)
      *
      * @throws  IllegalArgumentException
      *          If the given target is not valid.
@@ -1127,9 +1128,29 @@ public class Unit {
 
     /**
      * Starts moving towards the next neighbour on the path to the target.
-     * TODO: finish
-     * @effect
-     *          | moveToAdjacent(...);
+     *
+     * @post    Moves the unit to a adjacent cube in the direction of the target when calling advanceTime.
+     *          | if ( posC[0] > targetC[0])
+     *          | then (new.getPosition()[0] == old.getPosition[0] - 1)
+     *          | if ( posC[0] < targetC[0])
+     *          | then (new.getPosition()[0] == old.getPosition[0] + 1)
+     *          | if ( posC[0] == targetC[0])
+     *          | then (new.getPosition()[0] == old.getPosition[0])
+     *          | if ( posC[1] > targetC[1])
+     *          | then (new.getPosition()[1] == old.getPosition[1] - 1)
+     *          | if ( posC[1] < targetC[1])
+     *          | then (new.getPosition()[1] == old.getPosition[1] + 1)
+     *          | if ( posC[1] == targetC[1])
+     *          | then (new.getPosition()[1] == old.getPosition[1])
+     *          | if ( posC[2] > targetC[2])
+     *          | then (new.getPosition()[2] == old.getPosition[2] - 1)
+     *          | if ( posC[2] < targetC[2])
+     *          | then (new.getPosition()[2] == old.getPosition[2] + 1)
+     *          | if ( posC[2] == targetC[2])
+     *          | then (new.getPosition()[2] == old.getPosition[2])
+     *
+     * @effect  Moves to the next adjacent cube.
+     *          | moveToAdjacent();
      *
      */
     private void goToNextNeighbour() {
