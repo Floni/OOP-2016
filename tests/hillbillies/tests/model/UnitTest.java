@@ -1,5 +1,6 @@
-package hillbillies.model;
+package hillbillies.tests.model;
 
+import hillbillies.model.Unit;
 import ogp.framework.util.ModelException;
 import ogp.framework.util.Util;
 import org.junit.After;
@@ -15,7 +16,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.*;
 
 /**
- * Created by timo on 24/02/2016.
+ * The test for the class Unit.
+ *
  */
 public class UnitTest {
 
@@ -282,27 +284,46 @@ public class UnitTest {
 
     @Test
     public void testGetSpeedScalar() throws Exception {
-
+        // can we test this, getSpeed is private?
+        // We could moveToAdjacent on the same plane and then check if speed == 1.5
+        // then move up, speed == 0.75
+        // and move down, speed == 1.75?
+        unit.setPosition(25.5, 25.5, 25.5);
+        unit.moveToAdjacent(1, 1, 0);
+        assertEquals(1.5, unit.getSpeedScalar(), Util.DEFAULT_EPSILON);
+        advanceTimeFor(unit, 3, 0.1);
+        unit.moveToAdjacent(0, 0, 1);
+        assertEquals(0.75, unit.getSpeedScalar(), Util.DEFAULT_EPSILON);
+        advanceTimeFor(unit, 3, 0.1);
+        unit.moveToAdjacent(0, 0, -1);
+        assertEquals(1.2 * 1.5, unit.getSpeedScalar(), Util.DEFAULT_EPSILON);
+        advanceTimeFor(unit, 3, 0.1);
     }
 
-    @Test
-    public void testSetSprint() throws Exception {
-
+    @Test(expected = IllegalStateException.class)
+    public void testSetSprintFail() throws Exception {
+        unit.rest();
+        unit.setSprint(true);
     }
 
     @Test
     public void testIsSprinting() throws Exception {
-
-    }
-
-    @Test
-    public void testIsWorking() throws Exception {
-
+        unit.setPosition(25, 25, 25);
+        unit.moveToAdjacent(1, 0, 0);
+        double oldSpeed = unit.getSpeedScalar();
+        unit.setSprint(true);
+        assertTrue(unit.isSprinting());
+        assertEquals(2*oldSpeed, unit.getSpeedScalar(), Util.DEFAULT_EPSILON);
     }
 
     @Test
     public void testWork() throws Exception {
-
+        unit.work();
+        assertTrue(unit.isWorking());
+        advanceTimeFor(unit, 5, 0.1);
+        assertTrue(unit.isWorking());
+        advanceTimeFor(unit, 5.01, 0.1);
+        assertFalse(unit.isWorking());
     }
 
     @Test
@@ -327,22 +348,20 @@ public class UnitTest {
 
     @Test
     public void testRest() throws Exception {
-
+        unit.set
     }
 
     @Test
     public void testStartDefaultBehaviour() throws Exception {
-
+        unit.startDefaultBehaviour();
+        assertTrue(unit.isDefaultEnabled());
     }
 
     @Test
     public void testStopDefaultBehaviour() throws Exception {
-
-    }
-
-    @Test
-    public void testIsDefaultEnabled() throws Exception {
-
+        unit.startDefaultBehaviour();
+        unit.stopDefaultBehaviour();
+        assertFalse(unit.isDefaultEnabled());
     }
 
     private static void advanceTimeFor( Unit unit, double time, double step) throws ModelException {

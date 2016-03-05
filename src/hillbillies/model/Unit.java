@@ -8,6 +8,7 @@ import ogp.framework.util.ModelException;
 
 //TODO: check all throws -> in parent methods
 //TODO: @raw
+//TODO: make more methods private? (setOrientation, setStamina, setHitPoints, ...)
 
 
 /**
