@@ -302,7 +302,7 @@ public class Unit {
                     this.restTimer += REST_DELAY;
 
                     if (getHitPoints() != getMaxPoints()) {
-                        restDiff += (getToughness()/200.0)*dt/0.2;
+                        restDiff += (getToughness()/200.0);
                         // recover at least 1 HP
                         if (restDiff >= 1) {
                             initialRest = false;
@@ -311,7 +311,7 @@ public class Unit {
                         }
                     } else if (getStamina() != getMaxPoints()) {
                         initialRest = false;
-                        restDiff += (getToughness()/100.0)*dt/0.2;
+                        restDiff += (getToughness()/100.0);
                         if (restDiff >= 1) {
                             restDiff -= 1;
                             setStamina(getStamina() + 1);

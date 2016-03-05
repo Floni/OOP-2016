@@ -354,15 +354,25 @@ public class UnitTest {
 
 
     @Test
-    public void testRestRegen() throws Exception {
-        unit.setHitPoints(0);
+    public void testRestRegenStamina() throws Exception {
+        unit.setHitPoints(unit.getMaxPoints());
         unit.setStamina(0);
+        double seconds = 8;
+        int extra_points = (int)((seconds / 0.2) * ((double)unit.getToughness() / 100.0));
         unit.rest();
-        advanceTimeFor(unit, unit.getMaxPoints()/(5*unit.getToughness()/200), 0.19);
-        assertEquals(unit.getMaxPoints(), unit.getHitPoints());
-        assertEquals(unit.getStamina(),0);
-        advanceTimeFor(unit, unit.getMaxPoints()/(5*unit.getToughness()/100),0.1);
-        assertEquals(unit.getMaxPoints(), unit.getStamina());
+        advanceTimeFor(unit, seconds, 0.1);
+        assertEquals(extra_points, unit.getStamina());
+    }
+
+    @Test
+    public void testRestRegenHP() throws Exception {
+        unit.setHitPoints(0);
+        unit.setStamina(unit.getMaxPoints());
+        double seconds = 8;
+        int extra_points = (int)((seconds / 0.2) * ((double)unit.getToughness() / 200.0));
+        unit.rest();
+        advanceTimeFor(unit, seconds, 0.1);
+        assertEquals(extra_points, unit.getHitPoints());
     }
 
     @Test
