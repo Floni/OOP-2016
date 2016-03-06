@@ -4,7 +4,6 @@ import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 import be.kuleuven.cs.som.annotate.Value;
-import ogp.framework.util.ModelException;
 
 
 //TODO: @raw
@@ -353,6 +352,9 @@ public class Unit {
                             break;
                     }
                 }
+                break;
+            case DEFEND:
+                // do nothing while waiting for attack.
                 break;
         }
 
