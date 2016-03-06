@@ -4,15 +4,11 @@ import hillbillies.model.Unit;
 import ogp.framework.util.ModelException;
 import ogp.framework.util.Util;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
 import static hillbillies.tests.util.PositionAsserts.assertDoublePositionEquals;
 import static hillbillies.tests.util.PositionAsserts.assertIntegerPositionEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-
 import static org.junit.Assert.*;
 
 /**
@@ -84,8 +80,7 @@ public class UnitTest {
     @Test
     public void testGetCubePosition() throws Exception {
         unit.setPosition(0.5, 0.5, 0.5);
-        int[] result = new int[3];
-        result = Unit.getCubePosition(unit.getPosition());
+        int[] result = Unit.getCubePosition(unit.getPosition());
         assertTrue(
                 result[0] == Math.floor(unit.getPosition()[0]) &&
                 result[1] == Math.floor(unit.getPosition()[1]) &&

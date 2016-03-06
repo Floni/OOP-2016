@@ -5,10 +5,16 @@ import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 import be.kuleuven.cs.som.annotate.Value;
 
-
-//TODO: @raw
-//TODO: make more methods private? (setOrientation, setStamina, setHitPoints, ...)
-
+/**
+ *
+ * Names of students:
+ *
+ * Timothy Werquin      ingenieurswetenschappen (computerwetenschappen en elektrotechniek)
+ * Florian Van Heghe    ingenieurswetenschappen (computerwetenschappen en elektrotechniek)
+ *
+ * Link to git repository:
+ * https://gitlab.com/timothyw/OOP-project
+ */
 
 /**
  * The unit class, this class keeps tracks of the unit's position, speed and other attributes.
@@ -600,6 +606,7 @@ public class Unit {
      *          The given position is not valid.
      *          | !isValidPosition(x, y, z)
      */
+    @Raw
     public void setPosition(double x, double y, double z) throws IllegalArgumentException {
         if (!isValidPosition(x, y, z))
             throw new IllegalArgumentException("The given position is out of bounds");
@@ -719,6 +726,7 @@ public class Unit {
      *          The name is not valid.
      *          | !isValidName(name)
      */
+    @Raw
     public void setName(String name) throws IllegalArgumentException {
         if (!isValidName(name))
             throw new IllegalArgumentException("Invalid name");
@@ -769,6 +777,7 @@ public class Unit {
      *          Otherwise the weight is set to the given weight.
      *          | else new.getWeight() == weight
      */
+    @Raw
     public void setWeight(int weight) {
         if (weight < MIN_ATTRIBUTE)
             weight = MIN_ATTRIBUTE;
@@ -821,6 +830,7 @@ public class Unit {
      *          | then new.getWeight() == (strength + this.agility)/2
      *          | else new.getWeight() == this.getWeight()
      */
+    @Raw
     public void setStrength(int strength) {
         if (strength < MIN_ATTRIBUTE)
             strength = MIN_ATTRIBUTE;
@@ -872,6 +882,7 @@ public class Unit {
      *          | then new.getWeight() == (this.strength + agility)/2
      *          | else new.getWeight() == this.getWeight()
      */
+    @Raw
     public void setAgility(int agility) {
         if (agility < MIN_ATTRIBUTE)
             agility = MIN_ATTRIBUTE;
@@ -919,6 +930,7 @@ public class Unit {
      *          Otherwise the new toughness is the given toughness.
      *          | else new.getToughness() == toughness
      */
+    @Raw
     public void setToughness(int toughness) {
         if (toughness > MAX_ATTRIBUTE)
             toughness = MAX_ATTRIBUTE;
@@ -962,6 +974,7 @@ public class Unit {
      *          | new.getHitPoints() == hitPoints
      *
      */
+    @Raw
     public void setHitPoints(int hitPoints) {
         assert hitPoints <= getMaxPoints() && hitPoints >= 0;
         this.hitPoints = hitPoints;
@@ -1003,6 +1016,7 @@ public class Unit {
      *          | new.getStamina() == stamina
      *
      */
+    @Raw
     public void setStamina(int stamina){
         assert stamina <= getMaxPoints() && stamina >= 0;
         this.stamina = stamina;
@@ -1052,6 +1066,7 @@ public class Unit {
      * @post    The new orientation is the same as the old orientation but between 0 and 2*PI.
      *          | new.getOrientation() == ((2*Math.PI) + (orientation % (2*Math.PI))) % 2* Math.PI
      */
+    @Raw
     public void setOrientation(double orientation) {
         this.orientation = ((Math.PI*2) + (orientation % (2*Math.PI))) % (2*Math.PI);
     }
