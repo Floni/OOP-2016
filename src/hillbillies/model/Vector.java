@@ -10,10 +10,6 @@ import ogp.framework.util.Util;
  */
 @Value
 public class Vector {
-
-    public interface MapFunc {
-        double func(double val);
-    }
     private final double X;
     private final double Y;
     private final double Z;
@@ -183,10 +179,6 @@ public class Vector {
                 Y,
                 Z
         };
-    }
-
-    public Vector map(MapFunc f) {
-        return new Vector(f.func(getX()), f.func(getY()), f.func(getZ()));
     }
 
     /**

@@ -19,6 +19,7 @@ hillbillies.part1.internal.ui
 hillbillies.part1.internal.ui.sprites
 hillbillies.part1.internal.ui.viewparts
 hillbillies.tests.facade
+hillbillies.tests.model
 hillbillies.tests.util
 ogp.framework.game
 ogp.framework.ui
