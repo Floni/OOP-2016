@@ -6,7 +6,7 @@ import be.kuleuven.cs.som.annotate.Raw;
 import be.kuleuven.cs.som.annotate.Value;
 import ogp.framework.util.ModelException;
 
-//TODO: check all throws -> in parent methods
+
 //TODO: @raw
 //TODO: make more methods private? (setOrientation, setStamina, setHitPoints, ...)
 
@@ -233,18 +233,22 @@ public class Unit {
      * @post    If the unit is resting, the restTimer is decreased. If the timer runs out the timer is first reset.
      *              If the unit can heal HP, we heal HP otherwise the unit heals stamina,
      *              if neither can be increased the unit stops resting.
-     * TODO: finish
      * @post    If the unit is currently not conducting an activity,
      *              the unit continues an interrupted activity if it exists.
      *              If it doesn't exist and the default behaviour is enabled, we choose an activity at random.
      * @post    We also check if three minutes have past, if so we start resting and reset this timer.
      *
-     * @throws  ModelException
+     * @effect  Stops sprinting if the unit's stamina is depleted or if the unit arrived at the target.
+     *          Also starts sprinting randomly when default behavior is enabled. setSprint()
+     * @effect  If the unit passes the centre of the target neighbouring cube this dt, the position of the unit
+     *          is set to the centre of this neighbouring cube. setPosition()
+     *
+     * @throws  IllegalArgumentException
      *          The given time step was to big or negative.
      */
-    public void advanceTime(double dt) throws  ModelException {
+    public void advanceTime(double dt) throws  IllegalArgumentException {
         if (dt < 0 || dt >= 0.2)
-            throw new ModelException("Invalid dt");
+            throw new IllegalArgumentException("Invalid dt");
 
         switch(getCurrentActivity()) {
             case MOVE:
@@ -415,7 +419,7 @@ public class Unit {
      *          | if this.getCurrentActivity() != newActivity
      *          | then new.lastActivity == this.getCurrentActivity()
      *
-     * @effect If the unit is resting we reset the rest timers.
+     * @effect  If the unit is resting we reset the rest timers.
      *          | if this.isResting()
      *          | then this.resetRest()
      */
@@ -437,9 +441,9 @@ public class Unit {
     /**
      * Finishes the current activity.
      *
-     * @post    The new activity will be the last activity (for when interrupted)
-     *          | new.getCurrentActivity() == this.
-     * @post    The lastActivity is set to None
+     * @post    The new activity will be the last activity (for when interrupted).
+     *          | new.getCurrentActivity() == this.lastActivity
+     * @post    The lastActivity is set to None.
      *          | new.lastActivity == Activity.NONE
      */
     private void finishCurrentActivity() {
@@ -448,12 +452,12 @@ public class Unit {
     }
 
     /**
-     * Checks whether the current activity can be interrupted by newActivity
+     * Checks whether the current activity can be interrupted by newActivity.
      *
      * @param   newActivity
-     *          The new activity to test
+     *          The new activity to test.
      *
-     * @return  True if we may change the current activity
+     * @return  True if we may change the current activity.
      *          | result == (newActivity == Activity.DEFEND) ||
      *          |           (getCurrentActivity() == WORK ||
      *          |           getCurrentActivity() == NONE ||
@@ -492,9 +496,9 @@ public class Unit {
      * Sets the distant target.
      *
      * @param   target
-     *          The new target
+     *          The new target.
      *
-     * @post    The target is set
+     * @post    The target is set.
      *          | new.getTarget() == target
      */
     private void setTarget(Vector target) {
@@ -502,7 +506,7 @@ public class Unit {
     }
 
     /**
-     * Returns the distant target
+     * Returns the distant target.
      */
     @Basic
     private Vector getTarget() {
@@ -510,7 +514,7 @@ public class Unit {
     }
 
     /**
-     * Sets the target neighbour
+     * Sets the target neighbour.
      *
      * @param   targetNeighbour
      *          The target neighbour
@@ -720,10 +724,13 @@ public class Unit {
     }
     //</editor-fold>
 
-    //<editor-fold desc="Properties">
+    //<editor-fold desc="Attributes">
 
     /**
      * Returns whether or not the weight is valid.
+     *
+     * @param   weight
+     *          The weight to be verified.
      *
      * @return  Returns true if the weight is larger or equal to MIN_ATTRIBUTE,
      *          larger or equal to (strength + agility)/2,
@@ -774,6 +781,9 @@ public class Unit {
     /**
      * Returns whether the strength is valid.
      *
+     * @param   strength
+     *          The strength to be verified.
+     *
      * @return  Returns true if the strength is larger or equal to MIN_ATTRIBUTE
      *          and smaller or equal to MAX_ATTRIBUTE.
      *          | result == strength <= MAX_ATTRIBUTE && strength >= MIN_ATTRIBUTE
@@ -820,7 +830,10 @@ public class Unit {
 
 
     /**
-     * Returns whether the agility is valid
+     * Returns whether the agility is valid.
+     *
+     * @param   agility
+     *          The agility to be verified.
      *
      * @return  Returns true if the agility is larger or equal to MIN_ATTRIBUTE,
      *          and smaller or equal to MAX_ATTRIBUTE.
@@ -870,6 +883,9 @@ public class Unit {
     /**
      * Returns whether the toughness is valid.
      *
+     * @param   toughness
+     *          The toughness to be verified.
+     *
      * @return  Returns true if the toughness is larger or equal to MIN_ATTRIBUTE,
      *          and smaller or equal to MAX_ATTRIBUTE.
      *          | result == toughness <= MAX_ATTRIBUTE && toughness >= MIN_ATTRIBUTE
@@ -912,6 +928,9 @@ public class Unit {
     /**
      * Returns whether the hitPoints are valid.
      *
+     * @param   hitPoints
+     *          The hit points to be verified.
+     *
      * @return  Returns true if the hitPoints are larger than or equal to 0
      *          and smaller than or equal to the maximum amount of hitPoints.
      *          | result == (hitPoints <= getMaxPoints()) && (hitPoints >= 0)
@@ -949,6 +968,9 @@ public class Unit {
 
     /**
      * Returns whether the stamina is valid.
+     *
+     * @param   stamina
+     *          The stamina to be verified.
      *
      * @return  Returns true if the amount of stamina is larger than or equal to 0
      *          and smaller than or equal to the maximum amount of hitPoints.
@@ -1000,6 +1022,9 @@ public class Unit {
     /**
      * Returns whether the orientation is valid.
      *
+     * @param   orientation
+     *          The orientation to be verified.
+     *
      * @return  Returns true if the orientation is equal to or larger than 0
      *          and smaller than 2*PI
      *          | result == (orientation < 2*Math.PI) && (orientation >= 0)
@@ -1040,7 +1065,6 @@ public class Unit {
     }
 
 
-    // TODO: moveToAdjacent comments
     /**
      * Starts the unit moving towards one of the adjacent cubes.
      *
@@ -1053,9 +1077,10 @@ public class Unit {
      *
      * @post    The unit will be moving
      *          | new.isMoving() == True
-     *
      * @post    The unit will move to the target when calling advanceTime()
-     *          |
+     *          | new.getPosition[0] == old.getPosition[0] + dx &&
+     *          | new.getPosition[1] == old.getPosition[1] + dy &&
+     *          | new.getPosition[2] == old.getPosition[2] + dz
      *
      * @effect  Set the unit's orientation
      *          | setOrientation(Math.atan2(getSpeed().getY(), getSpeed().getX()));
@@ -1095,7 +1120,6 @@ public class Unit {
     }
 
 
-    // TODO: moveTO comments
     /**
      * Starts the units movement to the given target cube.
      *
@@ -1401,16 +1425,24 @@ public class Unit {
      *          and the new position can not be equal to the original.
      *          The unit does not take any damage.
      *          | if (random < (0.20 * this.getAgility() / attacker.getAgility()) )
-     *          | then new.getPosition()
+     *          | then new.getPosition()[0] == old.getPosition[0] + 2 * Math.random -1 &&
+     *          |   new.getPosition()[1] == old.getPosition[1] + 2 * Math.random -1)
+     *          | then (new.getHitPoints == old.getHitPoints)
      * @post    If the unit did not dodge the attack but blocked it,
      *          the unit will not take any damage.
-     *          | ..
+     *          |  if (random > (0.20 * this.getAgility() / attacker.getAgility()) &&
+     *          |       ( random < (0.25 * (this.getStrength + this.getAgility)/(other.getStrength + other.getAgility)))
+     *          | then ( new.getHitPoints == old.getHitPoints)
      * @post    If the unit did not dodge or block the attack,
      *          it will take damage equal to the attacker's strength/10.
-     *          | ..
+     *          | if (random > (0.20 * this.getAgility() / attacker.getAgility()) &&
+     *          |       ( random > (0.25 * (this.getStrength + this.getAgility)/(other.getStrength + other.getAgility)))
+     *          | then ( new.getHitPoints == old.getHitPoints - (attacker.getStrength / 10))
      *
      * @effect  Finishes the current activity.
      *          | finishCurrentActivity()
+     * @effect  Sets the position to the random position after dodging
+     *          | setPosition()
      *
      */
     private void defend(Unit attacker) {
@@ -1471,13 +1503,13 @@ public class Unit {
      * @post    The unit is resting.
      *          | new.isResting() == true
      *
-     * @throws  RuntimeException
+     * @throws  IllegalStateException
      *          Throws if the unit is moving.
      *          | this.isMoving()
      */
-    public void rest() throws RuntimeException {
+    public void rest() throws IllegalStateException {
         if (!canHaveAsActivity(Activity.REST))
-            throw new RuntimeException("Can't rest right now");
+            throw new IllegalStateException("Can't rest right now");
 
         this.restTimer = REST_DELAY;
         if (!isResting())

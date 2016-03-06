@@ -105,8 +105,12 @@ public class Facade implements IFacade {
 
     @Override
     public void advanceTime(Unit unit, double dt) throws ModelException {
-        unit.advanceTime(dt);
-    }
+        try {
+            unit.advanceTime(dt);
+        } catch (IllegalArgumentException err) {
+            throw new ModelException(err.getMessage(), err);
+        }
+            }
 
     @Override
     public void moveToAdjacent(Unit unit, int dx, int dy, int dz) throws ModelException {
@@ -149,12 +153,20 @@ public class Facade implements IFacade {
 
     @Override
     public void moveTo(Unit unit, int[] cube) throws ModelException {
-        unit.moveTo(cube);
+        try {
+            unit.moveTo(cube);
+        } catch (Exception err) {
+            throw new ModelException(err.getMessage(), err);
+        }
     }
 
     @Override
     public void work(Unit unit) throws ModelException {
-        unit.work();
+        try{
+            unit.work();
+        } catch (IllegalArgumentException err) {
+            throw new ModelException(err.getMessage(), err);
+        }
     }
 
     @Override
@@ -178,7 +190,11 @@ public class Facade implements IFacade {
 
     @Override
     public void rest(Unit unit) throws ModelException {
-        unit.rest();
+        try {
+            unit.rest();
+        } catch (IllegalStateException err) {
+            throw new ModelException(err.getMessage(), err);
+        }
     }
 
     @Override
