@@ -231,7 +231,14 @@ public class Unit {
      * @post    If the unit is attacking another unit the attackTimer is decreased,
      *              if it runs out the other unit has to defend and the unit stops attacking.
      * @post    If the unit is resting, the restTimer is decreased. If the timer runs out the timer is first reset.
+     *              If the unit can heal HP, we heal HP otherwise the unit heals stamina,
+     *              if neither can be increased the unit stops resting.
      * TODO: finish
+     * @post    If the unit is currently not conducting an activity,
+     *              the unit continues an interrupted activity if it exists.
+     *              If it doesn't exist and the default behaviour is enabled, we choose an activity at random.
+     * @post    We also check if three minutes have past, if so we start resting and reset this timer.
+     *
      * @throws  ModelException
      *          The given time step was to big or negative.
      */

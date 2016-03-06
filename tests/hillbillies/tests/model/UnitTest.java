@@ -77,6 +77,7 @@ public class UnitTest {
 
     @Test
     public void testAdvanceTime() throws Exception {
+        // can we test AdvanceTime seperatly, we could check for the resting after three minutes?
 
     }
 
@@ -370,7 +371,7 @@ public class UnitTest {
     @Test
     public void testRestRegenHP() throws Exception {
         unit.setHitPoints(0);
-        unit.setStamina(unit.getMaxPoints());
+        unit.setStamina(unit.getMaxPoints() / 2);
         double seconds = 8;
         int extra_points = (int)((seconds / 0.2) * ((double)unit.getToughness() / 200.0));
         unit.rest();
