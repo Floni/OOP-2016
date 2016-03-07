@@ -1454,7 +1454,7 @@ public class Unit {
      *          it will take damage equal to the attacker's strength/10.
      *          | if (random > (0.20 * this.getAgility() / attacker.getAgility()) &&
      *          |       ( random > (0.25 * (this.getStrength + this.getAgility)/(other.getStrength + other.getAgility)))
-     *          | then ( new.getHitPoints == old.getHitPoints - (attacker.getStrength / 10))
+     *          | then ( new.getHitPoints == old.getHitPoints - (attacker.getStrength / 10)) TODO: check
      *
      * @effect  Finishes the current activity.
      *          | finishCurrentActivity()
@@ -1495,6 +1495,7 @@ public class Unit {
             double probabilityBlock = 0.25 *
                     ((this.getStrength()+this.getAgility())/(attacker.getStrength()+attacker.getAgility()));
             if (Math.random() >= probabilityBlock) {
+                //TODO: fix:
                 setHitPoints(getHitPoints() - (attacker.getStrength()/10));
             }
         }
