@@ -980,6 +980,28 @@ public class Unit {
         this.hitPoints = hitPoints;
     }
 
+    //TODO: 0 hp = dead
+    /**
+     *  Deduces the given amount hit points from the unit's hp.
+     *
+     * @param   hitPoints
+     *          The Amount of hit points to be deduced.
+     *
+     * @post    The unit's new hp shall be equal to the its old hp deduced by the given hitPoints or
+     *          zero if the new hp would otherwise be negative
+     *          | if ( (old.getHitPoints() - hitPoints) > 0 )
+     *          |   then new.getHitPoints ()== old.getHitPoints() - hitPoints
+     *          | else
+     *          |   new.getHitPoints() == 0
+     */
+    @Model
+    private void deduceHitPoints(int hitPoints)  {
+        int newHitPoints = this.getHitPoints() - hitPoints;
+        if (newHitPoints < 0)
+                newHitPoints = 0;
+        this.setHitPoints(newHitPoints);
+    }
+
 
     /**
      * Returns whether the stamina is valid.
@@ -1442,24 +1464,22 @@ public class Unit {
      *          and the new position can not be equal to the original.
      *          The unit does not take any damage.
      *          | if (random < (0.20 * this.getAgility() / attacker.getAgility()) )
-     *          | then new.getPosition()[0] == old.getPosition[0] + 2 * Math.random -1 &&
-     *          |   new.getPosition()[1] == old.getPosition[1] + 2 * Math.random -1)
-     *          | then (new.getHitPoints == old.getHitPoints)
-     * @post    If the unit did not dodge the attack but blocked it,
-     *          the unit will not take any damage.
-     *          |  if (random > (0.20 * this.getAgility() / attacker.getAgility()) &&
-     *          |       ( random < (0.25 * (this.getStrength + this.getAgility)/(other.getStrength + other.getAgility)))
-     *          | then ( new.getHitPoints == old.getHitPoints)
-     * @post    If the unit did not dodge or block the attack,
-     *          it will take damage equal to the attacker's strength/10.
-     *          | if (random > (0.20 * this.getAgility() / attacker.getAgility()) &&
-     *          |       ( random > (0.25 * (this.getStrength + this.getAgility)/(other.getStrength + other.getAgility)))
-     *          | then ( new.getHitPoints == old.getHitPoints - (attacker.getStrength / 10)) TODO: check
+     *          |   then new.getPosition()[0] == old.getPosition[0] + 2 * Math.random -1 &&
+     *          |       new.getPosition()[1] == old.getPosition[1] + 2 * Math.random -1) &&
+     *          |       (new.getHitPoints == old.getHitPoints)
+     *          Else if the attack is blocked, the unit will not take any damage.
+     *          | else if ( random < (0.25 * (this.getStrength + this.getAgility)/(other.getStrength + other.getAgility)))
+     *          |   then ( new.getHitPoints == old.getHitPoints)
+     *          Else if the attack hit the unit, it will take damage equal to the attacker's strength/10.
+     *          | Else
+     *          |   ( deduceHitPoints (attack.getStrength() / 10) )
      *
      * @effect  Finishes the current activity.
      *          | finishCurrentActivity()
-     * @effect  Sets the position to the random position after dodging
+     * @effect  Sets the position to the random position after dodging.
      *          | setPosition()
+     * @effect  Deduces the given amount of hit points from the unit's hp.
+     *          | deduceHitPoints()
      *
      */
     private void defend(Unit attacker) {
@@ -1495,8 +1515,7 @@ public class Unit {
             double probabilityBlock = 0.25 *
                     ((this.getStrength()+this.getAgility())/(attacker.getStrength()+attacker.getAgility()));
             if (Math.random() >= probabilityBlock) {
-                //TODO: fix:
-                setHitPoints(getHitPoints() - (attacker.getStrength()/10));
+                deduceHitPoints(attacker.getStrength() / 10);
             }
         }
 
