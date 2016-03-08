@@ -288,13 +288,6 @@ public class UnitTest {
     }
 
     @Test
-    public void testDefend() throws Exception {
-        Unit other = new Unit("Florian",1 , 1, 0, 50, 50, 50, 50);
-        other.attack(unit);
-        assertTrue(unit.isDefending());
-    }
-
-    @Test
     public void testRest() throws Exception {
         unit.rest();
         assertTrue(unit.isResting());

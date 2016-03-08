@@ -3,7 +3,6 @@ package hillbillies.model;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
-import be.kuleuven.cs.som.annotate.Value;
 
 /**
  *
@@ -40,14 +39,305 @@ import be.kuleuven.cs.som.annotate.Value;
  *          | canHaveAsStamina(this.getStamina())
  */
 public class Unit {
-    @Value
-    private enum Activity {
-        WORK,
-        MOVE,
-        REST,
-        ATTACK,
-        DEFEND,
-        NONE
+    private static abstract class Activity {
+        abstract void advanceTime(double dt);
+        abstract boolean canSwitch(Class<? extends Activity> newActivity);
+
+        boolean equalsClass(Activity other) {
+            return this.getClass().equals(other.getClass());
+        }
+
+        boolean equalsClass(Class<? extends Activity> other) {
+            return this.getClass().equals(other);
+        }
+    }
+
+    private class MoveActivity extends Activity {
+        private Vector target;
+        private Vector targetNeighbour;
+        private Vector speed;
+
+        private double sprintStaminaTimer;
+        private boolean sprinting;
+
+        public MoveActivity(Vector target) {
+            this.target = target;
+            goToNextNeighbour();
+        }
+
+        public MoveActivity(int[] adjacent) throws IllegalArgumentException {
+            moveToNeighbour(adjacent);
+        }
+
+
+        @Override
+        void advanceTime(double dt) {
+            double mod = 1;
+            if (this.sprinting) {
+                sprintStaminaTimer -= dt;
+                mod = 2;
+                if(sprintStaminaTimer <= 0) {
+                    sprintStaminaTimer += SPRINT_DELAY;
+                    int newStamina = getStamina()  - 1;
+                    if (newStamina >= 0)
+                        setStamina(newStamina);
+                    if (getStamina() == 0) {
+                        mod = 1;
+                        this.sprinting = false;
+                    }
+                }
+            } else if (isDefaultEnabled()) {
+                // fix with timer? or just once while moving?
+                if (Math.random() >= 0.9999 && getStamina() != 0)
+                    this.sprinting = true;
+            }
+
+            Vector newPosition = getPositionVec().add(this.speed.multiply(mod*dt));
+            if (isAtNeighbour(newPosition)) {
+                setPosition(this.targetNeighbour);
+                if (!pendingActivity.equalsClass(NoneActivity.class)) {
+                    currentActivity = pendingActivity;
+                    pendingActivity = NONE_ACTIVITY;
+                    lastActivity = this;
+                } else if (this.target == null || isAtTarget()) {
+                    finishCurrentActivity();
+                } else {
+                    goToNextNeighbour();
+                }
+            } else {
+                setPosition(newPosition);
+            }
+        }
+
+        @Override
+        boolean canSwitch(Class<? extends Activity> newActivity) {
+            return this.target != null;
+        }
+
+        /**
+         * Checks whether the unit has arrived at the target
+         *
+         * @return  True if the unit's position equals the target position.
+         *          | result == this.position.isEqualTo(this.target, POS_EPS)
+         */
+        private boolean isAtTarget() {
+            return getPositionVec().isEqualTo(this.target, POS_EPS);
+        }
+
+        /**
+         * Checks whether we arrived at the target neighbour.
+         *
+         * @param   newPosition
+         *          The position after advanceTime
+         *
+         * @return  True if we are going to be further from the target in the next step
+         *          | result == dist(newPosition, targetNeighbour) > dist(position, targetNeighbour)
+         */
+        private boolean isAtNeighbour(Vector newPosition) {
+            double dist_new = newPosition.substract(this.targetNeighbour).norm();
+            double dist_cur = getPositionVec().substract(this.targetNeighbour).norm();
+            return dist_new > dist_cur;
+        }
+
+        /**
+         * Starts moving towards the next neighbour on the path to the target.
+         *
+         * @post    Moves the unit to a adjacent cube in the direction of the target when calling advanceTime.
+         *          | if ( posC[0] > targetC[0])
+         *          | then (new.getPosition()[0] == old.getPosition[0] - 1)
+         *          | if ( posC[0] < targetC[0])
+         *          | then (new.getPosition()[0] == old.getPosition[0] + 1)
+         *          | if ( posC[0] == targetC[0])
+         *          | then (new.getPosition()[0] == old.getPosition[0])
+         *          | if ( posC[1] > targetC[1])
+         *          | then (new.getPosition()[1] == old.getPosition[1] - 1)
+         *          | if ( posC[1] < targetC[1])
+         *          | then (new.getPosition()[1] == old.getPosition[1] + 1)
+         *          | if ( posC[1] == targetC[1])
+         *          | then (new.getPosition()[1] == old.getPosition[1])
+         *          | if ( posC[2] > targetC[2])
+         *          | then (new.getPosition()[2] == old.getPosition[2] - 1)
+         *          | if ( posC[2] < targetC[2])
+         *          | then (new.getPosition()[2] == old.getPosition[2] + 1)
+         *          | if ( posC[2] == targetC[2])
+         *          | then (new.getPosition()[2] == old.getPosition[2])
+         *
+         * @effect  Moves to the next adjacent cube.
+         *          | moveToAdjacent();
+         *
+         */
+        private void goToNextNeighbour() {
+            int[] posC = getCubePosition(getPosition());
+            int[] targetC = getCubePosition(this.target.toDoubleArray());
+            int[] dp = new int[3];
+            for (int i = 0; i < 3; i++) {
+                if (posC[i] == targetC[i])
+                    dp[i] = 0;
+                else if (posC[i] < targetC[i])
+                    dp[i] = 1;
+                else
+                    dp[i] = -1;
+            }
+            // to prevent moveToAdjacent from checking if we can move
+            // this.currentActivity = Activity.NONE;
+            moveToNeighbour(dp);
+        }
+
+        private void moveToNeighbour(int[] adjacent) throws IllegalArgumentException {
+            int[] curPos = getCubePosition(getPosition());
+            Vector target = new Vector(curPos[0] + adjacent[0], curPos[1] + adjacent[1], curPos[2] + adjacent[2]);
+            this.targetNeighbour = target.add(Lc/2);
+            if (!isValidPosition(this.targetNeighbour.toDoubleArray()))
+                throw new IllegalArgumentException("Illegal neighbour");
+            this.speed = calculateSpeed(this.targetNeighbour);
+            setOrientation(Math.atan2(this.speed.getY(), this.speed.getX()));
+        }
+
+        /**
+         * Calculates the speed of the unit.
+         *
+         * @param   target
+         *          The target position which the unit is moving to.
+         *
+         * @return  The result is the speed vector which would move the unit to the target.
+         *          | this.getPositionVec().add(result.multiply(getPositionVec().subtract(target).norm()
+         *          | / getSpeedScalar())).isEqualTo(target)
+         */
+        private Vector calculateSpeed(Vector target){
+            double vb = 1.5*(getStrength()+getAgility())/(2*(getWeight()));
+            Vector diff = target.substract(getPositionVec());
+            double d = diff.norm();
+            diff = diff.divide(d);
+
+            double vw = vb;
+            if (diff.getZ() > POS_EPS) {
+                vw = 0.5*vb;
+            }
+            else if (diff.getZ() < -POS_EPS) {
+                vw = 1.2*vb;
+            }
+            return diff.multiply(vw);
+        }
+    }
+
+    private class RestActivity extends Activity {
+        private double restTimer;
+        private double restDiff;
+        private boolean initialRest;
+
+        public RestActivity() {
+            this.restTimer = REST_DELAY;
+            this.restDiff = 0;
+            this.initialRest = true;
+        }
+
+        @Override
+        void advanceTime(double dt) {
+            this.restTimer -= dt;
+            if (this.restTimer <= 0) {
+                this.restTimer += REST_DELAY;
+
+                if (getHitPoints() != getMaxPoints()) {
+                    restDiff += (getToughness()/200.0);
+                    // recover at least 1 HP
+                    if (restDiff >= 1) {
+                        initialRest = false;
+                        restDiff -= 1;
+                        setHitPoints(getHitPoints()+1);
+                    }
+                } else if (getStamina() != getMaxPoints()) {
+                    initialRest = false;
+                    restDiff += (getToughness()/100.0);
+                    if (restDiff >= 1) {
+                        restDiff -= 1;
+                        setStamina(getStamina() + 1);
+                    }
+                } else {
+                    finishCurrentActivity();
+                }
+            }
+        }
+
+        @Override
+        boolean canSwitch(Class<? extends Activity> newActivity) {
+            return !initialRest;
+        }
+    }
+
+    private class WorkActivity extends Activity {
+        private WorkActivity() {
+            this.workTimer  = 500.0 / getStrength();
+        }
+
+        private double workTimer = 0;
+
+        @Override
+        void advanceTime(double dt) {
+            workTimer -= dt;
+            if (workTimer <= 0) {
+                workTimer = 0;
+                finishCurrentActivity();
+            }
+        }
+
+        @Override
+        boolean canSwitch(Class<? extends Activity> newActivity) {
+            return true;
+        }
+    }
+
+    private class AttackActivity extends Activity {
+        private double attackTimer;
+
+        public AttackActivity() {
+            attackTimer = ATTACK_DELAY;
+        }
+
+        @Override
+        void advanceTime(double dt) {
+            this.attackTimer -= dt;
+            if (this.attackTimer <= 0) {
+                this.attackTimer = 0;
+
+                finishCurrentActivity();
+            }
+        }
+
+        @Override
+        boolean canSwitch(Class<? extends Activity> newActivity) {
+            return false;
+        }
+    }
+
+    private class NoneActivity extends Activity {
+        @Override
+        void advanceTime(double dt) {
+            if (!lastActivity.equalsClass(NoneActivity.class)) {
+                finishCurrentActivity(); // we still have an interrupted activity
+            } else if (isDefaultEnabled()) {
+                int random = (int)Math.floor(Math.random()*3);
+                switch (random) {
+                    case 0: // move to random location
+                        int[] randLoc = new int[3];
+                        for (int i = 0; i < 3; i++) {
+                            randLoc[i] = (int)Math.floor(Math.random()*50);
+                        }
+                        moveTo(randLoc);
+                        break;
+                    case 1: // work
+                        work();
+                        break;
+                    case 2: // rest
+                        rest();
+                        break;
+                }
+            }
+        }
+
+        @Override
+        boolean canSwitch(Class<? extends Activity> newActivity) {
+            return true;
+        }
     }
 
     //<editor-fold desc="Constants">
@@ -73,32 +363,20 @@ public class Unit {
 
     //<editor-fold desc="Variables">
     private Vector position;
+
     private String name;
+
     private int weight, strength, agility, toughness;
     private double orientation;
     private int hitPoints, stamina;
 
-    private Activity currentActivity = Activity.NONE;
-    private Activity lastActivity = Activity.NONE;
+    private final Activity NONE_ACTIVITY = new NoneActivity();
 
-    private Activity pendingActivity = Activity.NONE;
+    private Activity currentActivity = NONE_ACTIVITY;
+    private Activity lastActivity = NONE_ACTIVITY;
 
-    private Vector target;
-    private Vector targetNeighbour;
+    private Activity pendingActivity = NONE_ACTIVITY;
 
-    private Vector speed;
-
-    private boolean sprinting;
-    private double sprintStaminaTimer;
-
-    private double workTimer;
-
-    private double attackTimer;
-    private Unit defender;
-
-    private double restTimer;
-    private boolean initialRest;
-    private double restDiff;
     private double restMinuteTimer;
 
     private boolean defaultEnabled;
@@ -255,114 +533,7 @@ public class Unit {
         if (dt < 0 || dt >= 0.2)
             throw new IllegalArgumentException("Invalid dt");
 
-        switch(getCurrentActivity()) {
-            case MOVE:
-                double mod = 1;
-                if (isSprinting()) {
-                    sprintStaminaTimer -= dt;
-                    mod = 2;
-                    if(sprintStaminaTimer <= 0) {
-                        sprintStaminaTimer += SPRINT_DELAY;
-                        int newStamina = getStamina()  - 1;
-                        if (newStamina >= 0)
-                            setStamina(newStamina);
-                        if (getStamina() == 0) {
-                            mod = 1;
-                            setSprint(false);
-                        }
-                    }
-                } else if (isDefaultEnabled()) {
-                    // fix with timer? or just once while moving?
-                    if (Math.random() >= 0.9999 && getStamina() != 0)
-                        setSprint(true);
-                }
-
-                Vector newPosition = getPositionVec().add(getSpeed().multiply(mod*dt));
-                if (isAtNeighbour(newPosition)) {
-                    setPosition(getTargetNeighbour());
-                    if (this.pendingActivity != Activity.NONE) {
-                        this.currentActivity = this.pendingActivity;
-                        this.pendingActivity = Activity.NONE;
-                        this.lastActivity = Activity.MOVE;
-                    } else if (getTarget() == null || isAtTarget()) {
-                        setSprint(false);
-                        finishCurrentActivity();
-                        setSpeed(null);
-                        setTarget(null);
-                        setTargetNeighbour(null);
-                    } else {
-                        goToNextNeighbour();
-                    }
-                } else {
-                    setPosition(newPosition);
-                }
-                break;
-            case WORK:
-                workTimer -= dt;
-                if (workTimer <= 0) {
-                    workTimer = 0;
-                    finishCurrentActivity();
-                }
-                break;
-            case ATTACK:
-                this.attackTimer -= dt;
-                if (this.attackTimer <= 0) {
-                    this.attackTimer = 0;
-                    this.defender.defend(this);
-                    finishCurrentActivity();
-                }
-                break;
-            case REST:
-                this.restTimer -= dt;
-                if (this.restTimer <= 0) {
-                    this.restTimer += REST_DELAY;
-
-                    if (getHitPoints() != getMaxPoints()) {
-                        restDiff += (getToughness()/200.0);
-                        // recover at least 1 HP
-                        if (restDiff >= 1) {
-                            initialRest = false;
-                            restDiff -= 1;
-                            setHitPoints(getHitPoints()+1);
-                        }
-                    } else if (getStamina() != getMaxPoints()) {
-                        initialRest = false;
-                        restDiff += (getToughness()/100.0);
-                        if (restDiff >= 1) {
-                            restDiff -= 1;
-                            setStamina(getStamina() + 1);
-                        }
-                    } else {
-                        finishCurrentActivity();
-                    }
-                }
-                break;
-            case NONE:
-                if (this.lastActivity != Activity.NONE) {
-                    finishCurrentActivity(); // we still have an interrupted activity
-                } else if (isDefaultEnabled()) {
-                    int random = (int)Math.floor(Math.random()*3);
-                    switch (random) {
-                        case 0: // move to random location
-                            int[] randLoc = new int[3];
-                            for (int i = 0; i < 3; i++) {
-                                randLoc[i] = (int)Math.floor(Math.random()*50);
-                            }
-                            moveTo(randLoc);
-                            break;
-                        case 1: // work
-                            work();
-                            break;
-                        case 2: // rest
-                            rest();
-                            break;
-                    }
-                }
-                break;
-            case DEFEND:
-                // do nothing while waiting for attack.
-                break;
-        }
+        getCurrentActivity().advanceTime(dt);
 
         restMinuteTimer -= dt;
         if (restMinuteTimer <= 0) {
@@ -370,31 +541,6 @@ public class Unit {
             rest();
         }
 
-    }
-
-    /**
-     * Checks whether the unit has arrived at the target
-     *
-     * @return  True if the unit's position equals the target position.
-     *          | result == this.position.isEqualTo(this.target, POS_EPS)
-     */
-    private boolean isAtTarget() {
-        return this.getPositionVec().isEqualTo(this.getTarget(), POS_EPS);
-    }
-
-    /**
-     * Checks whether we arrived at the target neighbour.
-     *
-     * @param   newPosition
-     *          The position after advanceTime
-     *
-     * @return  True if we are going to be further from the target in the next step
-     *          | result == dist(newPosition, targetNeighbour) > dist(position, targetNeighbour)
-     */
-    private boolean isAtNeighbour(Vector newPosition) {
-        double dist_new = newPosition.substract(getTargetNeighbour()).norm();
-        double dist_cur = getPositionVec().substract(getTargetNeighbour()).norm();
-        return dist_new > dist_cur;
     }
     //</editor-fold>
 
@@ -432,15 +578,12 @@ public class Unit {
      *          | then this.resetRest()
      */
     private void setCurrentActivity(Activity newActivity) {
-        assert canHaveAsActivity(newActivity);
+        assert currentActivity.canSwitch(newActivity.getClass());
         // don't do the same activity twice
-        if (getCurrentActivity() != newActivity)
+        if (!newActivity.equalsClass(currentActivity))
             this.lastActivity = getCurrentActivity();
-        // reset rest time, do same with work?
-        if (isResting())
-            resetRest();
 
-        if (isMoving() && newActivity != Activity.MOVE && newActivity != Activity.DEFEND)
+        if (isMoving() && !newActivity.getClass().equals(MoveActivity.class))
             this.pendingActivity = newActivity;
         else
             this.currentActivity = newActivity;
@@ -456,89 +599,7 @@ public class Unit {
      */
     private void finishCurrentActivity() {
         this.currentActivity = this.lastActivity;
-        this.lastActivity = Activity.NONE;
-    }
-
-    /**
-     * Checks whether the current activity can be interrupted by newActivity.
-     *
-     * @param   newActivity
-     *          The new activity to test.
-     *
-     * @return  True if we may change the current activity.
-     *          | result == (newActivity == Activity.DEFEND) ||
-     *          |           (getCurrentActivity() == WORK ||
-     *          |           getCurrentActivity() == NONE ||
-     *          |           (getCurrentActivity() == REST && !initialRest) ||
-     *          |           (getCurrentActivity() == MOVE && this.target != null))
-     */
-    @Model
-    private boolean canHaveAsActivity(Activity newActivity) {
-        // can always defend and a character can always rest?
-        if (newActivity == Activity.DEFEND)
-            return true;
-
-        switch (getCurrentActivity()) {
-            case WORK:
-                return true;
-            case NONE:
-                return true;
-            case REST:
-                return !initialRest; // can't interrupt the initial rest period
-            case MOVE:
-                // moveToAdjacent only when attacked
-                // moveTo yes, but must resume when done.
-                return this.target != null;
-            case ATTACK:
-                // can't stop an attack?
-                return false;
-            case DEFEND:
-                return false;
-        }
-        return false;
-    }
-    //</editor-fold>
-
-    //<editor-fold desc="Target">
-    /**
-     * Sets the distant target.
-     *
-     * @param   target
-     *          The new target.
-     *
-     * @post    The target is set.
-     *          | new.getTarget() == target
-     */
-    private void setTarget(Vector target) {
-        this.target = target;
-    }
-
-    /**
-     * Returns the distant target.
-     */
-    @Basic
-    private Vector getTarget() {
-        return this.target;
-    }
-
-    /**
-     * Sets the target neighbour.
-     *
-     * @param   targetNeighbour
-     *          The target neighbour
-     * @post    The new target neighbour is set.
-     *          | new.getTargetNeighbour() == targetNeighbour
-     */
-    private void setTargetNeighbour(Vector targetNeighbour) {
-        this.targetNeighbour = targetNeighbour;
-    }
-
-    /**
-     * Returns the target neighbour
-     */
-    @Basic
-    private Vector getTargetNeighbour() {
-        return this.targetNeighbour;
+        this.lastActivity = NONE_ACTIVITY;
     }
     //</editor-fold>
 
@@ -1100,7 +1161,7 @@ public class Unit {
      */
     @Basic
     public boolean isMoving() {
-        return currentActivity == Activity.MOVE;
+        return currentActivity.equalsClass(MoveActivity.class);
     }
 
 
@@ -1135,7 +1196,7 @@ public class Unit {
      *          | !canHaveAsActivity(Activity.MOVE)
      */
     public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException, IllegalStateException {
-        if (!canHaveAsActivity(Activity.MOVE)) {
+        if (!currentActivity.canSwitch(MoveActivity.class)) {
             throw new IllegalStateException("Can't move right now");
         }
 
@@ -1143,19 +1204,10 @@ public class Unit {
             throw new IllegalArgumentException("Illegal dx, dy and/or dz");
         }
 
-        int[] curPos = getCubePosition(getPosition());
-        Vector target = new Vector(curPos[0] + dx, curPos[1] + dy, curPos[2] + dz);
-        target = target.add(Lc/2);
-        //target = target.map((double val) -> val + Lc/2);
-
-        if (!isValidPosition(target.toDoubleArray())) {
-            throw new IllegalArgumentException("target out of bounds");
-        }
-        setTargetNeighbour(target);
-        setSpeed(calculateSpeed(target));
-        setOrientation(Math.atan2(getSpeed().getY(), getSpeed().getX()));
-
-        setCurrentActivity(Activity.MOVE);
+        if (isMoving())
+            ((MoveActivity)getCurrentActivity()).moveToNeighbour(new int[] {dx, dy, dz});
+        else
+            setCurrentActivity(new MoveActivity(new int[] {dx, dy, dz}));
     }
 
 
@@ -1180,7 +1232,7 @@ public class Unit {
      *
      */
     public void moveTo(int[] target) throws IllegalArgumentException, IllegalStateException {
-        if (!canHaveAsActivity(Activity.MOVE)) {
+        if (!currentActivity.canSwitch(MoveActivity.class)) {
             throw new IllegalStateException("can't path right now");
         }
 
@@ -1189,100 +1241,16 @@ public class Unit {
         if (!isValidPosition(newTarget.toDoubleArray())) {
             throw new IllegalArgumentException("invalid target");
         }
-        setTarget(newTarget);
 
-        goToNextNeighbour();
-
-        setCurrentActivity(Activity.MOVE);
-    }
-
-    /**
-     * Starts moving towards the next neighbour on the path to the target.
-     *
-     * @post    Moves the unit to a adjacent cube in the direction of the target when calling advanceTime.
-     *          | if ( posC[0] > targetC[0])
-     *          | then (new.getPosition()[0] == old.getPosition[0] - 1)
-     *          | if ( posC[0] < targetC[0])
-     *          | then (new.getPosition()[0] == old.getPosition[0] + 1)
-     *          | if ( posC[0] == targetC[0])
-     *          | then (new.getPosition()[0] == old.getPosition[0])
-     *          | if ( posC[1] > targetC[1])
-     *          | then (new.getPosition()[1] == old.getPosition[1] - 1)
-     *          | if ( posC[1] < targetC[1])
-     *          | then (new.getPosition()[1] == old.getPosition[1] + 1)
-     *          | if ( posC[1] == targetC[1])
-     *          | then (new.getPosition()[1] == old.getPosition[1])
-     *          | if ( posC[2] > targetC[2])
-     *          | then (new.getPosition()[2] == old.getPosition[2] - 1)
-     *          | if ( posC[2] < targetC[2])
-     *          | then (new.getPosition()[2] == old.getPosition[2] + 1)
-     *          | if ( posC[2] == targetC[2])
-     *          | then (new.getPosition()[2] == old.getPosition[2])
-     *
-     * @effect  Moves to the next adjacent cube.
-     *          | moveToAdjacent();
-     *
-     */
-    private void goToNextNeighbour() {
-        int[] posC = getCubePosition(getPosition());
-        int[] targetC = getCubePosition(getTarget().toDoubleArray());
-        int[] dp = new int[3];
-        for (int i = 0; i < 3; i++) {
-            if (posC[i] == targetC[i])
-                dp[i] = 0;
-            else if (posC[i] < targetC[i])
-                dp[i] = 1;
-            else
-                dp[i] = -1;
-        }
-        // to prevent moveToAdjacent from checking if we can move
-        // this.currentActivity = Activity.NONE;
-        moveToAdjacent(dp[0], dp[1], dp[2]);
+        if (isMoving())
+            ((MoveActivity)getCurrentActivity()).target = newTarget;
+        else
+            setCurrentActivity(new MoveActivity(newTarget));
     }
 
     //</editor-fold>
 
     //<editor-fold desc="Speed">
-
-    /**
-     * Sets the speed
-     *
-     * @param   speed
-     *          The speed to set
-     *
-     * @post    The speed of the unit is equal to the given speed
-     *          | new.getSpeed = speed
-     */
-    private void setSpeed(Vector speed) {
-        this.speed = speed;
-    }
-
-    /**
-     * Calculates the speed of the unit.
-     *
-     * @param   target
-     *          The target position which the unit is moving to.
-     *
-     * @return  The result is the speed vector which would move the unit to the target.
-     *          | this.getPositionVec().add(result.multiply(getPositionVec().subtract(target).norm()
-     *          | / getSpeedScalar())).isEqualTo(target)
-     */
-    private Vector calculateSpeed(Vector target){
-        double vb = 1.5*(getStrength()+getAgility())/(2*(getWeight()));
-        Vector diff = target.substract(getPositionVec());
-        double d = diff.norm();
-        diff = diff.divide(d);
-
-        double vw = vb;
-        if (diff.getZ() > POS_EPS) {
-            vw = 0.5*vb;
-        }
-        else if (diff.getZ() < -POS_EPS) {
-            vw = 1.2*vb;
-        }
-        return diff.multiply(vw);
-    }
-
     /**
      * Gets the units movement speed.
      *
@@ -1297,26 +1265,21 @@ public class Unit {
      *          |   then result == 2 * getSpeed
      */
     public double getSpeedScalar() {
+        if (!isMoving())
+            return 0;
+        MoveActivity current = (MoveActivity)getCurrentActivity();
         double speedScalar;
-        if (getSpeed() != null) {
-            speedScalar = getSpeed().norm();
+        if (current.speed != null) {
+            speedScalar = current.speed.norm();
         } else {
             speedScalar = 0;
         }
-
         if (isSprinting()) {
             return 2*speedScalar;
         }
         return speedScalar;
     }
 
-    /**
-     * Returns the speed as a vector.
-     */
-    @Basic @Model
-    private Vector getSpeed() {
-        return this.speed;
-    }
     //</editor-fold>
 
     //<editor-fold desc="Sprinting">
@@ -1338,17 +1301,26 @@ public class Unit {
         if (sprint && (getStamina() == 0 || !isMoving())) {
             throw new IllegalStateException("Can't sprint right now");
         }
+        /*
         if (!this.isSprinting() && sprint) {
             sprintStaminaTimer = SPRINT_DELAY;
         }
         this.sprinting = sprint;
+        */
+        if (isMoving()) {
+            MoveActivity current = (MoveActivity)getCurrentActivity();
+            if (!current.sprinting && sprint)
+                current.sprintStaminaTimer = SPRINT_DELAY;
+            current.sprinting = sprint;
+
+        }
     }
     /**
      * Returns True if the unit is sprinting
      */
     @Basic
     public boolean isSprinting() {
-        return this.sprinting && isMoving();
+        return isMoving() && ((MoveActivity)getCurrentActivity()).sprinting;
     }
     //</editor-fold>
 
@@ -1358,7 +1330,7 @@ public class Unit {
      */
     @Basic
     public boolean isWorking() {
-        return currentActivity == Activity.WORK;
+        return getCurrentActivity().equalsClass(WorkActivity.class);
     }
 
     /**
@@ -1372,11 +1344,11 @@ public class Unit {
      *          | (!canHaveAsActivity(Activity.WORK)
      */
     public void work() throws IllegalArgumentException {
-        if (!canHaveAsActivity(Activity.WORK)) {
+        if (!getCurrentActivity().canSwitch(WorkActivity.class)) {
             throw new IllegalArgumentException("can't work right now");
         }
-        setCurrentActivity(Activity.WORK);
-        this.workTimer = 500.0 / getStrength();
+        if (!isWorking())
+            setCurrentActivity(new WorkActivity());
     }
     //</editor-fold>
 
@@ -1386,15 +1358,7 @@ public class Unit {
      */
     @Basic
     public boolean isAttacking() {
-        return currentActivity == Activity.ATTACK;
-    }
-
-    /**
-     * Returns True if the unit is defending.
-     */
-    @Basic
-    public boolean isDefending() {
-        return currentActivity == Activity.DEFEND;
+        return currentActivity.equalsClass(AttackActivity.class);
     }
 
     /**
@@ -1428,7 +1392,7 @@ public class Unit {
     public void attack(Unit other) throws IllegalArgumentException {
         if (other == null || other == this)
             throw new IllegalArgumentException("the other unit is invalid");
-        if (!canHaveAsActivity(Activity.ATTACK)) {
+        if (!currentActivity.canSwitch(AttackActivity.class)) {
             throw new IllegalArgumentException("can't attack right now");
         }
         Vector otherPos = other.getPositionVec();
@@ -1442,15 +1406,13 @@ public class Unit {
             }
         }
 
-        other.setCurrentActivity(Activity.DEFEND);
-
         Vector diff = otherPos.substract(this.position);
         this.setOrientation(Math.atan2(diff.getY(), diff.getX()));
         other.setOrientation(Math.atan2(-diff.getY(), -diff.getX()));
 
-        setCurrentActivity(Activity.ATTACK);
-        attackTimer = ATTACK_DELAY;
-        this.defender = other;
+        other.defend(this);
+
+        setCurrentActivity(new AttackActivity());
     }
 
     /**
@@ -1483,8 +1445,6 @@ public class Unit {
      *
      */
     private void defend(Unit attacker) {
-        // finish defending
-        finishCurrentActivity();
 
         double probabilityDodge = 0.20 * (this.getAgility() / attacker.getAgility());
         if (Math.random() < probabilityDodge) {
@@ -1528,7 +1488,7 @@ public class Unit {
      */
     @Basic
     public boolean isResting() {
-        return currentActivity == Activity.REST;
+        return currentActivity.equalsClass(RestActivity.class);
     }
 
     /**
@@ -1545,13 +1505,14 @@ public class Unit {
      *          | this.isMoving()
      */
     public void rest() throws IllegalStateException {
-        if (!canHaveAsActivity(Activity.REST))
+        if (!currentActivity.canSwitch(RestActivity.class))
             throw new IllegalStateException("Can't rest right now");
-
-        this.restTimer = REST_DELAY;
+        /*
         if (!isResting())
             resetRest();
-        setCurrentActivity(Activity.REST);
+            */
+        if (!isResting())
+            setCurrentActivity(new RestActivity());
     }
 
     /**
@@ -1560,10 +1521,12 @@ public class Unit {
      * @post    Enables the initial rest and resets the rest counter.
      *          | new.initialRest == true && new.restDiff == 0
      */
+    /*
     private void resetRest() {
         this.restDiff = 0;
         this.initialRest = true;
     }
+    */
     //</editor-fold>
 
     //<editor-fold desc="Default behaviour">
