@@ -194,62 +194,11 @@ public class UnitTest {
     }
 
     @Test
-    public void testSetHitPoints() throws Exception {
-        unit.setHitPoints(25);
-        assertEquals(25, unit.getHitPoints());
-    }
-
-
-    @Test (expected = AssertionError.class)
-    public void testSetHitPointsSmall() throws Exception {
-        unit.setHitPoints(-1);
-    }
-
-    @Test (expected = AssertionError.class)
-    public void testSetHitPointsLarge() throws Exception {
-        unit.setHitPoints(201);
-    }
-
-    @Test
-    public void testSetStamina() throws Exception {
-        unit.setStamina(25);
-        assertEquals(25,unit.getStamina());
-    }
-
-    @Test (expected = AssertionError.class)
-    public void testSetStaminaSmall() throws Exception {
-        unit.setStamina(-1);
-    }
-
-    @Test (expected = AssertionError.class)
-    public void testSetStaminaLarge() throws Exception {
-        unit.setStamina(201);
-    }
-
-    @Test
     public void testGetMaxPoints() throws Exception {
         unit.setWeight(124);
         unit.setToughness(167);
         assertEquals(unit.getMaxPoints(),(int) Math.ceil(200*((((double) unit.getWeight()) / 100)
                     *  (((double) unit.getToughness()) / 100))));
-    }
-
-    @Test
-    public void testSetOrientation() throws Exception {
-        unit.setOrientation(Math.PI);
-        assertEquals(Math.PI,unit.getOrientation(), Util.DEFAULT_EPSILON);
-    }
-
-    @Test
-    public void testSetOrientationNegative() throws Exception {
-        unit.setOrientation(-1*Math.PI);
-        assertEquals(Math.PI,unit.getOrientation(), Util.DEFAULT_EPSILON);
-    }
-
-    @Test
-    public void testSetOrientationLarge() throws Exception {
-        unit.setOrientation(3*Math.PI);
-        assertEquals(Math.PI,unit.getOrientation(), Util.DEFAULT_EPSILON);
     }
 
     @Test
@@ -354,8 +303,10 @@ public class UnitTest {
 
     @Test
     public void testRestRegenStamina() throws Exception {
-        unit.setHitPoints(unit.getMaxPoints());
-        unit.setStamina(0);
+        unit.setPosition(0, 0, 0);
+        unit.moveTo(new int[] {15, 15, 0});
+        unit.setSprint(true);
+        advanceTimeFor(unit, 20, 0.1);
         double seconds = 8;
         int extra_points = (int)((seconds / 0.2) * ((double)unit.getToughness() / 100.0));
         unit.rest();
@@ -363,16 +314,16 @@ public class UnitTest {
         assertEquals(extra_points, unit.getStamina());
     }
 
-    @Test
-    public void testRestRegenHP() throws Exception {
-        unit.setHitPoints(0);
-        unit.setStamina(unit.getMaxPoints() / 2);
-        double seconds = 8;
-        int extra_points = (int)((seconds / 0.2) * ((double)unit.getToughness() / 200.0));
-        unit.rest();
-        advanceTimeFor(unit, seconds, 0.1);
-        assertEquals(extra_points, unit.getHitPoints());
-    }
+//    @Test
+//    public void testRestRegenHP() throws Exception {
+//        unit.setHitPoints(0);
+//        unit.setStamina(unit.getMaxPoints() / 2);
+//        double seconds = 8;
+//        int extra_points = (int)((seconds / 0.2) * ((double)unit.getToughness() / 200.0));
+//        unit.rest();
+//        advanceTimeFor(unit, seconds, 0.1);
+//        assertEquals(extra_points, unit.getHitPoints());
+//    }
 
     @Test
     public void testStartDefaultBehaviour() throws Exception {

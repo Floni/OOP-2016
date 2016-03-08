@@ -777,8 +777,8 @@ public class Unit {
      *          Otherwise the weight is set to the given weight.
      *          | else new.getWeight() == weight
      */
-    @Raw @Model
-    private void setWeight(int weight) {
+    @Model
+    public void setWeight(int weight) {
         if (weight < MIN_ATTRIBUTE)
             weight = MIN_ATTRIBUTE;
         else if (weight > MAX_ATTRIBUTE)
@@ -830,8 +830,8 @@ public class Unit {
      *          | then new.getWeight() == (strength + this.agility)/2
      *          | else new.getWeight() == this.getWeight()
      */
-    @Raw @Model
-    private void setStrength(int strength) {
+    @Raw
+    public void setStrength(int strength) {
         if (strength < MIN_ATTRIBUTE)
             strength = MIN_ATTRIBUTE;
         else if (strength > MAX_ATTRIBUTE)
@@ -882,8 +882,8 @@ public class Unit {
      *          | then new.getWeight() == (this.strength + agility)/2
      *          | else new.getWeight() == this.getWeight()
      */
-    @Raw @Model
-    private void setAgility(int agility) {
+    @Raw
+    public void setAgility(int agility) {
         if (agility < MIN_ATTRIBUTE)
             agility = MIN_ATTRIBUTE;
         else if (agility > MAX_ATTRIBUTE)
@@ -930,8 +930,8 @@ public class Unit {
      *          Otherwise the new toughness is the given toughness.
      *          | else new.getToughness() == toughness
      */
-    @Raw @Model
-    private void setToughness(int toughness) {
+    @Raw
+    public void setToughness(int toughness) {
         if (toughness > MAX_ATTRIBUTE)
             toughness = MAX_ATTRIBUTE;
         else if (toughness < MIN_ATTRIBUTE)
