@@ -777,8 +777,8 @@ public class Unit {
      *          Otherwise the weight is set to the given weight.
      *          | else new.getWeight() == weight
      */
-    @Raw
-    public void setWeight(int weight) {
+    @Raw @Model
+    private void setWeight(int weight) {
         if (weight < MIN_ATTRIBUTE)
             weight = MIN_ATTRIBUTE;
         else if (weight > MAX_ATTRIBUTE)
@@ -830,8 +830,8 @@ public class Unit {
      *          | then new.getWeight() == (strength + this.agility)/2
      *          | else new.getWeight() == this.getWeight()
      */
-    @Raw
-    public void setStrength(int strength) {
+    @Raw @Model
+    private void setStrength(int strength) {
         if (strength < MIN_ATTRIBUTE)
             strength = MIN_ATTRIBUTE;
         else if (strength > MAX_ATTRIBUTE)
@@ -882,8 +882,8 @@ public class Unit {
      *          | then new.getWeight() == (this.strength + agility)/2
      *          | else new.getWeight() == this.getWeight()
      */
-    @Raw
-    public void setAgility(int agility) {
+    @Raw @Model
+    private void setAgility(int agility) {
         if (agility < MIN_ATTRIBUTE)
             agility = MIN_ATTRIBUTE;
         else if (agility > MAX_ATTRIBUTE)
@@ -930,8 +930,8 @@ public class Unit {
      *          Otherwise the new toughness is the given toughness.
      *          | else new.getToughness() == toughness
      */
-    @Raw
-    public void setToughness(int toughness) {
+    @Raw @Model
+    private void setToughness(int toughness) {
         if (toughness > MAX_ATTRIBUTE)
             toughness = MAX_ATTRIBUTE;
         else if (toughness < MIN_ATTRIBUTE)
@@ -974,8 +974,8 @@ public class Unit {
      *          | new.getHitPoints() == hitPoints
      *
      */
-    @Raw
-    public void setHitPoints(int hitPoints) {
+    @Raw @Model
+    private void setHitPoints(int hitPoints) {
         assert hitPoints <= getMaxPoints() && hitPoints >= 0;
         this.hitPoints = hitPoints;
     }
@@ -1016,8 +1016,8 @@ public class Unit {
      *          | new.getStamina() == stamina
      *
      */
-    @Raw
-    public void setStamina(int stamina){
+    @Raw @Model
+    private void setStamina(int stamina){
         assert stamina <= getMaxPoints() && stamina >= 0;
         this.stamina = stamina;
     }
@@ -1066,8 +1066,8 @@ public class Unit {
      * @post    The new orientation is the same as the old orientation but between 0 and 2*PI.
      *          | new.getOrientation() == ((2*Math.PI) + (orientation % (2*Math.PI))) % 2* Math.PI
      */
-    @Raw
-    public void setOrientation(double orientation) {
+    @Raw @Model
+    private void setOrientation(double orientation) {
         this.orientation = ((Math.PI*2) + (orientation % (2*Math.PI))) % (2*Math.PI);
     }
     //</editor-fold>
