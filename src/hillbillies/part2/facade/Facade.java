@@ -14,42 +14,42 @@ import java.util.Set;
 public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
     @Override
     public World createWorld(int[][][] terrainTypes, TerrainChangeListener modelListener) throws ModelException {
-        return null;
+        return new World(terrainTypes, modelListener);
     }
 
     @Override
     public int getNbCubesX(World world) throws ModelException {
-        return 0;
+        return world.X_MAX;
     }
 
     @Override
     public int getNbCubesY(World world) throws ModelException {
-        return 0;
+        return world.Y_MAX;
     }
 
     @Override
     public int getNbCubesZ(World world) throws ModelException {
-        return 0;
+        return world.Z_MAX;
     }
 
     @Override
     public void advanceTime(World world, double dt) throws ModelException {
-
+        world.advanceTime(dt);
     }
 
     @Override
     public int getCubeType(World world, int x, int y, int z) throws ModelException {
-        return 0;
+        return world.getCubeType(x, y, z);
     }
 
     @Override
     public void setCubeType(World world, int x, int y, int z, int value) throws ModelException {
-
+        world.setCubeType(x, y, z, value);
     }
 
     @Override
     public boolean isSolidConnectedToBorder(World world, int x, int y, int z) throws ModelException {
-        return false;
+        return world.isCubeConnected(x, y, z);
     }
 
     @Override
