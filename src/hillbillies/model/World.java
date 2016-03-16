@@ -1,9 +1,11 @@
 package hillbillies.model;
 
+import be.kuleuven.cs.som.annotate.Basic;
 import hillbillies.part2.listener.TerrainChangeListener;
 import hillbillies.util.ConnectedToBorder;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by timo on 3/14/16.
@@ -26,11 +28,18 @@ public class World {
     public final int Y_MAX;
     public final int Z_MAX;
 
+    public final static double Lc = 1.0;
+
     private final TerrainChangeListener updateListener;
 
     private Cube[][][] cubes;
     private boolean[][][] connectedCubeFlags;
     private boolean dirty;
+
+    private Set<Faction> factions;
+    private Set<Log> logs;
+    private Set<Boulder> boulders;
+
 
     private ConnectedToBorder connectedToBorder;
 
@@ -175,4 +184,32 @@ public class World {
         return connectedToBorder.isSolidConnectedToBorder(x, y, z);
     }
 
+    public Set<Faction> getFactions() {
+        return this.factions;
+    }
+
+    public  Set<Log> getLogs() {
+        return this.logs;
+    }
+
+    public Set<Boulder> getBoulders() {
+        return this.boulders;
+    }
+
+    // TODO: advanceTime to drop object
+    private void addLog(int x, int y, int z) {
+        int weight = (int)Math.floor(10.0 + 41.0 * Math.random());
+        logs.add(new Log(x, y, z, weight));
+    }
+
+    // TODO: advanceTime to drop object
+    private void addBoulder (int x, int y, int z) {
+        int weight = (int)Math.floor(10.0 + 41.0 * Math.random());
+        boulders.add(new Boulder(x, y, z, weight));
+    }
+
+    private void addFaction() {
+        if (factions.size() < 5)
+            factions.add(new Faction());
+    }
 }

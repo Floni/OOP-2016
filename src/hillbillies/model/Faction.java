@@ -1,5 +1,6 @@
 package hillbillies.model;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -9,6 +10,9 @@ public class Faction {
 
     private Set<Unit> units;
 
+    public Faction() {
+        this.units = new HashSet<>();
+    }
 
     //TODO: check if unit not already in a faction
     public void addUnit(Unit unit) {

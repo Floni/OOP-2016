@@ -186,7 +186,7 @@ public class Unit {
         private void moveToNeighbour(int[] adjacent) throws IllegalArgumentException {
             int[] curPos = getCubePosition(getPosition());
             Vector target = new Vector(curPos[0] + adjacent[0], curPos[1] + adjacent[1], curPos[2] + adjacent[2]);
-            this.targetNeighbour = target.add(Lc/2);
+            this.targetNeighbour = target.add(World.Lc/2);
             if (!isValidPosition(this.targetNeighbour.toDoubleArray()))
                 throw new IllegalArgumentException("Illegal neighbour");
             this.speed = calculateSpeed(this.targetNeighbour);
@@ -341,11 +341,7 @@ public class Unit {
     }
 
     //<editor-fold desc="Constants">
-    public static final int X_MAX = 50;
-    public static final int Y_MAX = 50;
-    public static final int Z_MAX = 50;
 
-    public static final double Lc = 1.0;
     public static final double POS_EPS = 0.05;
 
     public static final double REST_DELAY = 0.2;
@@ -365,6 +361,7 @@ public class Unit {
     private Vector position;
 
     private String name;
+    private static World world;
 
     private int weight, strength, agility, toughness;
     private double orientation;
@@ -450,7 +447,7 @@ public class Unit {
     public Unit(String name, int x, int y, int z, int weight, int strength, int agility, int toughness)
             throws IllegalArgumentException {
         setName(name);
-        setPosition(x + Lc/2, y + Lc/2, z + Lc/2);
+        setPosition(x + world.Lc/2, y + world.Lc/2, z + world.Lc/2);
         
         if (toughness < 25)
             toughness = 25;
@@ -618,7 +615,7 @@ public class Unit {
      *          | result == ((x >= 0) && (x < X_MAX) && (y >= 0) && (y < Y_MAX) && (z >= 0) && (z < Z_MAX))
      */
     public static boolean isValidPosition(double x,double y,double z) {
-        return x >= 0 && x < X_MAX && y >= 0 && y < Y_MAX && z >= 0 && z < Z_MAX;
+        return x >= 0 && x < world.X_MAX && y >= 0 && y < world.Y_MAX && z >= 0 && z < world.Z_MAX;
     }
 
 
@@ -1237,7 +1234,7 @@ public class Unit {
         }
 
         Vector newTarget = new Vector(target[0], target[1], target[2]);
-        newTarget = newTarget.add(Lc/2);
+        newTarget = newTarget.add(World.Lc/2);
         if (!isValidPosition(newTarget.toDoubleArray())) {
             throw new IllegalArgumentException("invalid target");
         }
@@ -1461,10 +1458,10 @@ public class Unit {
             }
             newX += getPositionVec().getX();
             newY += getPositionVec().getY();
-            if (newX < 0 || newX >= X_MAX){
+            if (newX < 0 || newX >= world.X_MAX){
                 newX = -newX;
             }
-            if (newY < 0 ||newY >= Y_MAX) {
+            if (newY < 0 ||newY >= world.Y_MAX) {
                 newY = -newY;
             }
             setPosition(newX, newY, getPositionVec().getZ());
