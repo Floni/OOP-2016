@@ -99,7 +99,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public Set<Unit> getUnitsOfFaction(Faction faction) throws ModelException {
-        return null;
+        return faction.getUnits();
     }
 
     @Override
@@ -109,7 +109,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public double[] getPosition(Boulder boulder) throws ModelException {
-        return new double[0];
+        return boulder.getPosition().toDoubleArray();
     }
 
     @Override
@@ -119,7 +119,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public double[] getPosition(Log log) throws ModelException {
-        return new double[0];
+        return log.getPosition().toDoubleArray();
     }
 
     @Override
