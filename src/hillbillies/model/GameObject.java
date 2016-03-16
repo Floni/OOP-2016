@@ -5,7 +5,13 @@ package hillbillies.model;
 public abstract class GameObject {
 
     protected Vector position;
+    protected final int weight;
 
+    // TODO: precond in world
+    public GameObject(int x, int y, int z, int weight) {
+        position = new Vector(x + World.Lc/2, y + World.Lc/2, z + World.Lc/2);
+        this.weight = weight;
+    }
 
 
     public Vector getPosition() {

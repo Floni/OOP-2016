@@ -104,7 +104,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public Set<Faction> getActiveFactions(World world) throws ModelException {
-        return null;
+        return world.getFactions();
     }
 
     @Override
@@ -114,7 +114,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public Set<Boulder> getBoulders(World world) throws ModelException {
-        return null;
+        return world.getBoulders();
     }
 
     @Override
@@ -124,7 +124,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public Set<Log> getLogs(World world) throws ModelException {
-        return null;
+        return world.getLogs();
     }
 
     @Override
