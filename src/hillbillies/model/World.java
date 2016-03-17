@@ -7,11 +7,9 @@ import hillbillies.part2.listener.TerrainChangeListener;
 import hillbillies.util.ConnectedToBorder;
 import ogp.framework.util.ModelException;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
+import java.util.stream.Stream;
 
 /**
  * Created by timo on 3/14/16.
@@ -35,6 +33,8 @@ public class World {
     public final int Z_MAX;
 
     public final static double Lc = 1.0;
+    public final static int maxUnits = 100;
+    public final static int maxFactionSize = 50;
 
     private final TerrainChangeListener updateListener;
 
@@ -242,11 +242,13 @@ public class World {
 
     public Unit spawnUnit(boolean defautBehaviour) {
         List<int[]> possiblePositions = new ArrayList<>();
-        for (int x = 0; x < X_MAX; x++) {
-            for (int y = 0; y < Y_MAX; y++) {
-                for (int z = 0; z < Z_MAX; z++) {
-                    if (!isSolid(getCubeType(x, y, z)) && (z == 0 || isSolid(getCubeType(x, y, z-1))))
-                        possiblePositions.add(new int[]{x, y, z});
+        if (getUnits().size() < maxUnits) {
+            for (int x = 0; x < X_MAX; x++) {
+                for (int y = 0; y < Y_MAX; y++) {
+                    for (int z = 0; z < Z_MAX; z++) {
+                        if (!isSolid(getCubeType(x, y, z)) && (z == 0 || isSolid(getCubeType(x, y, z - 1))))
+                            possiblePositions.add(new int[]{x, y, z});
+                    }
                 }
             }
         }
@@ -269,7 +271,7 @@ public class World {
         } else {
             Faction minFaction = null;
             for (Faction faction : factions) {
-                if (minFaction == null || minFaction.getFactionSize() > faction.getFactionSize())
+                if ((minFaction == null || minFaction.getFactionSize() > faction.getFactionSize()) && faction.getFactionSize() < maxFactionSize)
                     minFaction = faction;
             }
             unit.setFaction(minFaction);
@@ -283,5 +285,82 @@ public class World {
             ret.addAll(faction.getUnits());
         }
         return ret;
+    }
+
+    public void removeUnit (Unit unit) {
+        Faction unitFac = unit.getFaction();
+        unitFac.removeUnit(unit);
+        if (unitFac.getFactionSize() <= 0)
+            factions.remove(unitFac);
+    }
+
+    public void removeGameObject (GameObject object) {
+        if (object.getClass().equals(Log.class))
+            logs.remove(object);
+        else if (object.getClass().equals(Boulder.class))
+            boulders.remove(object);
+
+        object.finalize();
+    }
+
+    private static final int[][] neighbourOffsets = new int[][] {
+
+            { -1, 0, 0 },
+            { +1, 0, 0 },
+            { 0, -1, 0 },
+            { 0, +1, 0 },
+            { 0, 0, -1 },
+            { 0, 0, +1 },
+
+            { -1, -1, -1 },
+            { -1, -1, 0 },
+            { -1, 0, -1 },
+            { 0, -1, -1 },
+
+            { +1, +1, +1 },
+            { +1, +1, 0 },
+            { +1, 0, +1 },
+            { 0, +1, +1 },
+
+            { +1 , -1, +1},
+            { +1 , +1, -1},
+            { -1 , +1, +1},
+            { -1 , -1, +1},
+            { -1 , +1, -1},
+            { +1 , -1, -1},
+
+            { +1, -1, 0 },
+            { 0, +1, -1 },
+            { -1, 0, +1 },
+            { +1, 0, -1 },
+            { 0, -1, +1 },
+            { -1, +1 , 0}
+
+    };
+
+    public Stream<Vector> getNeighbours(Vector pos) {
+        Vector posCube = new Vector(getCubePosition(pos.toDoubleArray()));
+        List<int[]> offsets = new ArrayList<>(Arrays.asList(neighbourOffsets));
+        return offsets.stream().map(offset -> posCube.add(offset[0], offset[1], offset[2]));
+    }
+
+
+    /**
+     * Returns the coordinates of the cube that the unit currently occupies.
+     *
+     * @param   position
+     *          The position to be converted.
+     *
+     * @return  Returns the rounded down position.
+     *          | result[0] == floor(position[0]) &&
+     *          | result[1] == floor(position[1]) &&
+     *          | result[2] == floor(position[2]}
+     */
+    public static int[] getCubePosition(double[] position) {
+        return new int[] {
+                (int)Math.floor(position[0]),
+                (int)Math.floor(position[1]),
+                (int)Math.floor(position[2])
+        };
     }
 }

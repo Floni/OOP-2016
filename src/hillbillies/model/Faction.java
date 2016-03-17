@@ -28,4 +28,9 @@ public class Faction {
         return units;
     }
 
+    public void removeUnit(Unit unit) {
+        if (units.contains(unit))
+            units.remove(unit);
+    }
+
 }

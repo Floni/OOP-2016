@@ -51,6 +51,10 @@ public class Vector {
         Z = coords[2];
     }
 
+    public Vector(int[] cubePosition) {
+        this(cubePosition[0], cubePosition[1], cubePosition[2]);
+    }
+
     /**
      * Multiplies the vector with the given constant
      * @param   scalar

@@ -154,7 +154,7 @@ public class Unit {
 
 
         private void moveToNeighbour(int[] adjacent) throws IllegalArgumentException {
-            int[] curPos = getCubePosition(getPosition());
+            int[] curPos = World.getCubePosition(getPosition());
             Vector target = new Vector(curPos[0] + adjacent[0], curPos[1] + adjacent[1], curPos[2] + adjacent[2]);
             this.targetNeighbour = target.add(World.Lc/2);
             if (!isValidPosition(this.targetNeighbour.toDoubleArray()))
@@ -203,7 +203,7 @@ public class Unit {
         void advanceTime(double dt) {
             Vector newPosition = getPositionVec().add(this.speed.multiply(dt));
 
-            int[] newCube = getCubePosition(newPosition.toDoubleArray());
+            int[] newCube = World.getCubePosition(newPosition.toDoubleArray());
             if (newCube[2] == 0 || World.isSolid(world.getCubeType(newCube[0], newCube[1], newCube[2]-1))) {
                 int diffZ = (int)Math.floor(target.substract(newPosition).getZ());
                 deduceHitPoints(10*diffZ);
@@ -336,8 +336,8 @@ public class Unit {
                             if (unit.getFaction() != getFaction()) {
                                 boolean range = true;
                                 Vector otherPos = unit.getPositionVec();
-                                int[] otherCube = getCubePosition(otherPos.toDoubleArray());
-                                int[] posCube = getCubePosition(getPosition());
+                                int[] otherCube = World.getCubePosition(otherPos.toDoubleArray());
+                                int[] posCube = World.getCubePosition(getPosition());
                                 for (int i = 0; i < 3; i++) {
                                     int diff = otherCube[i] - posCube[i];
                                     if (diff > 1 || diff < -1) {
@@ -640,7 +640,7 @@ public class Unit {
     //<editor-fold desc="Position">
 
     private boolean isStandablePosition(Vector position) {
-        return isStandablePosition(getCubePosition(position.toDoubleArray()));
+        return isStandablePosition(World.getCubePosition(position.toDoubleArray()));
     }
 
     private boolean isStandablePosition(int[] cube) {
@@ -678,7 +678,7 @@ public class Unit {
      *          | result == ((x >= 0) && (x < X_MAX) && (y >= 0) && (y < Y_MAX) && (z >= 0) && (z < Z_MAX))
      */
     public boolean isValidPosition(double x,double y,double z) {
-        int[] cubePos = getCubePosition(new double[] {x, y ,z});
+        int[] cubePos = World.getCubePosition(new double[] {x, y ,z});
         return x >= 0 && x < world.X_MAX && y >= 0 && y < world.Y_MAX && z >= 0 && z < world.Z_MAX &&
                 !World.isSolid(world.getCubeType(cubePos[0], cubePos[1], cubePos[2]));
     }
@@ -793,24 +793,7 @@ public class Unit {
         return this.position;
     }
 
-    /**
-     * Returns the coordinates of the cube that the unit currently occupies.
-     *
-     * @param   position
-     *          The position to be converted.
-     *
-     * @return  Returns the rounded down position.
-     *          | result[0] == floor(position[0]) &&
-     *          | result[1] == floor(position[1]) &&
-     *          | result[2] == floor(position[2]}
-     */
-    public static int[] getCubePosition(double[] position) {
-        return new int[] {
-                (int)Math.floor(position[0]),
-                (int)Math.floor(position[1]),
-                (int)Math.floor(position[2])
-        };
-    }
+
     //</editor-fold>
 
     //<editor-fold desc="Name">
@@ -1124,6 +1107,7 @@ public class Unit {
             lastActivity = NONE_ACTIVITY;
             pendingActivity = NONE_ACTIVITY;
             this.hitPoints = 0;
+            world.removeUnit(this);
         }
         this.setHitPoints(newHitPoints);
     }
@@ -1465,8 +1449,8 @@ public class Unit {
         if (this.getFaction() == other.getFaction())
             throw new IllegalArgumentException("Can't attack units of the same faction");
         Vector otherPos = other.getPositionVec();
-        int[] otherCube = getCubePosition(otherPos.toDoubleArray());
-        int[] posCube = getCubePosition(this.getPosition());
+        int[] otherCube = World.getCubePosition(otherPos.toDoubleArray());
+        int[] posCube = World.getCubePosition(this.getPosition());
 
         for (int i = 0; i < 3; i++) {
             int diff = otherCube[i] - posCube[i];
