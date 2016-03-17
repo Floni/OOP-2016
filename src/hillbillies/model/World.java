@@ -30,9 +30,9 @@ public class World {
     public static final int ROCK = 1;
     public static final int TREE = 2;
 
-    public static int X_MAX;
-    public static int Y_MAX;
-    public static int Z_MAX;
+    public final int X_MAX;
+    public final int Y_MAX;
+    public final int Z_MAX;
 
     public final static double Lc = 1.0;
 
@@ -192,6 +192,9 @@ public class World {
     }
 
     public void setCubeType(int x, int y, int z, int type) {
+        //TODO: save affected cubes & cave in
+        if (isSolid(getCubeType(x, y, z)) && !isSolid(type))
+            connectedToBorder.changeSolidToPassable(x, y, z);
         cubes[x][y][z].type = type;
     }
 
