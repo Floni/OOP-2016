@@ -6,7 +6,7 @@ import hillbillies.common.internal.providers.ActionExecutor;
 import hillbillies.common.internal.providers.UnitInfoProvider;
 import hillbillies.common.internal.ui.viewparts.ControlArea;
 import hillbillies.common.internal.ui.viewparts.InfoAreaPart;
-import hillbillies.model.Unit;
+import hillbillies.model.Unit.Unit;
 import javafx.beans.binding.When;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;

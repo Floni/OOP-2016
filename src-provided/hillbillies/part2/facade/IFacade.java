@@ -3,7 +3,7 @@ package hillbillies.part2.facade;
 import java.util.Set;
 
 import hillbillies.model.Faction;
-import hillbillies.model.Unit;
+import hillbillies.model.Unit.Unit;
 import hillbillies.model.World;
 import hillbillies.model.Boulder;
 import hillbillies.model.Log;

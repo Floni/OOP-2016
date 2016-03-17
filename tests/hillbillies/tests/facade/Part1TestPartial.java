@@ -11,7 +11,7 @@ import hillbillies.part1.facade.Facade;
 import org.junit.Before;
 import org.junit.Test;
 
-import hillbillies.model.Unit;
+import hillbillies.model.Unit.Unit;
 import hillbillies.part1.facade.IFacade;
 import ogp.framework.util.ModelException;
 

@@ -1,6 +1,6 @@
 package hillbillies.tests.model;
 
-import hillbillies.model.Unit;
+import hillbillies.model.Unit.Unit;
 import hillbillies.model.World;
 import ogp.framework.util.ModelException;
 import ogp.framework.util.Util;

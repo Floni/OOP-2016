@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import hillbillies.model.Unit;
+import hillbillies.model.Unit.Unit;
 import hillbillies.model.World;
 import hillbillies.part2.facade.Facade;
 import hillbillies.part2.facade.IFacade;

@@ -15,7 +15,7 @@ import hillbillies.common.internal.selection.Selection;
 import hillbillies.model.Boulder;
 import hillbillies.model.Faction;
 import hillbillies.model.Log;
-import hillbillies.model.Unit;
+import hillbillies.model.Unit.Unit;
 import hillbillies.model.World;
 import hillbillies.part2.facade.IFacade;
 import hillbillies.part2.internal.Constants;

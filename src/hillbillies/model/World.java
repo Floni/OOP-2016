@@ -1,14 +1,11 @@
 package hillbillies.model;
 
-import be.kuleuven.cs.som.annotate.Basic;
-import com.sun.org.apache.xpath.internal.operations.Mod;
-import hillbillies.part2.facade.Facade;
+import hillbillies.model.Unit.Unit;
 import hillbillies.part2.listener.TerrainChangeListener;
 import hillbillies.util.ConnectedToBorder;
 import ogp.framework.util.ModelException;
 
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
 /**
@@ -33,8 +30,8 @@ public class World {
     public final int Z_MAX;
 
     public final static double Lc = 1.0;
-    public final static int maxUnits = 100;
-    public final static int maxFactionSize = 50;
+    public final static int MAX_UNITS = 100;
+    public final static int MAX_FACTION_SIZE = 50;
 
     private final TerrainChangeListener updateListener;
 
@@ -42,6 +39,7 @@ public class World {
     private boolean[][][] connectedCubeFlags;
     private boolean dirty;
 
+    private int totalUnits;
     private Set<Faction> factions;
     private Set<Log> logs;
     private Set<Boulder> boulders;
@@ -228,13 +226,14 @@ public class World {
         boulders.add(new Boulder(x, y, z, weight));
     }
 
+
     private Faction addFaction() {
-        if (factions.size() < 5) {
-            Faction faction = new Faction();
-            factions.add(faction);
-            return faction;
-        }
-        return null;
+        assert factions.size() < 5;
+
+        Faction faction = new Faction();
+        factions.add(faction);
+        return faction;
+
     }
 
     private int getRandomAttribute() {
@@ -242,8 +241,12 @@ public class World {
     }
 
     public Unit spawnUnit(boolean defautBehaviour) {
+        if (totalUnits >= 100)
+            return null; //TODO: throw?
+
+        //TODO: optimize
         List<int[]> possiblePositions = new ArrayList<>();
-        if (getUnits().size() < maxUnits) {
+        if (getUnits().size() < MAX_UNITS) {
             for (int x = 0; x < X_MAX; x++) {
                 for (int y = 0; y < Y_MAX; y++) {
                     for (int z = 0; z < Z_MAX; z++) {
@@ -265,27 +268,24 @@ public class World {
     }
 
     public void addUnit(Unit unit) {
-        if (factions.size() != 5) {
+        if (factions.size() < 5) {
             Faction newFaction = addFaction();
             unit.setFaction(newFaction);
             newFaction.addUnit(unit);
         } else {
-            Faction minFaction = null;
-            for (Faction faction : factions) {
-                if ((minFaction == null || minFaction.getFactionSize() > faction.getFactionSize()) && faction.getFactionSize() < maxFactionSize)
-                    minFaction = faction;
+            Faction minFaction = factions.stream().filter(f -> f.getFactionSize() < MAX_FACTION_SIZE)
+                    .min((f1, f2) -> Integer.compare(f1.getFactionSize(), f2.getFactionSize())).orElse(null);
+            if (minFaction != null) {
+                // TODO: what if no faction is found? can't happen?
+                unit.setFaction(minFaction);
+                minFaction.addUnit(unit);
             }
-            unit.setFaction(minFaction);
-            minFaction.addUnit(unit);
         }
+        totalUnits += 1;
     }
 
     public Set<Unit> getUnits() {
-        Set<Unit> ret = new HashSet<>();
-        for (Faction faction : factions) {
-            ret.addAll(faction.getUnits());
-        }
-        return ret;
+        return factions.stream().collect(HashSet<Unit>::new, (s, f) -> s.addAll(f.getUnits()), AbstractCollection::addAll);
     }
 
     public void removeUnit (Unit unit) {
@@ -301,7 +301,7 @@ public class World {
         else if (object.getClass().equals(Boulder.class))
             boulders.remove(object);
 
-        object.finalize();
+        object.destruct();
     }
 
     private static final int[][] neighbourOffsets = new int[][] {

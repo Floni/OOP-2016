@@ -1,5 +1,7 @@
 package hillbillies.model;
 
+import hillbillies.model.Unit.Unit;
+
 import java.util.HashSet;
 import java.util.Set;
 

@@ -1,13 +1,13 @@
-package hillbillies.model;
+package hillbillies.model.Unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import hillbillies.model.Faction;
+import hillbillies.model.PathFinder;
+import hillbillies.model.Vector;
+import hillbillies.model.World;
 
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
 /**
@@ -23,9 +23,9 @@ import java.util.stream.Stream;
 
 /**
  * TODO:
- *  - Split Activity into seperate files (problem is that an activity wouldn't have access to private variables of Unit)
- *  - Create Integer Vector -> us that for pathfinding
- *  - Clean and refractor code
+ *  - Check access modifiers
+ *  - Create Integer Vector -> use that for pathfinding
+ *  - Clean and refactor code
  */
 
 /**
@@ -52,397 +52,54 @@ import java.util.stream.Stream;
  *          | canHaveAsStamina(this.getStamina())
  */
 public class Unit {
-    private static abstract class Activity {
-        abstract void advanceTime(double dt);
-        abstract boolean canSwitch(Class<? extends Activity> newActivity);
-
-        boolean equalsClass(Activity other) {
-            return this.equalsClass(other.getClass());
-        }
-
-        boolean equalsClass(Class<? extends Activity> other) {
-            return other.isAssignableFrom(this.getClass());
-        }
-    }
-
-    private class MoveActivity extends Activity {
-        protected Vector target;
-        private Vector targetNeighbour;
-        protected Vector speed;
-
-        private double sprintStaminaTimer;
-        private boolean sprinting;
-
-        private List<Vector> path;
-        private int idx;
-
-        protected MoveActivity() {
-
-        }
-
-        public MoveActivity(Vector target) {
-            this.target = target;
-            /*
-            calculatePath();
-            goToNextNeighbour();
-            */
-            this.path = pathFinder.getPath(new Vector(World.getCubePosition(getPosition())),
-                    new Vector(World.getCubePosition(target.toDoubleArray())));
-            if (path == null)
-                throw new IllegalArgumentException("Impossible to path!!");
-
-            idx = path.size() - 1;
-            goToNextNeighbour();
-
-        }
-
-        public MoveActivity(int[] adjacent) throws IllegalArgumentException {
-            moveToNeighbour(adjacent);
-        }
-
-
-        @Override
-        void advanceTime(double dt) {
-            double mod = 1;
-            if (this.sprinting) {
-                sprintStaminaTimer -= dt;
-                mod = 2;
-                if(sprintStaminaTimer <= 0) {
-                    sprintStaminaTimer += SPRINT_DELAY;
-                    int newStamina = getStamina()  - 1;
-                    if (newStamina >= 0)
-                        setStamina(newStamina);
-                    if (getStamina() == 0) {
-                        mod = 1;
-                        this.sprinting = false;
-                    }
-                }
-            } else if (isDefaultEnabled()) {
-                // fix with timer? or just once while moving?
-                if (Math.random() >= 0.9999 && getStamina() != 0)
-                    this.sprinting = true;
-            }
-
-            Vector newPosition = getPositionVec().add(this.speed.multiply(mod*dt));
-            if (isAtNeighbour(newPosition)) {
-                addXp(1);
-                setPosition(this.targetNeighbour);
-                if (!pendingActivity.equalsClass(NoneActivity.class)) {
-                    currentActivity = pendingActivity;
-                    pendingActivity = NONE_ACTIVITY;
-                    lastActivity = this;
-                } else if (this.target == null || isAtTarget()) {
-                    finishCurrentActivity();
-                } else {
-                    goToNextNeighbour();
-                }
-            } else {
-                setPosition(newPosition);
-            }
-        }
-
-        private void goToNextNeighbour() {
-            moveToNeighbour(path.get(idx));
-            idx -= 1;
-        }
-
-        @Override
-        boolean canSwitch(Class<? extends Activity> newActivity) {
-            return this.target != null;
-        }
-
-        /**
-         * Checks whether the unit has arrived at the target
-         *
-         * @return  True if the unit's position equals the target position.
-         *          | result == this.position.isEqualTo(this.target, POS_EPS)
-         */
-        private boolean isAtTarget() {
-            return getPositionVec().isEqualTo(this.target, POS_EPS);
-        }
-
-        /**
-         * Checks whether we arrived at the target neighbour.
-         *
-         * @param   newPosition
-         *          The position after advanceTime
-         *
-         * @return  True if we are going to be further from the target in the next step
-         *          | result == dist(newPosition, targetNeighbour) > dist(position, targetNeighbour)
-         */
-        private boolean isAtNeighbour(Vector newPosition) {
-            double dist_new = newPosition.substract(this.targetNeighbour).norm();
-            double dist_cur = getPositionVec().substract(this.targetNeighbour).norm();
-            return dist_new > dist_cur;
-        }
-
-
-        /**
-         * Moves to specified neighbour cube (must be next to current position).
-         * @param neighbour
-         * @throws IllegalArgumentException
-         */
-        private void moveToNeighbour(Vector neighbour) throws IllegalArgumentException {
-            this.targetNeighbour = neighbour.add(World.Lc/2);
-
-            if (!isValidPosition(this.targetNeighbour.toDoubleArray()))
-                throw new IllegalArgumentException("Illegal neighbour");
-
-            this.speed = calculateSpeed(this.targetNeighbour);
-            setOrientation(Math.atan2(this.speed.getY(), this.speed.getX()));
-        }
-
-        private void moveToNeighbour(int[] adjacent) throws IllegalArgumentException {
-            int[] curPos = World.getCubePosition(getPosition());
-            Vector target = new Vector(curPos[0] + adjacent[0], curPos[1] + adjacent[1], curPos[2] + adjacent[2]);
-            moveToNeighbour(target);
-        }
-
-        /**
-         * Calculates the speed of the unit.
-         *
-         * @param   target
-         *          The target position which the unit is moving to.
-         *
-         * @return  The result is the speed vector which would move the unit to the target.
-         *          | this.getPositionVec().add(result.multiply(getPositionVec().subtract(target).norm()
-         *          | / getSpeedScalar())).isEqualTo(target)
-         */
-        private Vector calculateSpeed(Vector target){
-            double vb = 1.5*(getStrength()+getAgility())/(2*(getWeight()));
-            Vector diff = target.substract(getPositionVec());
-            double d = diff.norm();
-            diff = diff.divide(d);
-
-            double vw = vb;
-            if (diff.getZ() > POS_EPS) {
-                vw = 0.5*vb;
-            }
-            else if (diff.getZ() < -POS_EPS) {
-                vw = 1.2*vb;
-            }
-            return diff.multiply(vw);
-        }
-    }
-
-
-    private class FallActivity extends MoveActivity {
-
-        public FallActivity() {
-
-            speed = new Vector(0, 0, -3.0);
-            target = getPositionVec(); // we use target as the starting position
-        }
-
-        @Override
-        void advanceTime(double dt) {
-            Vector newPosition = getPositionVec().add(this.speed.multiply(dt));
-
-            int[] newCube = World.getCubePosition(newPosition.toDoubleArray());
-            if (newCube[2] == 0 || World.isSolid(world.getCubeType(newCube[0], newCube[1], newCube[2]-1))) {
-                int diffZ = (int)Math.floor(target.substract(newPosition).getZ());
-                deduceHitPoints(10*diffZ);
-                finishCurrentActivity();
-            }
-            setPosition(newPosition);
-
-        }
-
-        @Override
-        boolean canSwitch(Class<? extends Activity> newActivity) {
-            return false;
-        }
-    }
-
-    private class RestActivity extends Activity {
-        private double restTimer;
-        private double restDiff;
-        private boolean initialRest;
-
-        public RestActivity() {
-            this.restTimer = REST_DELAY;
-            this.restDiff = 0;
-            this.initialRest = true;
-        }
-
-        @Override
-        void advanceTime(double dt) {
-            this.restTimer -= dt;
-            if (this.restTimer <= 0) {
-                this.restTimer += REST_DELAY;
-
-                if (getHitPoints() != getMaxPoints()) {
-                    restDiff += (getToughness()/200.0);
-                    // recover at least 1 HP
-                    if (restDiff >= 1) {
-                        initialRest = false;
-                        restDiff -= 1;
-                        setHitPoints(getHitPoints()+1);
-                    }
-                } else if (getStamina() != getMaxPoints()) {
-                    initialRest = false;
-                    restDiff += (getToughness()/100.0);
-                    if (restDiff >= 1) {
-                        restDiff -= 1;
-                        setStamina(getStamina() + 1);
-                    }
-                } else {
-                    finishCurrentActivity();
-                }
-            }
-        }
-
-        @Override
-        boolean canSwitch(Class<? extends Activity> newActivity) {
-            return !initialRest;
-        }
-    }
-
-    private class WorkActivity extends Activity {
-        private WorkActivity() {
-            this.workTimer  = 500.0 / getStrength();
-        }
-
-        private double workTimer = 0;
-
-        @Override
-        void advanceTime(double dt) {
-            workTimer -= dt;
-            if (workTimer <= 0) {
-                addXp(10);
-                workTimer = 0;
-                finishCurrentActivity();
-            }
-        }
-
-        @Override
-        boolean canSwitch(Class<? extends Activity> newActivity) {
-            return true;
-        }
-    }
-
-    private class AttackActivity extends Activity {
-        private double attackTimer;
-
-        public AttackActivity() {
-            attackTimer = ATTACK_DELAY;
-        }
-
-        @Override
-        void advanceTime(double dt) {
-            this.attackTimer -= dt;
-            if (this.attackTimer <= 0) {
-                this.attackTimer = 0;
-
-                finishCurrentActivity();
-            }
-        }
-
-        @Override
-        boolean canSwitch(Class<? extends Activity> newActivity) {
-            return false;
-        }
-    }
-
-    private class NoneActivity extends Activity {
-        @Override
-        void advanceTime(double dt) {
-            if (!lastActivity.equalsClass(NoneActivity.class)) {
-                finishCurrentActivity(); // we still have an interrupted activity
-            } else if (isDefaultEnabled()) {
-                int random = (int)Math.floor(Math.random()*3);
-                switch (random) {
-//                    case 3: // move to random location
-//                        int[] randLoc = new int[3];
-//                        for (int i = 0; i < 3; i++) {
-//                            randLoc[i] = (int)Math.floor(Math.random()*World.X_MAX);
-//                        }
-//                        moveTo(randLoc);
-//                        break;
-                    case 0: // work
-                        work();
-                        break;
-                    case 1: // rest
-                        rest();
-                        break;
-                    case 2: //attack
-                        Set<Unit> units = world.getUnits();
-                        for (Unit unit: units) {
-                            if (unit.getFaction() != getFaction()) {
-                                boolean range = true;
-                                Vector otherPos = unit.getPositionVec();
-                                int[] otherCube = World.getCubePosition(otherPos.toDoubleArray());
-                                int[] posCube = World.getCubePosition(getPosition());
-                                for (int i = 0; i < 3; i++) {
-                                    int diff = otherCube[i] - posCube[i];
-                                    if (diff > 1 || diff < -1) {
-                                        range = false;
-                                    }
-                                }
-                                if (range) {
-                                    attack(unit);
-                                }
-                            }
-                        }
-                        break;
-                }
-            }
-        }
-
-        @Override
-        boolean canSwitch(Class<? extends Activity> newActivity) {
-            return isAlive();
-        }
-    }
 
     //<editor-fold desc="Constants">
-
     public static final double POS_EPS = 0.05;
 
-    public static final double REST_DELAY = 0.2;
     public static final double REST_MINUTE = 3*60;
-
-    public static final double SPRINT_DELAY = 0.1;
 
     public static final int MIN_ATTRIBUTE = 1;
     public static final int MAX_ATTRIBUTE = 200;
 
     public static final double INIT_ORIENTATION = Math.PI / 2;
-    public static final double ATTACK_DELAY = 1;
-
     //</editor-fold>
 
     //<editor-fold desc="Variables">
-    private Vector position;
+    // constant used for none, none has no state!
+    final Activity NONE_ACTIVITY = new NoneActivity(this);
 
-    private String name;
+    Vector position;
 
-    private int weight, strength, agility, toughness;
-    private double orientation;
-    private int hitPoints, stamina;
-    private int xp, xpDiff;
+    String name;
 
-    private final Activity NONE_ACTIVITY = new NoneActivity();
+    int weight, strength, agility, toughness;
+    double orientation;
+    int hitPoints, stamina;
+    int xp, xpDiff;
 
-    private Activity currentActivity = NONE_ACTIVITY;
-    private Activity lastActivity = NONE_ACTIVITY;
+    Activity currentActivity = NONE_ACTIVITY;
+    Activity lastActivity = NONE_ACTIVITY;
 
-    private Activity pendingActivity = NONE_ACTIVITY;
+    Activity pendingActivity = NONE_ACTIVITY;
 
-    private double restMinuteTimer;
+    double restMinuteTimer;
 
-    private boolean defaultEnabled;
+    boolean defaultEnabled;
 
-    private Faction faction;
-    private World world;
+    Faction faction;
+    World world;
 
-    private PathFinder<Vector> pathFinder;
+    PathFinder<Vector> pathFinder;
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
     /**
      * Creates a new unit with the given position.
      *
+     * @param   world
+     *          The world to which the unit belongs.
+     * @param   faction
+     *          The faction to which the unit belongs.
      * @param   name
      *          The name of the new unit.
      * @param   x
@@ -507,10 +164,9 @@ public class Unit {
     public Unit(World world, String name, int x, int y, int z, int weight, int strength, int agility, int toughness)
             throws IllegalArgumentException {
         this.world = world;
-
         setName(name);
         setPosition(x + World.Lc/2, y + World.Lc/2, z + World.Lc/2);
-        
+
         if (toughness < 25)
             toughness = 25;
         else if (toughness > 100)
@@ -536,6 +192,7 @@ public class Unit {
         setAgility(agility);
         setWeight(weight);
 
+        // TODO: getter & setter?
         this.xpDiff = 0;
         this.xp = 0;
 
@@ -547,11 +204,10 @@ public class Unit {
 
         this.restMinuteTimer = REST_MINUTE;
 
-
         pathFinder = new PathFinder<>(new PathFinder.PathGlue<Vector>() {
             @Override
             public Stream<Vector> getNeighbours(Vector pos) {
-                return world.getNeighbours(pos).filter(n -> isValidPosition(n.getX(), n.getY(), n.getZ()) && isStandablePosition(n));
+                return world.getNeighbours(pos).filter(n -> isValidPosition(n.getX(), n.getY(), n.getZ()) && isStablePosition(n));
             }
 
             @Override
@@ -564,12 +220,10 @@ public class Unit {
                 return (int) Math.floor(Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY()) + Math.abs(a.getZ() - b.getZ()));
             }
         });
-        // enable default behavior at start?
     }
     //</editor-fold>
 
     //<editor-fold desc="advanceTime">
-
     /**
      * Updates the units state.
      *
@@ -615,14 +269,13 @@ public class Unit {
         getCurrentActivity().advanceTime(dt);
 
         restMinuteTimer -= dt;
-        if (restMinuteTimer <= 0) {
+        if (restMinuteTimer <= 0 && currentActivity.canSwitch(RestActivity.class)) {
             restMinuteTimer += REST_MINUTE;
             rest();
-            // TODO: what if can't rest
         }
 
-        if (!isStandablePosition(getPositionVec())) {
-            this.currentActivity = new FallActivity();
+        if (!isStablePosition(getPositionVector())) {
+            this.currentActivity = new FallActivity(this);
             this.lastActivity = NONE_ACTIVITY; //TODO: save Last activity?
             assert isMoving();
         }
@@ -637,7 +290,7 @@ public class Unit {
      * Returns the current activity.
      */
     @Basic
-    private Activity getCurrentActivity() {
+    Activity getCurrentActivity() {
         return this.currentActivity;
     }
 
@@ -652,7 +305,7 @@ public class Unit {
      *
      * @post    If we are moving and the newActivity isn't moving or defending we set the pendingActivity.
      *          Otherwise we set the currentActivity
-     *          | if this.isMoving() && newActivity != Activity.MOVE && newActivity != Activity.DEFEND
+     *          | if this.isMoving() && newActivity != Unit.MOVE && newActivity != Unit.DEFEND
      *          | then new.pendingActivity == newActivity
      *          | else new.getCurrentActivity() == newActivity
      *
@@ -664,7 +317,7 @@ public class Unit {
      *          | if this.isResting()
      *          | then this.resetRest()
      */
-    private void setCurrentActivity(Activity newActivity) {
+    void setCurrentActivity(Activity newActivity) {
         assert currentActivity.canSwitch(newActivity.getClass());
         // don't do the same activity twice
         if (!newActivity.equalsClass(currentActivity))
@@ -682,9 +335,9 @@ public class Unit {
      * @post    The new activity will be the last activity (for when interrupted).
      *          | new.getCurrentActivity() == this.lastActivity
      * @post    The lastActivity is set to None.
-     *          | new.lastActivity == Activity.NONE
+     *          | new.lastActivity == Unit.NONE
      */
-    private void finishCurrentActivity() {
+    void finishCurrentActivity() {
         //TODO: provide reset method in activity to reset timers & stuff
         this.currentActivity = this.lastActivity;
         this.lastActivity = NONE_ACTIVITY;
@@ -692,18 +345,17 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Position">
-
-    private boolean isStandablePosition(Vector position) {
-        return isStandablePosition(World.getCubePosition(position.toDoubleArray()));
+    boolean isStablePosition(Vector position) {
+        return isStablePosition(World.getCubePosition(position.toDoubleArray()));
     }
 
-    private boolean isStandablePosition(int[] cube) {
-        if (cube[0] == 0 || cube[0] == world.X_MAX - 1 || cube[1] == 0 || cube[1] == world.Y_MAX - 1
-                ||cube[2] == 0 || cube[2] == world.Z_MAX - 1)
-            return true;
+    boolean isStablePosition(int[] cube) {
+        // next to edges or a neighbour is solid
+        return  cube[0] == 0 || cube[0] == world.X_MAX - 1 || cube[1] == 0 ||
+                cube[1] == world.Y_MAX - 1 || cube[2] == 0 || cube[2] == world.Z_MAX - 1 ||
+                world.getNeighbours(new Vector(cube)).anyMatch(p ->
+                    World.isSolid(world.getCubeType((int) p.getX(), (int) p.getY(), (int) p.getZ())));
 
-        return world.getNeighbours(new Vector(cube)).anyMatch(p ->
-                World.isSolid(world.getCubeType((int)p.getX(), (int)p.getY(), (int)p.getZ())));
     }
 
     /**
@@ -806,18 +458,17 @@ public class Unit {
      *
      * @post    The new position is equal to the given position.
      *          | new.getPosition() == position.toDoubleArray()
-     *          | new.getPositionVec() == position
+     *          | new.getPositionVector() == position
      *
      * @throws  IllegalArgumentException
      *          When the given position is not valid.
      *          | !isValidPosition(position.toDoubleArray())
      */
-    private void setPosition(Vector position) throws IllegalArgumentException {
+    public void setPosition(Vector position) throws IllegalArgumentException {
         if (!isValidPosition(position.toDoubleArray()))
             throw new IllegalArgumentException("The given position is not valid");
         this.position = position;
     }
-
 
     /**
      * Gets the position of the unit.
@@ -831,11 +482,9 @@ public class Unit {
      * Gets the current position as a vector.
      */
     @Basic
-    private Vector getPositionVec() {
+    Vector getPositionVector() {
         return this.position;
     }
-
-
     //</editor-fold>
 
     //<editor-fold desc="Name">
@@ -886,6 +535,7 @@ public class Unit {
 
     /**
      * Returns whether or not the weight is valid.
+     * (only used in class invariant)
      *
      * @param   weight
      *          The weight to be verified.
@@ -895,6 +545,7 @@ public class Unit {
      *          smaller or equal to MAX_ATTRIBUTE.
      *          | result ==  (weight >= MIN_ATTRIBUTE) && (weight <= MAX_ATTRIBUTE) && (weight >= (getAgility()+getStrength())/2)
      */
+    @SuppressWarnings("unused")
     public boolean canHaveAsWeight(int weight) {
         return (weight >= MIN_ATTRIBUTE) && (weight <= MAX_ATTRIBUTE) && (weight >= (getAgility()+getStrength())/2);
     }
@@ -939,6 +590,7 @@ public class Unit {
 
     /**
      * Returns whether the strength is valid.
+     * (only used in class invariant)
      *
      * @param   strength
      *          The strength to be verified.
@@ -947,6 +599,7 @@ public class Unit {
      *          and smaller or equal to MAX_ATTRIBUTE.
      *          | result == strength <= MAX_ATTRIBUTE && strength >= MIN_ATTRIBUTE
      */
+    @SuppressWarnings("unused")
     public static boolean isValidStrength(int strength) {
         return strength <= MAX_ATTRIBUTE && strength >= MIN_ATTRIBUTE;
     }
@@ -991,6 +644,7 @@ public class Unit {
 
     /**
      * Returns whether the agility is valid.
+     * (only used in class invariant)
      *
      * @param   agility
      *          The agility to be verified.
@@ -999,6 +653,7 @@ public class Unit {
      *          and smaller or equal to MAX_ATTRIBUTE.
      *          | result == agility <= MAX_ATTRIBUTE && agility >= MIN_ATTRIBUTE
      */
+    @SuppressWarnings("unused")
     public static boolean isValidAgility(int agility) {
         return agility <= MAX_ATTRIBUTE && agility >= MIN_ATTRIBUTE;
     }
@@ -1043,6 +698,7 @@ public class Unit {
 
     /**
      * Returns whether the toughness is valid.
+     * (only used in class invariant)
      *
      * @param   toughness
      *          The toughness to be verified.
@@ -1051,6 +707,7 @@ public class Unit {
      *          and smaller or equal to MAX_ATTRIBUTE.
      *          | result == toughness <= MAX_ATTRIBUTE && toughness >= MIN_ATTRIBUTE
      */
+    @SuppressWarnings("unused")
     public static boolean isValidToughness(int toughness) {
         return toughness <= MAX_ATTRIBUTE && toughness>= MIN_ATTRIBUTE;
     }
@@ -1089,6 +746,7 @@ public class Unit {
 
     /**
      * Returns whether the hitPoints are valid.
+     * (only used in class invariant)
      *
      * @param   hitPoints
      *          The hit points to be verified.
@@ -1097,6 +755,7 @@ public class Unit {
      *          and smaller than or equal to the maximum amount of hitPoints.
      *          | result == (hitPoints <= getMaxPoints()) && (hitPoints >= 0)
      */
+    @SuppressWarnings("unused")
     public boolean canHaveAsHitPoints(int hitPoints) {
         return hitPoints <= getMaxPoints() && hitPoints >= 0;
     }
@@ -1123,7 +782,7 @@ public class Unit {
      *
      */
     @Raw @Model
-    private void setHitPoints(int hitPoints) {
+    void setHitPoints(int hitPoints) {
         assert hitPoints <= getMaxPoints() && hitPoints >= 0;
         this.hitPoints = hitPoints;
     }
@@ -1142,7 +801,7 @@ public class Unit {
      *          |   new.getHitPoints() == 0
      */
     @Model
-    private void deduceHitPoints(int hitPoints)  {
+    void deduceHitPoints(int hitPoints)  {
         int newHitPoints = this.getHitPoints() - hitPoints;
         if (newHitPoints <= 0) {
             currentActivity = NONE_ACTIVITY;
@@ -1160,6 +819,7 @@ public class Unit {
 
     /**
      * Returns whether the stamina is valid.
+     * (only used in class invariant)
      *
      * @param   stamina
      *          The stamina to be verified.
@@ -1168,6 +828,7 @@ public class Unit {
      *          and smaller than or equal to the maximum amount of hitPoints.
      *          | result == (stamina <= getMaxPoints()) && (stamina >= 0)
      */
+    @SuppressWarnings("unused")
     public boolean canHaveAsStamina(int stamina) {
         return stamina <= getMaxPoints() && stamina >= 0;
     }
@@ -1194,7 +855,7 @@ public class Unit {
      *
      */
     @Raw @Model
-    private void setStamina(int stamina){
+    void setStamina(int stamina){
         assert stamina <= getMaxPoints() && stamina >= 0;
         this.stamina = stamina;
     }
@@ -1211,9 +872,9 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Orientation">
-
     /**
      * Returns whether the orientation is valid.
+     * (only used in class invariant)
      *
      * @param   orientation
      *          The orientation to be verified.
@@ -1222,6 +883,7 @@ public class Unit {
      *          and smaller than 2*PI
      *          | result == (orientation < 2*Math.PI) && (orientation >= 0)
      */
+    @SuppressWarnings("unused")
     public static boolean isValidOrientation(double orientation) {
         return orientation < 2*Math.PI && orientation >= 0;
     }
@@ -1244,7 +906,7 @@ public class Unit {
      *          | new.getOrientation() == ((2*Math.PI) + (orientation % (2*Math.PI))) % 2* Math.PI
      */
     @Raw @Model
-    private void setOrientation(double orientation) {
+    void setOrientation(double orientation) {
         this.orientation = ((Math.PI*2) + (orientation % (2*Math.PI))) % (2*Math.PI);
     }
     //</editor-fold>
@@ -1287,7 +949,7 @@ public class Unit {
      *          | Math.abs(dx) > 1 || Math.abs(dy) > 1 || Math.abs(dz) > 1
      * @throws  IllegalStateException
      *          If the unit can't move right now
-     *          | !canHaveAsActivity(Activity.MOVE)
+     *          | !canHaveAsActivity(Unit.MOVE)
      */
     public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException, IllegalStateException {
         if (!currentActivity.canSwitch(MoveActivity.class)) {
@@ -1299,9 +961,9 @@ public class Unit {
         }
 
         if (isMoving())
-            ((MoveActivity)getCurrentActivity()).moveToNeighbour(new int[] {dx, dy, dz}); //TODO: recalc path
+            ((MoveActivity)getCurrentActivity()).updateAdjecent(dx, dy, dz);
         else
-            setCurrentActivity(new MoveActivity(new int[] {dx, dy, dz}));
+            setCurrentActivity(new MoveActivity(this, new int[] {dx, dy, dz}));
     }
 
 
@@ -1322,7 +984,7 @@ public class Unit {
      *          | !isValidPosition(target[0], target[1], target[2])
      * @throws  IllegalStateException
      *          If the unit can't move.
-     *          | !this.canHaveAsActivity(Activity.MOVE)f
+     *          | !this.canHaveAsActivity(Unit.MOVE)f
      *
      */
     public void moveTo(int[] target) throws IllegalArgumentException, IllegalStateException {
@@ -1332,19 +994,20 @@ public class Unit {
 
         Vector newTarget = new Vector(target[0], target[1], target[2]);
         newTarget = newTarget.add(World.Lc/2);
+
         if (!isValidPosition(newTarget.toDoubleArray())) {
             throw new IllegalArgumentException("invalid target");
         }
 
         if (isMoving())
-            ((MoveActivity)getCurrentActivity()).target = newTarget; //TODO: add function to recalculate path
+            ((MoveActivity)getCurrentActivity()).updateTarget(newTarget);
         else
-            setCurrentActivity(new MoveActivity(newTarget));
+            setCurrentActivity(new MoveActivity(this, newTarget));
     }
 
     //</editor-fold>
 
-    //<editor-fold desc="Speed">
+    //<editor-fold desc="SpeedNSprint">
     /**
      * Gets the units movement speed.
      *
@@ -1362,21 +1025,10 @@ public class Unit {
         if (!isMoving())
             return 0;
         MoveActivity current = (MoveActivity)getCurrentActivity();
-        double speedScalar;
-        if (current.speed != null) {
-            speedScalar = current.speed.norm();
-        } else {
-            speedScalar = 0;
-        }
-        if (isSprinting()) {
-            return 2*speedScalar;
-        }
-        return speedScalar;
+        double speedScalar = current.speed == null ? 0 : current.speed.norm();
+        return isSprinting() ? 2*speedScalar : speedScalar;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Sprinting">
     /**
      * Enables or disables sprint mode for this unit.
      *
@@ -1395,20 +1047,14 @@ public class Unit {
         if (sprint && (getStamina() == 0 || !isMoving())) {
             throw new IllegalStateException("Can't sprint right now");
         }
-        /*
-        if (!this.isSprinting() && sprint) {
-            sprintStaminaTimer = SPRINT_DELAY;
-        }
-        this.sprinting = sprint;
-        */
-        if (isMoving()) {
-            MoveActivity current = (MoveActivity)getCurrentActivity();
-            if (!current.sprinting && sprint)
-                current.sprintStaminaTimer = SPRINT_DELAY;
-            current.sprinting = sprint;
+        if (!isMoving()) return; // throw?
 
-        }
+        MoveActivity current = (MoveActivity)getCurrentActivity();
+        if (!current.sprinting && sprint)
+            current.sprintStaminaTimer = MoveActivity.SPRINT_DELAY;
+        current.sprinting = sprint;
     }
+
     /**
      * Returns True if the unit is sprinting
      */
@@ -1435,14 +1081,14 @@ public class Unit {
      *
      * @throws  IllegalArgumentException
      *          Throws if the unit can't work.
-     *          | (!canHaveAsActivity(Activity.WORK)
+     *          | (!canHaveAsActivity(Unit.WORK)
      */
     public void work() throws IllegalArgumentException {
         if (!getCurrentActivity().canSwitch(WorkActivity.class)) {
             throw new IllegalArgumentException("can't work right now");
         }
         if (!isWorking())
-            setCurrentActivity(new WorkActivity());
+            setCurrentActivity(new WorkActivity(this));
     }
     //</editor-fold>
 
@@ -1476,7 +1122,7 @@ public class Unit {
      *          | (other == null || other == this)
      * @throws  IllegalArgumentException
      *          Throws if the unit can't attack.
-     *          | !canHaveAsActivity(Activity.ATTACK)
+     *          | !canHaveAsActivity(Unit.ATTACK)
      * @throws  IllegalArgumentException
      *          Throws if the other unit is not in attack range.
      *          | ( (abs(this.getPosition[0] - other.getPosition[0])) > 1 ||
@@ -1490,7 +1136,9 @@ public class Unit {
             throw new IllegalArgumentException("Can't attack right now");
         if (this.getFaction() == other.getFaction())
             throw new IllegalArgumentException("Can't attack units of the same faction");
-        Vector otherPos = other.getPositionVec();
+
+        // TODO: move to attachActivity constructor:
+        Vector otherPos = other.getPositionVector();
         int[] otherCube = World.getCubePosition(otherPos.toDoubleArray());
         int[] posCube = World.getCubePosition(this.getPosition());
 
@@ -1507,7 +1155,7 @@ public class Unit {
 
         other.defend(this);
 
-        setCurrentActivity(new AttackActivity());
+        setCurrentActivity(new AttackActivity(this));
     }
 
     /**
@@ -1539,11 +1187,10 @@ public class Unit {
      *          | deduceHitPoints()
      *
      */
-    private void defend(Unit attacker) {
-
+    void defend(Unit attacker) {
         double probabilityDodge = 0.20 * (this.getAgility() / attacker.getAgility());
         if (Math.random() < probabilityDodge) {
-            // dodge
+            // TODO: fix dodging
             double newX = 2 * Math.random() - 1;
             double newY = 2 * Math.random() - 1;
             if (newX == 0 && newY == 0) {
@@ -1554,16 +1201,16 @@ public class Unit {
                 else
                     newY = 2 * newRandom - 1;
             }
-            newX += getPositionVec().getX();
-            newY += getPositionVec().getY();
+            newX += getPositionVector().getX();
+            newY += getPositionVector().getY();
             if (newX < 0 || newX >= world.X_MAX){
                 newX = -newX;
             }
             if (newY < 0 ||newY >= world.Y_MAX) {
                 newY = -newY;
             }
-            setPosition(newX, newY, getPositionVec().getZ());
-            Vector diff = attacker.getPositionVec().substract(this.position);
+            setPosition(newX, newY, getPositionVector().getZ());
+            Vector diff = attacker.getPositionVector().substract(this.position);
             this.setOrientation(Math.atan2(diff.getY(), diff.getX()));
             attacker.setOrientation(Math.atan2(-diff.getY(), -diff.getX()));
             this.addXp(20);
@@ -1573,9 +1220,9 @@ public class Unit {
             if (Math.random() >= probabilityBlock) {
                 deduceHitPoints(attacker.getStrength() / 10);
                 attacker.addXp(20);
-            }
-            else
+            } else {
                 this.addXp(20);
+            }
         }
 
     }
@@ -1606,26 +1253,10 @@ public class Unit {
     public void rest() throws IllegalStateException {
         if (!currentActivity.canSwitch(RestActivity.class))
             throw new IllegalStateException("Can't rest right now");
-        /*
-        if (!isResting())
-            resetRest();
-            */
-        if (!isResting())
-            setCurrentActivity(new RestActivity());
-    }
 
-    /**
-     * Reset the rest state of the unit.
-     *
-     * @post    Enables the initial rest and resets the rest counter.
-     *          | new.initialRest == true && new.restDiff == 0
-     */
-    /*
-    private void resetRest() {
-        this.restDiff = 0;
-        this.initialRest = true;
+        if (!isResting())
+            setCurrentActivity(new RestActivity(this));
     }
-    */
     //</editor-fold>
 
     //<editor-fold desc="Default behaviour">
@@ -1655,17 +1286,28 @@ public class Unit {
      */
     @Basic
     public boolean isDefaultEnabled() {
-        return  this.defaultEnabled;
+        return this.defaultEnabled;
     }
     //</editor-fold>
 
     //<editor-fold desc="Leveling and Xp">
-    private void addXp(int xp) {
+    /**
+     * Adds the given xp to the Unit
+     *
+     * @param   xp
+     *          The xp to be added
+     *
+     * @post    The new xp will match
+     *          | new.getXp() == this.getXp() + xp
+     *
+     * @effect  The unit will level up
+     *          | ...
+     */
+    void addXp(int xp) {
         this.xp += xp;
         this.xpDiff += xp;
         levelUp();
     }
-
 
     @Basic
     public int getXp() {
@@ -1684,7 +1326,6 @@ public class Unit {
                 this.setToughness(this.getToughness() + 1);
         }
     }
-
     //</editor-fold>
 
     //<editor-fold desc="Faction">

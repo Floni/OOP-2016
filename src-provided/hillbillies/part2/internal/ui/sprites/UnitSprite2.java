@@ -4,7 +4,7 @@ import static hillbillies.part2.internal.ui.sprites.SpriteSheets.boulderPerFacti
 import static hillbillies.part2.internal.ui.sprites.SpriteSheets.defaultPerFaction;
 import static hillbillies.part2.internal.ui.sprites.SpriteSheets.woodPerFaction;
 
-import hillbillies.model.Unit;
+import hillbillies.model.Unit.Unit;
 import hillbillies.part1.internal.ui.sprites.UnitSprite;
 import hillbillies.part2.internal.providers.IGameObjectInfoProvider;
 import ogp.framework.ui.SpriteSheet;

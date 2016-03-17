@@ -1,9 +1,8 @@
 package hillbillies.part2.facade;
 
-import com.sun.javafx.sg.prism.NGShape;
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import hillbillies.model.*;
 // import hillbillies.part1.facade.Facade;
+import hillbillies.model.Unit.Unit;
 import hillbillies.part2.listener.TerrainChangeListener;
 import ogp.framework.util.ModelException;
 

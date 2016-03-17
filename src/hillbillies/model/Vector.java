@@ -5,8 +5,6 @@ import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Value;
 import ogp.framework.util.Util;
 
-import java.util.Objects;
-
 /**
  * Basic Vector class
  */
@@ -83,8 +81,10 @@ public class Vector {
 
     /**
      * Adds the given constant to each coordinate of the vector
+     *
      * @param   constant
      *          | The constant
+     *
      * @return  A new vector ...
      *          | result.getX() == this.getX() + constant &&
      *          | result.getY() == this.getY() + constant &&
@@ -96,7 +96,11 @@ public class Vector {
 
     /**
      * Adds the given constant to each coordinate of the vector
-     * @param
+     *
+     * @param   dx  the x diff
+     * @param   dy  the y diff
+     * @param   dz  the z diff
+     *
      * @return  A new vector ...
      *          | result.getX() == this.getX() + dx &&
      *          | result.getY() == this.getY() + dz &&

@@ -23,7 +23,7 @@ public abstract class GameObject {
         position = new Vector(x,y,z);
     }
 
-    public void finalize() {
+    public void destruct() {
 
     }
 

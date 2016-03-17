@@ -9,7 +9,7 @@ import hillbillies.common.internal.controller.CubeSelectionMode.Cube;
 import hillbillies.common.internal.controller.UnitSelectionMode;
 import hillbillies.common.internal.inputmodes.InputMode;
 import hillbillies.common.internal.selection.Selection;
-import hillbillies.model.Unit;
+import hillbillies.model.Unit.Unit;
 import hillbillies.part1.facade.IFacade;
 import ogp.framework.util.ModelException;
 
