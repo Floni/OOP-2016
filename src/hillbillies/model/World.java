@@ -97,7 +97,8 @@ public class World {
                         }
                     }
                 }
-            }*/
+            }
+            */
         }
         // call advanceTime on all units
         for (Unit unit : getUnits()) {

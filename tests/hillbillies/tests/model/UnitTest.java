@@ -84,7 +84,7 @@ public class UnitTest {
     @Test
     public void testGetCubePosition() throws Exception {
         unit.setPosition(0.5, 0.5, 0.5);
-        int[] result = Unit.getCubePosition(unit.getPosition());
+        int[] result = World.getCubePosition(unit.getPosition());
         assertTrue(
                 result[0] == Math.floor(unit.getPosition()[0]) &&
                 result[1] == Math.floor(unit.getPosition()[1]) &&
@@ -223,7 +223,7 @@ public class UnitTest {
         unit.setPosition(0, 0, 0);
         unit.moveToAdjacent(1, 0, 0);
         advanceTimeFor(unit, 5, 0.1);
-        assertIntegerPositionEquals(1, 0, 0, Unit.getCubePosition(unit.getPosition()));
+        assertIntegerPositionEquals(1, 0, 0, World.getCubePosition(unit.getPosition()));
     }
 
     @Test
@@ -231,7 +231,7 @@ public class UnitTest {
         unit.setPosition(0, 0, 0);
         unit.moveTo(new int[] {5, 5, 3});
         advanceTimeFor(unit, 30, 0.1);
-        assertIntegerPositionEquals(5, 5, 3, Unit.getCubePosition(unit.getPosition()));
+        assertIntegerPositionEquals(5, 5, 3, World.getCubePosition(unit.getPosition()));
     }
 
     @Test

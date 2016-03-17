@@ -1,6 +1,7 @@
 package hillbillies.part1.facade;
 
 import hillbillies.model.Unit;
+import hillbillies.model.World;
 import ogp.framework.util.ModelException;
 
 /**
@@ -26,7 +27,7 @@ public class Facade implements IFacade {
 
     @Override
     public int[] getCubeCoordinate(Unit unit) throws ModelException {
-        return Unit.getCubePosition(unit.getPosition());
+        return World.getCubePosition(unit.getPosition());
     }
 
     @Override

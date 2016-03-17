@@ -5,7 +5,10 @@ import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.stream.Stream;
 
 /**
  *
@@ -56,13 +59,15 @@ public class Unit {
     }
 
     private class MoveActivity extends Activity {
-
         protected Vector target;
         private Vector targetNeighbour;
         protected Vector speed;
 
         private double sprintStaminaTimer;
         private boolean sprinting;
+
+        private List<Vector> path;
+        private int idx;
 
         protected MoveActivity() {
 
@@ -74,6 +79,10 @@ public class Unit {
             calculatePath();
             goToNextNeighbour();
             */
+            this.path = pathFinder.getPath(new Vector(World.getCubePosition(getPosition())),
+                    new Vector(World.getCubePosition(target.toDoubleArray())));
+            goToNextNeighbour();
+            idx = 1; // TODO: set to length -> no reversing?
         }
 
         public MoveActivity(int[] adjacent) throws IllegalArgumentException {
@@ -114,12 +123,17 @@ public class Unit {
                 } else if (this.target == null || isAtTarget()) {
                     finishCurrentActivity();
                 } else {
-                    //goToNextNeighbour();
-                    throw new NotImplementedException();
+                    goToNextNeighbour();
                 }
             } else {
                 setPosition(newPosition);
             }
+        }
+
+        private void goToNextNeighbour() {
+            Vector diff = path.get(idx).substract(getPositionVec().substract(World.Lc/2.0));
+            idx += 1;
+            moveToNeighbour(new int[]{(int)diff.getX(), (int)diff.getY(), (int)diff.getZ()});
         }
 
         @Override
@@ -157,6 +171,7 @@ public class Unit {
             int[] curPos = World.getCubePosition(getPosition());
             Vector target = new Vector(curPos[0] + adjacent[0], curPos[1] + adjacent[1], curPos[2] + adjacent[2]);
             this.targetNeighbour = target.add(World.Lc/2);
+
             if (!isValidPosition(this.targetNeighbour.toDoubleArray()))
                 throw new IllegalArgumentException("Illegal neighbour");
             this.speed = calculateSpeed(this.targetNeighbour);
@@ -400,6 +415,8 @@ public class Unit {
 
     private Faction faction;
     private World world;
+
+    private PathFinder pathFinder;
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
@@ -510,6 +527,23 @@ public class Unit {
 
         this.restMinuteTimer = REST_MINUTE;
 
+
+        pathFinder = new PathFinder(new PathFinder.PathGlue() {
+            @Override
+            public Stream<Vector> getNeighbours(Vector pos) {
+                return world.getNeighbours(pos).filter(n -> isValidPosition(n.getX(), n.getY(), n.getZ()) && isStandablePosition(n));
+            }
+
+            @Override
+            public double getCost(Vector a, Vector b) {
+                return a.substract(b).norm();
+            }
+
+            @Override
+            public int getHeuristic(Vector a, Vector b) {
+                return (int) Math.floor(Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY()) + Math.abs(a.getZ() - b.getZ()));
+            }
+        });
         // enable default behavior at start?
     }
     //</editor-fold>
@@ -1257,7 +1291,7 @@ public class Unit {
         }
 
         if (isMoving())
-            ((MoveActivity)getCurrentActivity()).moveToNeighbour(new int[] {dx, dy, dz});
+            ((MoveActivity)getCurrentActivity()).moveToNeighbour(new int[] {dx, dy, dz}); //TODO: recalc path
         else
             setCurrentActivity(new MoveActivity(new int[] {dx, dy, dz}));
     }
@@ -1295,7 +1329,7 @@ public class Unit {
         }
 
         if (isMoving())
-            ((MoveActivity)getCurrentActivity()).target = newTarget;
+            ((MoveActivity)getCurrentActivity()).target = newTarget; //TODO: add function to recalculate path
         else
             setCurrentActivity(new MoveActivity(newTarget));
     }
