@@ -89,7 +89,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public int getExperiencePoints(Unit unit) throws ModelException {
-        return 0;
+        return unit.getXp();
     }
 
     @Override

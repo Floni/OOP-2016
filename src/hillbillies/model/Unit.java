@@ -98,6 +98,7 @@ public class Unit {
 
             Vector newPosition = getPositionVec().add(this.speed.multiply(mod*dt));
             if (isAtNeighbour(newPosition)) {
+                addXp(1);
                 setPosition(this.targetNeighbour);
                 if (!pendingActivity.equalsClass(NoneActivity.class)) {
                     currentActivity = pendingActivity;
@@ -311,6 +312,7 @@ public class Unit {
         void advanceTime(double dt) {
             workTimer -= dt;
             if (workTimer <= 0) {
+                addXp(10);
                 workTimer = 0;
                 finishCurrentActivity();
             }
@@ -401,6 +403,7 @@ public class Unit {
     private int weight, strength, agility, toughness;
     private double orientation;
     private int hitPoints, stamina;
+    private int xp, xpDiff;
 
     private final Activity NONE_ACTIVITY = new NoneActivity();
 
@@ -513,6 +516,9 @@ public class Unit {
         setStrength(strength);
         setAgility(agility);
         setWeight(weight);
+
+        this.xpDiff = 0;
+        this.xp = 0;
 
         int maxPoints = getMaxPoints();
         setHitPoints(maxPoints);
@@ -686,7 +692,9 @@ public class Unit {
      *          | result == ((x >= 0) && (x < X_MAX) && (y >= 0) && (y < Y_MAX) && (z >= 0) && (z < Z_MAX))
      */
     public boolean isValidPosition(double x,double y,double z) {
-        return x >= 0 && x < world.X_MAX && y >= 0 && y < world.Y_MAX && z >= 0 && z < world.Z_MAX;
+        int[] cubePos = getCubePosition(new double[] {x, y ,z});
+        return x >= 0 && x < World.X_MAX && y >= 0 && y < World.Y_MAX && z >= 0 && z < World.Z_MAX &&
+                World.isSolid(world.getCubeType(cubePos[0], cubePos[1], cubePos[2]));
     }
 
 
@@ -1392,7 +1400,7 @@ public class Unit {
     }
     //</editor-fold>
 
-    //<editor-fold desc="Woring">
+    //<editor-fold desc="Working">
     /**
      * Returns True if the unit is working
      */
@@ -1459,10 +1467,11 @@ public class Unit {
      */
     public void attack(Unit other) throws IllegalArgumentException {
         if (other == null || other == this)
-            throw new IllegalArgumentException("the other unit is invalid");
-        if (!currentActivity.canSwitch(AttackActivity.class)) {
-            throw new IllegalArgumentException("can't attack right now");
-        }
+            throw new IllegalArgumentException("The other unit is invalid");
+        if (!currentActivity.canSwitch(AttackActivity.class))
+            throw new IllegalArgumentException("Can't attack right now");
+        if (this.getFaction() == other.getFaction())
+            throw new IllegalArgumentException("Can't attack units of the same faction");
         Vector otherPos = other.getPositionVec();
         int[] otherCube = getCubePosition(otherPos.toDoubleArray());
         int[] posCube = getCubePosition(this.getPosition());
@@ -1539,12 +1548,16 @@ public class Unit {
             Vector diff = attacker.getPositionVec().substract(this.position);
             this.setOrientation(Math.atan2(diff.getY(), diff.getX()));
             attacker.setOrientation(Math.atan2(-diff.getY(), -diff.getX()));
+            this.addXp(20);
         } else {
             double probabilityBlock = 0.25 *
                     ((this.getStrength()+this.getAgility())/(attacker.getStrength()+attacker.getAgility()));
             if (Math.random() >= probabilityBlock) {
                 deduceHitPoints(attacker.getStrength() / 10);
+                attacker.addXp(20);
             }
+            else
+                this.addXp(20);
         }
 
     }
@@ -1626,6 +1639,35 @@ public class Unit {
     public boolean isDefaultEnabled() {
         return  this.defaultEnabled;
     }
+    //</editor-fold>
+
+    //<editor-fold desc="Leveling and Xp">
+
+    private void addXp(int xp) {
+        this.xp += xp;
+        this.xpDiff += xp;
+        levelUp();
+    }
+
+
+    @Basic
+    public int getXp() {
+        return this.xp;
+    }
+
+    private void levelUp() {
+        while (this.xpDiff >= 10) {
+            int rand = (int) Math.floor(Math.random()*3);
+            this.xpDiff -= 10;
+            if (rand == 0)
+                this.setStrength(this.getStrength() + 1);
+            else if (rand == 1)
+                this.setAgility(this.getAgility() + 1);
+            else
+                this.setToughness(this.getToughness() + 1);
+        }
+    }
+
     //</editor-fold>
 
     @Basic
