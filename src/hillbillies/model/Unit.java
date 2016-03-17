@@ -46,21 +46,25 @@ public class Unit {
         abstract boolean canSwitch(Class<? extends Activity> newActivity);
 
         boolean equalsClass(Activity other) {
-            return this.getClass().equals(other.getClass());
+            return this.equalsClass(other.getClass());
         }
 
         boolean equalsClass(Class<? extends Activity> other) {
-            return this.getClass().equals(other);
+            return other.isAssignableFrom(this.getClass());
         }
     }
 
     private class MoveActivity extends Activity {
-        private Vector target;
+        protected Vector target;
         private Vector targetNeighbour;
-        private Vector speed;
+        protected Vector speed;
 
         private double sprintStaminaTimer;
         private boolean sprinting;
+
+        protected MoveActivity() {
+
+        }
 
         public MoveActivity(Vector target) {
             this.target = target;
@@ -220,6 +224,38 @@ public class Unit {
                 vw = 1.2*vb;
             }
             return diff.multiply(vw);
+        }
+    }
+
+
+    private class FallActivity extends MoveActivity {
+
+        public FallActivity() {
+
+            speed = new Vector(0, 0, -3.0);
+            target = getPositionVec(); // we use target as the starting position
+        }
+
+        @Override
+        void advanceTime(double dt) {
+            Vector newPosition = getPositionVec().add(this.speed.multiply(dt));
+
+            int[] newCube = getCubePosition(newPosition.toDoubleArray());
+            if (newCube[2] == 0 || World.isSolid(world.getCubeType(newCube[0], newCube[1], newCube[2]-1))) {
+                int diffZ = (int)Math.floor(target.substract(newPosition).getZ());
+                int newHP = getHitPoints() - diffZ * 10;
+                if (newHP < 0)
+                    newHP = 0;
+                setHitPoints(newHP);
+                finishCurrentActivity();
+            }
+            setPosition(newPosition);
+
+        }
+
+        @Override
+        boolean canSwitch(Class<? extends Activity> newActivity) {
+            return false;
         }
     }
 
@@ -571,6 +607,13 @@ public class Unit {
             // TODO: what if can't rest
         }
 
+        if (!isStandablePosition(getPositionVec())) {
+            this.currentActivity = new FallActivity();
+            this.lastActivity = NONE_ACTIVITY; //TODO: save Last activity?
+            assert isMoving();
+        }
+
+
     }
     //</editor-fold>
 
@@ -628,12 +671,35 @@ public class Unit {
      *          | new.lastActivity == Activity.NONE
      */
     private void finishCurrentActivity() {
+        //TODO: provide reset method in activity to reset timers & stuff
         this.currentActivity = this.lastActivity;
         this.lastActivity = NONE_ACTIVITY;
     }
     //</editor-fold>
 
     //<editor-fold desc="Position">
+
+    private boolean isStandablePosition(Vector position) {
+        int[] cube = getCubePosition(position.toDoubleArray());
+        if (cube[0] == 0 || cube[0] == world.X_MAX - 1 || cube[1] == 0 || cube[1] == world.Y_MAX - 1
+                ||cube[2] == 0 || cube[2] == world.Z_MAX - 1)
+            return true;
+
+        for (int dx = -1; dx < 2; dx++) {
+            for (int dy = -1; dy < 2; dy++) {
+                for (int dz = -1; dz < 2; dz++) {
+                    if (!(dx == 0 && dy == 0 && dz == 0)) {
+                        if (World.isSolid(world.getCubeType(cube[0] + dx, cube[1] + dy, cube[2] + dz))) {
+                            return true;
+                        }
+
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * Checks whether the given position is valid.
      *
@@ -1266,7 +1332,7 @@ public class Unit {
      *          | !isValidPosition(target[0], target[1], target[2])
      * @throws  IllegalStateException
      *          If the unit can't move.
-     *          | !this.canHaveAsActivity(Activity.MOVE)
+     *          | !this.canHaveAsActivity(Activity.MOVE)f
      *
      */
     public void moveTo(int[] target) throws IllegalArgumentException, IllegalStateException {
@@ -1500,10 +1566,10 @@ public class Unit {
             }
             newX += getPositionVec().getX();
             newY += getPositionVec().getY();
-            if (newX < 0 || newX >= World.X_MAX){
+            if (newX < 0 || newX >= world.X_MAX){
                 newX = -newX;
             }
-            if (newY < 0 ||newY >= World.Y_MAX) {
+            if (newY < 0 ||newY >= world.Y_MAX) {
                 newY = -newY;
             }
             setPosition(newX, newY, getPositionVec().getZ());
