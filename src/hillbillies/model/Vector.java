@@ -228,11 +228,11 @@ public class Vector {
 
     @Override
     public int hashCode() {
-        return (int)(8017*getX() + 104831 * getY() + 105817 * getZ()) + 17;
+        return (int)(8017*getX() + 104831 * getY() + 1301077 * getZ()) + 17;
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj.getClass().equals(Vector.class) && this.isEqualTo((Vector)obj, 1e-6);
+        return obj != null && obj.getClass().equals(Vector.class) && this.isEqualTo((Vector)obj, 1e-6);
     }
 }
