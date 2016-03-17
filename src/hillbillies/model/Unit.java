@@ -81,6 +81,9 @@ public class Unit {
             */
             this.path = pathFinder.getPath(new Vector(World.getCubePosition(getPosition())),
                     new Vector(World.getCubePosition(target.toDoubleArray())));
+            if (path == null)
+                throw new IllegalArgumentException("Impossible to path!!");
+
             goToNextNeighbour();
             idx = 1; // TODO: set to length -> no reversing?
         }

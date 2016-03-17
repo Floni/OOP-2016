@@ -69,6 +69,8 @@ public class PathFinder {
         while (!current.equals(start)) {
             path.add(current);
             current = cameFrom.get(current);
+            if (current == null)
+                return null;
         }
         Collections.reverse(path);
         return path;
