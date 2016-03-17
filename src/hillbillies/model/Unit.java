@@ -626,7 +626,9 @@ public class Unit {
      *          | result == ((x >= 0) && (x < X_MAX) && (y >= 0) && (y < Y_MAX) && (z >= 0) && (z < Z_MAX))
      */
     public boolean isValidPosition(double x,double y,double z) {
-        return x >= 0 && x < World.X_MAX && y >= 0 && y < World.Y_MAX && z >= 0 && z < World.Z_MAX;
+        int[] cubePos = getCubePosition(new double[] {x, y ,z});
+        return x >= 0 && x < World.X_MAX && y >= 0 && y < World.Y_MAX && z >= 0 && z < World.Z_MAX &&
+                World.isSolid(world.getCubeType(cubePos[0], cubePos[1], cubePos[2]));
     }
 
 
@@ -1399,10 +1401,11 @@ public class Unit {
      */
     public void attack(Unit other) throws IllegalArgumentException {
         if (other == null || other == this)
-            throw new IllegalArgumentException("the other unit is invalid");
-        if (!currentActivity.canSwitch(AttackActivity.class)) {
-            throw new IllegalArgumentException("can't attack right now");
-        }
+            throw new IllegalArgumentException("The other unit is invalid");
+        if (!currentActivity.canSwitch(AttackActivity.class))
+            throw new IllegalArgumentException("Can't attack right now");
+        if (this.getFaction() == other.getFaction())
+            throw new IllegalArgumentException("Can't attack units of the same faction");
         Vector otherPos = other.getPositionVec();
         int[] otherCube = getCubePosition(otherPos.toDoubleArray());
         int[] posCube = getCubePosition(this.getPosition());
