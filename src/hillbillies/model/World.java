@@ -1,11 +1,17 @@
 package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import com.sun.org.apache.xpath.internal.operations.Mod;
+import hillbillies.part2.facade.Facade;
 import hillbillies.part2.listener.TerrainChangeListener;
 import hillbillies.util.ConnectedToBorder;
+import ogp.framework.util.ModelException;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 /**
  * Created by timo on 3/14/16.
@@ -24,9 +30,9 @@ public class World {
     public static final int ROCK = 1;
     public static final int TREE = 2;
 
-    public final int X_MAX;
-    public final int Y_MAX;
-    public final int Z_MAX;
+    public static int X_MAX;
+    public static int Y_MAX;
+    public static int Z_MAX;
 
     public final static double Lc = 1.0;
 
@@ -66,9 +72,16 @@ public class World {
                 }
             }
         }
+
+        this.factions = new HashSet<>();
+        this.logs = new HashSet<>();
+        this.boulders = new HashSet<>();
     }
 
-    public void advanceTime(double dt) {
+    public void advanceTime(double dt) throws ModelException {
+        if (dt >= 0.2 || dt < 0)
+            throw new IllegalArgumentException("invalid dt");
+
         // update terrain if dirt
         if (this.dirty) {
             this.dirty = false;
@@ -87,6 +100,9 @@ public class World {
             }*/
         }
         // call advanceTime on all units
+        for (Unit unit : getUnits()) {
+            unit.advanceTime(dt);
+        }
     }
 
     public boolean isValidPosition(int x, int y, int z) {
@@ -208,8 +224,61 @@ public class World {
         boulders.add(new Boulder(x, y, z, weight));
     }
 
-    private void addFaction() {
-        if (factions.size() < 5)
-            factions.add(new Faction());
+    private Faction addFaction() {
+        if (factions.size() < 5) {
+            Faction faction = new Faction();
+            factions.add(faction);
+            return faction;
+        }
+        return null;
+    }
+
+    private int getRandomAttribute() {
+        return (int)Math.floor(25 + 76*Math.random());
+    }
+
+    public Unit spawnUnit(boolean defautBehaviour) {
+        List<int[]> possiblePositions = new ArrayList<>();
+        for (int x = 0; x < X_MAX; x++) {
+            for (int y = 0; y < Y_MAX; y++) {
+                for (int z = 0; z < Z_MAX; z++) {
+                    if (!isSolid(getCubeType(x, y, z)) && (z == 0 || isSolid(getCubeType(x, y, z-1))))
+                        possiblePositions.add(new int[]{x, y, z});
+                }
+            }
+        }
+
+        int randIdx = (int)Math.floor(possiblePositions.size() * Math.random());
+        int[] pos = possiblePositions.get(randIdx);
+
+        Unit unit = new Unit(this, "Spawn", pos[0], pos[1], pos[2], getRandomAttribute(), getRandomAttribute(),
+                getRandomAttribute(), getRandomAttribute());
+
+        addUnit(unit);
+        return unit;
+    }
+
+    public void addUnit(Unit unit) {
+        if (factions.size() != 5) {
+            Faction newFaction = addFaction();
+            unit.setFaction(newFaction);
+            newFaction.addUnit(unit);
+        } else {
+            Faction minFaction = null;
+            for (Faction faction : factions) {
+                if (minFaction == null || minFaction.getFactionSize() > faction.getFactionSize())
+                    minFaction = faction;
+            }
+            unit.setFaction(minFaction);
+            minFaction.addUnit(unit);
+        }
+    }
+
+    public Set<Unit> getUnits() {
+        Set<Unit> ret = new HashSet<>();
+        for (Faction faction : factions) {
+            ret.addAll(faction.getUnits());
+        }
+        return ret;
     }
 }

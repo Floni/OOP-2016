@@ -1,6 +1,7 @@
 package hillbillies.tests.model;
 
 import hillbillies.model.Unit;
+import hillbillies.model.World;
 import ogp.framework.util.ModelException;
 import ogp.framework.util.Util;
 import org.junit.After;
@@ -18,10 +19,13 @@ import static org.junit.Assert.*;
 public class UnitTest {
 
     private Unit unit;
+    private World world;
 
     @Before
     public void setUp() throws Exception {
-        this.unit = new Unit("Timothy", 0, 0, 0, 50, 50, 50, 50);
+        // TODO: provide terrain & .. to world
+        this.world = new World(null, null);
+        this.unit = new Unit(world, "Timothy", 0, 0, 0, 50, 50, 50, 50);
     }
 
     @After
@@ -276,14 +280,14 @@ public class UnitTest {
 
     @Test
     public void testAttack() throws Exception {
-        Unit other = new Unit("Florian",1 , 1, 0, 50, 50, 50, 50);
+        Unit other = new Unit(world, "Florian",1 , 1, 0, 50, 50, 50, 50);
         unit.attack(other);
         assertTrue(unit.isAttacking());
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void testAttackOutOfRange() throws Exception {
-        Unit other = new Unit("Florian",5 , 5, 0, 50, 50, 50, 50);
+        Unit other = new Unit(world, "Florian",5 , 5, 0, 50, 50, 50, 50);
         unit.attack(other);
     }
 

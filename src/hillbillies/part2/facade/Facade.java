@@ -1,6 +1,7 @@
 package hillbillies.part2.facade;
 
 import com.sun.javafx.sg.prism.NGShape;
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import hillbillies.model.*;
 // import hillbillies.part1.facade.Facade;
 import hillbillies.part2.listener.TerrainChangeListener;
@@ -34,7 +35,11 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public void advanceTime(World world, double dt) throws ModelException {
-        world.advanceTime(dt);
+        try {
+            world.advanceTime(dt);
+        } catch (Exception ex) {
+            throw new ModelException(ex.getMessage(), ex);
+        }
     }
 
     @Override
@@ -54,17 +59,17 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public Unit spawnUnit(World world, boolean enableDefaultBehavior) throws ModelException {
-        return null;
+        return world.spawnUnit(enableDefaultBehavior);
     }
 
     @Override
     public void addUnit(Unit unit, World world) throws ModelException {
-
+        world.addUnit(unit);
     }
 
     @Override
     public Set<Unit> getUnits(World world) throws ModelException {
-        return null;
+        return world.getUnits();
     }
 
     @Override
@@ -79,7 +84,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public boolean isAlive(Unit unit) throws ModelException {
-        return false;
+        return true;
     }
 
     @Override
@@ -94,7 +99,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public Faction getFaction(Unit unit) throws ModelException {
-        return null;
+        return unit.getFaction();
     }
 
     @Override

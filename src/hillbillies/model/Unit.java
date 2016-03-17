@@ -320,7 +320,7 @@ public class Unit {
                     case 0: // move to random location
                         int[] randLoc = new int[3];
                         for (int i = 0; i < 3; i++) {
-                            randLoc[i] = (int)Math.floor(Math.random()*50);
+                            randLoc[i] = (int)Math.floor(Math.random()*World.X_MAX);
                         }
                         moveTo(randLoc);
                         break;
@@ -361,7 +361,6 @@ public class Unit {
     private Vector position;
 
     private String name;
-    private static World world;
 
     private int weight, strength, agility, toughness;
     private double orientation;
@@ -377,6 +376,9 @@ public class Unit {
     private double restMinuteTimer;
 
     private boolean defaultEnabled;
+
+    private Faction faction;
+    private World world;
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
@@ -444,10 +446,12 @@ public class Unit {
      *          | setOrientation(Math.PI/2)
      */
     @Raw
-    public Unit(String name, int x, int y, int z, int weight, int strength, int agility, int toughness)
+    public Unit(World world, String name, int x, int y, int z, int weight, int strength, int agility, int toughness)
             throws IllegalArgumentException {
+        this.world = world;
+
         setName(name);
-        setPosition(x + world.Lc/2, y + world.Lc/2, z + world.Lc/2);
+        setPosition(x + World.Lc/2, y + World.Lc/2, z + World.Lc/2);
         
         if (toughness < 25)
             toughness = 25;
@@ -536,6 +540,7 @@ public class Unit {
         if (restMinuteTimer <= 0) {
             restMinuteTimer += REST_MINUTE;
             rest();
+            // TODO: what if can't rest
         }
 
     }
@@ -614,8 +619,8 @@ public class Unit {
      * @return  True if the given position is within the boundaries of the world.
      *          | result == ((x >= 0) && (x < X_MAX) && (y >= 0) && (y < Y_MAX) && (z >= 0) && (z < Z_MAX))
      */
-    public static boolean isValidPosition(double x,double y,double z) {
-        return x >= 0 && x < world.X_MAX && y >= 0 && y < world.Y_MAX && z >= 0 && z < world.Z_MAX;
+    public boolean isValidPosition(double x,double y,double z) {
+        return x >= 0 && x < World.X_MAX && y >= 0 && y < World.Y_MAX && z >= 0 && z < World.Z_MAX;
     }
 
 
@@ -628,7 +633,7 @@ public class Unit {
      * @return  True if the position is effective, has 3 components and is within bounds.
      *          | result == isEffectivePosition(position) && isValidPosition(position[0], position[1], position[2])
      */
-    public static boolean isValidPosition(double[] position) {
+    public boolean isValidPosition(double[] position) {
         return isEffectivePosition(position) && isValidPosition(position[0], position[1], position[2]);
     }
 
@@ -1458,10 +1463,10 @@ public class Unit {
             }
             newX += getPositionVec().getX();
             newY += getPositionVec().getY();
-            if (newX < 0 || newX >= world.X_MAX){
+            if (newX < 0 || newX >= World.X_MAX){
                 newX = -newX;
             }
-            if (newY < 0 ||newY >= world.Y_MAX) {
+            if (newY < 0 ||newY >= World.Y_MAX) {
                 newY = -newY;
             }
             setPosition(newX, newY, getPositionVec().getZ());
@@ -1556,4 +1561,13 @@ public class Unit {
         return  this.defaultEnabled;
     }
     //</editor-fold>
+
+    @Basic
+    public Faction getFaction() {
+        return faction;
+    }
+
+    public void setFaction(Faction faction) {
+        this.faction = faction;
+    }
 }
