@@ -5,6 +5,8 @@ import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Value;
 import ogp.framework.util.Util;
 
+import java.util.Objects;
+
 /**
  * Basic Vector class
  */
@@ -86,6 +88,18 @@ public class Vector {
      */
     public Vector add(double constant) {
         return new Vector(getX() + constant, getY()+constant, getZ()+constant);
+    }
+
+    /**
+     * Adds the given constant to each coordinate of the vector
+     * @param
+     * @return  A new vector ...
+     *          | result.getX() == this.getX() + dx &&
+     *          | result.getY() == this.getY() + dz &&
+     *          | result.getZ() == this.getZ() + dy
+     */
+    public Vector add(double dx, double dy, double dz) {
+        return new Vector(getX() + dx, getY()+dy, getZ()+dz);
     }
 
     /**
@@ -210,5 +224,15 @@ public class Vector {
      */
     public void print() {
         System.out.println(String.format("(%f, %f, %f)", getX(), getY(), getZ()));
+    }
+
+    @Override
+    public int hashCode() {
+        return (int)(8017*getX() + 104831 * getY() + 105817 * getZ()) + 17;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj.getClass().equals(Vector.class) && this.isEqualTo((Vector)obj, 1e-6);
     }
 }

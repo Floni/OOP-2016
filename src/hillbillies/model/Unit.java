@@ -3,6 +3,7 @@ package hillbillies.model;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Set;
 
@@ -55,6 +56,7 @@ public class Unit {
     }
 
     private class MoveActivity extends Activity {
+
         protected Vector target;
         private Vector targetNeighbour;
         protected Vector speed;
@@ -68,7 +70,10 @@ public class Unit {
 
         public MoveActivity(Vector target) {
             this.target = target;
+            /*
+            calculatePath();
             goToNextNeighbour();
+            */
         }
 
         public MoveActivity(int[] adjacent) throws IllegalArgumentException {
@@ -109,7 +114,8 @@ public class Unit {
                 } else if (this.target == null || isAtTarget()) {
                     finishCurrentActivity();
                 } else {
-                    goToNextNeighbour();
+                    //goToNextNeighbour();
+                    throw new NotImplementedException();
                 }
             } else {
                 setPosition(newPosition);
@@ -146,49 +152,6 @@ public class Unit {
             return dist_new > dist_cur;
         }
 
-        /**
-         * Starts moving towards the next neighbour on the path to the target.
-         *
-         * @post    Moves the unit to a adjacent cube in the direction of the target when calling advanceTime.
-         *          | if ( posC[0] > targetC[0])
-         *          | then (new.getPosition()[0] == old.getPosition[0] - 1)
-         *          | if ( posC[0] < targetC[0])
-         *          | then (new.getPosition()[0] == old.getPosition[0] + 1)
-         *          | if ( posC[0] == targetC[0])
-         *          | then (new.getPosition()[0] == old.getPosition[0])
-         *          | if ( posC[1] > targetC[1])
-         *          | then (new.getPosition()[1] == old.getPosition[1] - 1)
-         *          | if ( posC[1] < targetC[1])
-         *          | then (new.getPosition()[1] == old.getPosition[1] + 1)
-         *          | if ( posC[1] == targetC[1])
-         *          | then (new.getPosition()[1] == old.getPosition[1])
-         *          | if ( posC[2] > targetC[2])
-         *          | then (new.getPosition()[2] == old.getPosition[2] - 1)
-         *          | if ( posC[2] < targetC[2])
-         *          | then (new.getPosition()[2] == old.getPosition[2] + 1)
-         *          | if ( posC[2] == targetC[2])
-         *          | then (new.getPosition()[2] == old.getPosition[2])
-         *
-         * @effect  Moves to the next adjacent cube.
-         *          | moveToAdjacent();
-         *
-         */
-        private void goToNextNeighbour() {
-            int[] posC = getCubePosition(getPosition());
-            int[] targetC = getCubePosition(this.target.toDoubleArray());
-            int[] dp = new int[3];
-            for (int i = 0; i < 3; i++) {
-                if (posC[i] == targetC[i])
-                    dp[i] = 0;
-                else if (posC[i] < targetC[i])
-                    dp[i] = 1;
-                else
-                    dp[i] = -1;
-            }
-            // to prevent moveToAdjacent from checking if we can move
-            // this.currentActivity = Activity.NONE;
-            moveToNeighbour(dp);
-        }
 
         private void moveToNeighbour(int[] adjacent) throws IllegalArgumentException {
             int[] curPos = getCubePosition(getPosition());
@@ -243,10 +206,7 @@ public class Unit {
             int[] newCube = getCubePosition(newPosition.toDoubleArray());
             if (newCube[2] == 0 || World.isSolid(world.getCubeType(newCube[0], newCube[1], newCube[2]-1))) {
                 int diffZ = (int)Math.floor(target.substract(newPosition).getZ());
-                int newHP = getHitPoints() - diffZ * 10;
-                if (newHP < 0)
-                    newHP = 0;
-                setHitPoints(newHP);
+                deduceHitPoints(10*diffZ);
                 finishCurrentActivity();
             }
             setPosition(newPosition);
@@ -680,11 +640,15 @@ public class Unit {
     //<editor-fold desc="Position">
 
     private boolean isStandablePosition(Vector position) {
-        int[] cube = getCubePosition(position.toDoubleArray());
+        return isStandablePosition(getCubePosition(position.toDoubleArray()));
+    }
+
+    private boolean isStandablePosition(int[] cube) {
         if (cube[0] == 0 || cube[0] == world.X_MAX - 1 || cube[1] == 0 || cube[1] == world.Y_MAX - 1
                 ||cube[2] == 0 || cube[2] == world.Z_MAX - 1)
             return true;
 
+        // TODO: optimize isStandable
         for (int dx = -1; dx < 2; dx++) {
             for (int dy = -1; dy < 2; dy++) {
                 for (int dz = -1; dz < 2; dz++) {
@@ -715,7 +679,7 @@ public class Unit {
      */
     public boolean isValidPosition(double x,double y,double z) {
         int[] cubePos = getCubePosition(new double[] {x, y ,z});
-        return x >= 0 && x < World.X_MAX && y >= 0 && y < World.Y_MAX && z >= 0 && z < World.Z_MAX &&
+        return x >= 0 && x < world.X_MAX && y >= 0 && y < world.Y_MAX && z >= 0 && z < world.Z_MAX &&
                 !World.isSolid(world.getCubeType(cubePos[0], cubePos[1], cubePos[2]));
     }
 
@@ -1494,7 +1458,7 @@ public class Unit {
      *          | ( (abs(this.getPosition[2] - other.getPosition[2])) > 1 )
      */
     public void attack(Unit other) throws IllegalArgumentException {
-        if (other == null || other == this)
+        if (other == null || other == this || other.getCurrentActivity().equalsClass(FallActivity.class))
             throw new IllegalArgumentException("The other unit is invalid");
         if (!currentActivity.canSwitch(AttackActivity.class))
             throw new IllegalArgumentException("Can't attack right now");
