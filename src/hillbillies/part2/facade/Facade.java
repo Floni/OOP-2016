@@ -84,7 +84,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public boolean isAlive(Unit unit) throws ModelException {
-        return true;
+        return unit.isAlive();
     }
 
     @Override

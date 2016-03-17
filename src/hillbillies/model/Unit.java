@@ -4,6 +4,8 @@ import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 
+import java.util.Set;
+
 /**
  *
  * Names of students:
@@ -319,18 +321,38 @@ public class Unit {
             } else if (isDefaultEnabled()) {
                 int random = (int)Math.floor(Math.random()*3);
                 switch (random) {
-                    case 0: // move to random location
-                        int[] randLoc = new int[3];
-                        for (int i = 0; i < 3; i++) {
-                            randLoc[i] = (int)Math.floor(Math.random()*World.X_MAX);
-                        }
-                        moveTo(randLoc);
-                        break;
-                    case 1: // work
+//                    case 3: // move to random location
+//                        int[] randLoc = new int[3];
+//                        for (int i = 0; i < 3; i++) {
+//                            randLoc[i] = (int)Math.floor(Math.random()*World.X_MAX);
+//                        }
+//                        moveTo(randLoc);
+//                        break;
+                    case 0: // work
                         work();
                         break;
-                    case 2: // rest
+                    case 1: // rest
                         rest();
+                        break;
+                    case 2: //attack
+                        Set<Unit> units = world.getUnits();
+                        for (Unit unit: units) {
+                            if (unit.getFaction() != getFaction()) {
+                                boolean range = true;
+                                Vector otherPos = unit.getPositionVec();
+                                int[] otherCube = getCubePosition(otherPos.toDoubleArray());
+                                int[] posCube = getCubePosition(getPosition());
+                                for (int i = 0; i < 3; i++) {
+                                    int diff = otherCube[i] - posCube[i];
+                                    if (diff > 1 || diff < -1) {
+                                        range = false;
+                                    }
+                                }
+                                if (range) {
+                                    attack(unit);
+                                }
+                            }
+                        }
                         break;
                 }
             }
@@ -338,7 +360,7 @@ public class Unit {
 
         @Override
         boolean canSwitch(Class<? extends Activity> newActivity) {
-            return true;
+            return isAlive();
         }
     }
 
@@ -628,7 +650,7 @@ public class Unit {
     public boolean isValidPosition(double x,double y,double z) {
         int[] cubePos = getCubePosition(new double[] {x, y ,z});
         return x >= 0 && x < World.X_MAX && y >= 0 && y < World.Y_MAX && z >= 0 && z < World.Z_MAX &&
-                World.isSolid(world.getCubeType(cubePos[0], cubePos[1], cubePos[2]));
+                !World.isSolid(world.getCubeType(cubePos[0], cubePos[1], cubePos[2]));
     }
 
 
@@ -1051,7 +1073,6 @@ public class Unit {
         this.hitPoints = hitPoints;
     }
 
-    //TODO: 0 hp = dead
     /**
      *  Deduces the given amount hit points from the unit's hp.
      *
@@ -1068,11 +1089,18 @@ public class Unit {
     @Model
     private void deduceHitPoints(int hitPoints)  {
         int newHitPoints = this.getHitPoints() - hitPoints;
-        if (newHitPoints < 0)
-                newHitPoints = 0;
+        if (newHitPoints <= 0) {
+            currentActivity = NONE_ACTIVITY;
+            lastActivity = NONE_ACTIVITY;
+            pendingActivity = NONE_ACTIVITY;
+            this.hitPoints = 0;
+        }
         this.setHitPoints(newHitPoints);
     }
 
+    public boolean isAlive() {
+        return (this.getHitPoints() > 0);
+    }
 
     /**
      * Returns whether the stamina is valid.
@@ -1576,7 +1604,6 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Leveling and Xp">
-
     private void addXp(int xp) {
         this.xp += xp;
         this.xpDiff += xp;
@@ -1604,6 +1631,7 @@ public class Unit {
 
     //</editor-fold>
 
+    //<editor-fold desc="Faction">
     @Basic
     public Faction getFaction() {
         return faction;
@@ -1612,4 +1640,5 @@ public class Unit {
     public void setFaction(Faction faction) {
         this.faction = faction;
     }
+    //</editor-fold>
 }
