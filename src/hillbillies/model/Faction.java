@@ -14,9 +14,8 @@ public class Faction {
         this.units = new HashSet<>();
     }
 
-    //TODO: check if unit not already in a faction
     public void addUnit(Unit unit) {
-        if (getFactionSize() < 50)
+        if (getFactionSize() < 50 && !units.contains(unit))
             units.add(unit);
     }
 

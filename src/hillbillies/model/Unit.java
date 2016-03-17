@@ -91,8 +91,9 @@ public class Unit {
             if (path == null)
                 throw new IllegalArgumentException("Impossible to path!!");
 
+            idx = path.size() - 1;
             goToNextNeighbour();
-            idx = 1; // TODO: set to length -> no reversing?
+
         }
 
         public MoveActivity(int[] adjacent) throws IllegalArgumentException {
@@ -141,9 +142,8 @@ public class Unit {
         }
 
         private void goToNextNeighbour() {
-            Vector diff = path.get(idx).substract(getPositionVec().substract(World.Lc/2.0));
-            idx += 1;
-            moveToNeighbour(new int[]{(int)diff.getX(), (int)diff.getY(), (int)diff.getZ()});
+            moveToNeighbour(path.get(idx));
+            idx -= 1;
         }
 
         @Override
@@ -177,15 +177,25 @@ public class Unit {
         }
 
 
-        private void moveToNeighbour(int[] adjacent) throws IllegalArgumentException {
-            int[] curPos = World.getCubePosition(getPosition());
-            Vector target = new Vector(curPos[0] + adjacent[0], curPos[1] + adjacent[1], curPos[2] + adjacent[2]);
-            this.targetNeighbour = target.add(World.Lc/2);
+        /**
+         * Moves to specified neighbour cube (must be next to current position).
+         * @param neighbour
+         * @throws IllegalArgumentException
+         */
+        private void moveToNeighbour(Vector neighbour) throws IllegalArgumentException {
+            this.targetNeighbour = neighbour.add(World.Lc/2);
 
             if (!isValidPosition(this.targetNeighbour.toDoubleArray()))
                 throw new IllegalArgumentException("Illegal neighbour");
+
             this.speed = calculateSpeed(this.targetNeighbour);
             setOrientation(Math.atan2(this.speed.getY(), this.speed.getX()));
+        }
+
+        private void moveToNeighbour(int[] adjacent) throws IllegalArgumentException {
+            int[] curPos = World.getCubePosition(getPosition());
+            Vector target = new Vector(curPos[0] + adjacent[0], curPos[1] + adjacent[1], curPos[2] + adjacent[2]);
+            moveToNeighbour(target);
         }
 
         /**
@@ -692,20 +702,8 @@ public class Unit {
                 ||cube[2] == 0 || cube[2] == world.Z_MAX - 1)
             return true;
 
-        // TODO: optimize isStandable
-        for (int dx = -1; dx < 2; dx++) {
-            for (int dy = -1; dy < 2; dy++) {
-                for (int dz = -1; dz < 2; dz++) {
-                    if (!(dx == 0 && dy == 0 && dz == 0)) {
-                        if (World.isSolid(world.getCubeType(cube[0] + dx, cube[1] + dy, cube[2] + dz))) {
-                            return true;
-                        }
-
-                    }
-                }
-            }
-        }
-        return false;
+        return world.getNeighbours(new Vector(cube)).anyMatch(p ->
+                World.isSolid(world.getCubeType((int)p.getX(), (int)p.getY(), (int)p.getZ())));
     }
 
     /**

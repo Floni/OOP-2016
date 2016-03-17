@@ -41,7 +41,7 @@ public class PathFinder<T> {
 
     public List<T> getPath(T start, T target) {
         PriorityQueue<PriorityData> frontier = new PriorityQueue<>();
-        frontier.add(new PriorityData(0, start)); //TODO: check ordering
+        frontier.add(new PriorityData(0, start));
         Map<T, T> cameFrom = new HashMap<>();
         Map<T, Double> costSoFar = new HashMap<>();
 
@@ -73,7 +73,7 @@ public class PathFinder<T> {
             if (current == null)
                 return null;
         }
-        Collections.reverse(path);
+        //Collections.reverse(path);
         return path;
     }
 }
