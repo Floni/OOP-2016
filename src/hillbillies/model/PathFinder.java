@@ -6,50 +6,50 @@ import java.util.stream.Stream;
 /**
  * Created by timo on 3/17/16.
  */
-public class PathFinder {
-    public class PriorityVector implements Comparable<PriorityVector> {
+public class PathFinder<T> {
+    public class PriorityData implements Comparable<PriorityData> {
 
         private int priority;
-        private Vector vector;
+        private T vector;
 
-        public PriorityVector(int priority, Vector vector) {
+        public PriorityData(int priority, T vector) {
             this.vector = vector;
             this.priority = priority;
         }
 
-        public Vector getVector() {
+        public T getData() {
             return vector;
         }
 
         @Override
-        public int compareTo(PriorityVector o) {
+        public int compareTo(PriorityData o) {
             return Integer.valueOf(priority).compareTo(o.priority);
         }
     }
 
-    public interface PathGlue {
-        Stream<Vector> getNeighbours(Vector pos);
-        double getCost(Vector a, Vector b);
-        int getHeuristic(Vector a, Vector b);
+    public interface PathGlue<T> {
+        Stream<T> getNeighbours(T pos);
+        double getCost(T a, T b);
+        int getHeuristic(T a, T b);
     }
 
-    private PathGlue glue;
+    private PathGlue<T> glue;
 
     public PathFinder(PathGlue glue) {
         this.glue = glue;
     }
 
-    public List<Vector> getPath(Vector start, Vector target) {
-        PriorityQueue<PriorityVector> frontier = new PriorityQueue<>();
-        frontier.add(new PriorityVector(0, start)); //TODO: check ordering
-        Map<Vector, Vector> cameFrom = new HashMap<>();
-        Map<Vector, Double> costSoFar = new HashMap<>();
+    public List<T> getPath(T start, T target) {
+        PriorityQueue<PriorityData> frontier = new PriorityQueue<>();
+        frontier.add(new PriorityData(0, start)); //TODO: check ordering
+        Map<T, T> cameFrom = new HashMap<>();
+        Map<T, Double> costSoFar = new HashMap<>();
 
         cameFrom.put(start, null);
         costSoFar.put(start, 0.0);
 
         while (!frontier.isEmpty()) {
-            Vector current = frontier.remove().getVector();
+            T current = frontier.remove().getData();
             if (current.equals(target))
                 break;
 
@@ -58,17 +58,18 @@ public class PathFinder {
                 if (!costSoFar.containsKey(next) || newCost < costSoFar.get(next)) {
                     costSoFar.put(next, newCost);
                     int priority = (int)newCost + glue.getHeuristic(target, next);
-                    frontier.add(new PriorityVector(priority, next));
+                    frontier.add(new PriorityData(priority, next));
                     cameFrom.put(next, current);
                 }
             });
         }
 
-        List<Vector> path = new ArrayList<>();
-        Vector current = target;
+        List<T> path = new ArrayList<>();
+        T current = target;
         while (!current.equals(start)) {
             path.add(current);
             current = cameFrom.get(current);
+
             if (current == null)
                 return null;
         }

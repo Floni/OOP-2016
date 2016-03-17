@@ -22,6 +22,13 @@ import java.util.stream.Stream;
  */
 
 /**
+ * TODO:
+ *  - Split Activity into seperate files (problem is that an activity wouldn't have access to private variables of Unit)
+ *  - Create Integer Vector -> us that for pathfinding
+ *  - Clean and refractor code
+ */
+
+/**
  * The unit class, this class keeps tracks of the unit's position, speed and other attributes.
  * It provides methods to move, to attack or to rest.
  *
@@ -419,7 +426,7 @@ public class Unit {
     private Faction faction;
     private World world;
 
-    private PathFinder pathFinder;
+    private PathFinder<Vector> pathFinder;
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
@@ -531,7 +538,7 @@ public class Unit {
         this.restMinuteTimer = REST_MINUTE;
 
 
-        pathFinder = new PathFinder(new PathFinder.PathGlue() {
+        pathFinder = new PathFinder<>(new PathFinder.PathGlue<Vector>() {
             @Override
             public Stream<Vector> getNeighbours(Vector pos) {
                 return world.getNeighbours(pos).filter(n -> isValidPosition(n.getX(), n.getY(), n.getZ()) && isStandablePosition(n));
