@@ -224,8 +224,9 @@ public class Vector {
     /**
      * Prints the given vector
      */
-    public void print() {
-        System.out.println(String.format("(%f, %f, %f)", getX(), getY(), getZ()));
+    @Override
+    public String toString() {
+        return String.format("Vector(%f, %f, %f)", getX(), getY(), getZ());
     }
 
     @Override

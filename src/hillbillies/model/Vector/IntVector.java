@@ -235,8 +235,9 @@ public class IntVector {
     /**
      * Prints the given vector
      */
-    public void print() {
-        System.out.println(String.format("(%d, %d, %d)", getX(), getY(), getZ()));
+    @Override
+    public String toString() {
+        return String.format("Vector(%d, %d, %d)", getX(), getY(), getZ());
     }
 
     @Override

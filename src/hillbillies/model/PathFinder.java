@@ -30,12 +30,15 @@ public class PathFinder<T> {
     public interface PathGlue<T> {
         Stream<T> getNeighbours(T pos);
         double getCost(T a, T b);
-        int getHeuristic(T a, T b);
+
+        default int getHeuristic(T a, T b) {
+            return (int)getCost(a, b);
+        }
     }
 
     private PathGlue<T> glue;
 
-    public PathFinder(PathGlue glue) {
+    public PathFinder(PathGlue<T> glue) {
         this.glue = glue;
     }
 
