@@ -1,6 +1,7 @@
 package hillbillies.tests.model;
 
 import hillbillies.model.Unit.Unit;
+import hillbillies.model.Vector.Vector;
 import hillbillies.model.World;
 import ogp.framework.util.ModelException;
 import ogp.framework.util.Util;
@@ -35,34 +36,24 @@ public class UnitTest {
 
     @Test
     public void testSetPosition() throws Exception {
-        assertDoublePositionEquals("Position in bounds",0.5,0.5,0.5,unit.getPosition());
+        assertDoublePositionEquals("Position in bounds",0.5,0.5,0.5,unit.getPosition().toDoubleArray());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testSetPositionNegativePosition() throws Exception {
-        unit.setPosition(-0.5, 0.5, 0.5);
+        unit.setPosition(new Vector(-0.5, 0.5, 0.5));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testSetPositionLargePosition() throws Exception {
-        unit.setPosition(50.5, 0.5, 0.5);
+        unit.setPosition(new Vector(50.5, 0.5, 0.5));
     }
 
     @Test
     public void testSetPosition1() throws Exception {
         double[] legalPosition = new double[] {0.5, 0.5, 0.5};
-        unit.setPosition(legalPosition);
-        assertArrayEquals("Position in bounds", legalPosition, unit.getPosition(),0.0);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testSetPosition1NegativePosition() throws Exception {
-        unit.setPosition(new double[] {-0.5, 0.5, 0.5});
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testSetPosition1LargePosition() throws Exception {
-        unit.setPosition(new double[] {50.5, 0.5, 0.5});
+        unit.setPosition(new Vector(legalPosition));
+        assertArrayEquals("Position in bounds", legalPosition, unit.getPosition().toDoubleArray(), 0.0);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -70,26 +61,10 @@ public class UnitTest {
         unit.setPosition(null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testSetPosition1WrongSize() throws Exception {
-        unit.setPosition(new double[] {0.5, 0.5, 0.5, 0.5});
-    }
-
     @Test
     public void testAdvanceTime() throws Exception {
         // can we test AdvanceTime seperatly, we could check for the resting after three minutes?
 
-    }
-
-    @Test
-    public void testGetCubePosition() throws Exception {
-        unit.setPosition(0.5, 0.5, 0.5);
-        int[] result = World.getCubePosition(unit.getPosition());
-        assertTrue(
-                result[0] == Math.floor(unit.getPosition()[0]) &&
-                result[1] == Math.floor(unit.getPosition()[1]) &&
-                result[2] == Math.floor(unit.getPosition()[2])
-                );
     }
 
     @Test
@@ -220,18 +195,18 @@ public class UnitTest {
 
     @Test
     public void testMoveToAdjacent() throws Exception {
-        unit.setPosition(0, 0, 0);
+        unit.setPosition(Vector.ZERO);
         unit.moveToAdjacent(1, 0, 0);
         advanceTimeFor(unit, 5, 0.1);
-        assertIntegerPositionEquals(1, 0, 0, World.getCubePosition(unit.getPosition()));
+        assertIntegerPositionEquals(1, 0, 0, unit.getPosition().toIntVector().toIntArray());
     }
 
     @Test
     public void testMoveTo() throws Exception {
-        unit.setPosition(0, 0, 0);
+        unit.setPosition(Vector.ZERO);
         unit.moveTo(new int[] {5, 5, 3});
         advanceTimeFor(unit, 30, 0.1);
-        assertIntegerPositionEquals(5, 5, 3, World.getCubePosition(unit.getPosition()));
+        assertIntegerPositionEquals(5, 5, 3, unit.getPosition().toIntVector().toIntArray());
     }
 
     @Test
@@ -240,7 +215,7 @@ public class UnitTest {
         // We could moveToAdjacent on the same plane and then check if speed == 1.5
         // then move up, speed == 0.75
         // and move down, speed == 1.75?
-        unit.setPosition(25.5, 25.5, 25.5);
+        unit.setPosition(new Vector(25.5, 25.5, 25.5));
         unit.moveToAdjacent(1, 1, 0);
         assertEquals(1.5, unit.getSpeedScalar(), Util.DEFAULT_EPSILON);
         advanceTimeFor(unit, 3, 0.1);
@@ -260,7 +235,7 @@ public class UnitTest {
 
     @Test
     public void testIsSprinting() throws Exception {
-        unit.setPosition(25, 25, 25);
+        unit.setPosition(new Vector(25, 25, 25));
         unit.moveToAdjacent(1, 0, 0);
         double oldSpeed = unit.getSpeedScalar();
         unit.setSprint(true);
@@ -300,7 +275,7 @@ public class UnitTest {
 
     @Test
     public void testRestRegenStamina() throws Exception {
-        unit.setPosition(0, 0, 0);
+        unit.setPosition(Vector.ZERO);
         unit.moveTo(new int[] {15, 15, 0});
         unit.setSprint(true);
         advanceTimeFor(unit, 20, 0.1);

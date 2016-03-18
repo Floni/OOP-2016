@@ -1,6 +1,7 @@
 package hillbillies.model;
 
 import hillbillies.model.Unit.Unit;
+import hillbillies.model.Vector.IntVector;
 import hillbillies.part2.listener.TerrainChangeListener;
 import hillbillies.util.ConnectedToBorder;
 import ogp.framework.util.ModelException;
@@ -82,8 +83,15 @@ public class World {
         }
     }
 
+    /**
+     * @deprecated  use IntVector
+     */
     public boolean isValidPosition(int x, int y, int z) {
         return x >= 0 && x < X_MAX && y >= 0 && y < Y_MAX && z >= 0 && z < Z_MAX;
+    }
+
+    public boolean isValidPosition(IntVector pos) {
+        return isValidPosition(pos.getX(), pos.getY(), pos.getZ());
     }
 
     public static boolean isSolid(int type) {
@@ -92,6 +100,9 @@ public class World {
 
     public int getCubeType(int x, int y, int z) {
          return cubes[x][y][z].type;
+    }
+    public int getCubeType(IntVector cube) {
+         return getCubeType(cube.getX(), cube.getY(), cube.getZ());
     }
 
     public void setCubeType(int x, int y, int z, int type) {
@@ -104,6 +115,10 @@ public class World {
         }
         cubes[x][y][z].type = type;
         updateListener.notifyTerrainChanged(x, y, z);
+    }
+
+    public void setCubeType(IntVector cube, int type) {
+        setCubeType(cube.getX(), cube.getY(), cube.getZ(), type);
     }
 
     public boolean isCubeConnected(int x, int y, int z) {
@@ -247,15 +262,16 @@ public class World {
 
     };
 
-    public Stream<Vector> getNeighbours(Vector pos) {
-        Vector posCube = new Vector(getCubePosition(pos.toDoubleArray()));
-        List<int[]> offsets = new ArrayList<>(Arrays.asList(neighbourOffsets));
-        return offsets.stream().map(offset -> posCube.add(offset[0], offset[1], offset[2]));
+    public Stream<IntVector> getNeighbours(IntVector pos) {
+        List<int[]> offsets = Arrays.asList(neighbourOffsets);
+        return offsets.stream().map(offset -> pos.add(offset[0], offset[1], offset[2]));
     }
 
 
     /**
      * Returns the coordinates of the cube that the unit currently occupies.
+     *
+     * @deprecated Use IntVector instead?
      *
      * @param   position
      *          The position to be converted.
@@ -265,6 +281,7 @@ public class World {
      *          | result[1] == floor(position[1]) &&
      *          | result[2] == floor(position[2]}
      */
+    @Deprecated
     public static int[] getCubePosition(double[] position) {
         return new int[] {
                 (int)Math.floor(position[0]),

@@ -1,21 +1,23 @@
-package hillbillies.model;
+package hillbillies.model.Vector;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Value;
-import ogp.framework.util.Util;
 
 /**
- * Basic Vector class
+ * Java doesn't allow math on general integer type -> we can't use generics.
+ * (Java sucks)
+ * TODO: add vector base class?
+ *
  */
 @Value
-public class Vector {
-    private final double X;
-    private final double Y;
-    private final double Z;
+public class IntVector {
+    private final int X;
+    private final int Y;
+    private final int Z;
 
     /**
-     * Create a new vector with the given x, y and z coordinate.
+     * Create a new IntVector with the given x, y and z coordinate.
      * @param   x
      *          The x coordinate
      * @param   y
@@ -25,23 +27,23 @@ public class Vector {
      * @post    The given coordinates are used
      *          | new.getX() == x && new.getY() == y && new.getZ() == z
      */
-    public Vector(double x, double y, double z) {
+    public IntVector(int x, int y, int z) {
         X = x;
         Y = y;
         Z = z;
     }
 
     /**
-     * Create a new vector with the given coordinates
+     * Create a new IntVector with the given coordinates
      * @param   coords
-     *          x, y and z coordinates in a double array
+     *          x, y and z coordinates in a int array
      * @post    The given coordinates are used
      *          | new.getX() == coords[0] && new.getY() == coords[1] && new.getZ() == coords[2]
      * @throws  IllegalArgumentException
      *          The given array must have length three
      *          | coords.length != 3
      */
-    public Vector(double[] coords) {
+    public IntVector(int[] coords) {
         if (coords.length != 3)
             throw new IllegalArgumentException("invalid coords");
         X = coords[0];
@@ -49,8 +51,12 @@ public class Vector {
         Z = coords[2];
     }
 
-    public Vector(int[] cubePosition) {
-        this(cubePosition[0], cubePosition[1], cubePosition[2]);
+    public IntVector(Vector vector) {
+        this(vector.getX(), vector.getY(), vector.getZ());
+    }
+
+    public IntVector(double x, double y, double z) {
+        this((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
     }
 
     /**
@@ -62,8 +68,8 @@ public class Vector {
      *          | result.getY() == this.getY() * scalar &&
      *          | result.getZ() == this.getZ() * scalar
      */
-    public Vector multiply(double scalar) {
-        return new Vector(getX()*scalar, getY()*scalar, getZ()*scalar);
+    public IntVector multiply(int scalar) {
+        return new IntVector(getX()*scalar, getY()*scalar, getZ()*scalar);
     }
 
     /**
@@ -75,8 +81,8 @@ public class Vector {
      *          | result.getY() == this.getY() / divisor &&
      *          | result.getZ() == this.getZ() / divisor
      */
-    public Vector divide(double divisor) {
-        return new Vector(getX()/divisor, getY()/divisor, getZ()/divisor);
+    public IntVector divide(int divisor) {
+        return new IntVector(getX()/divisor, getY()/divisor, getZ()/divisor);
     }
 
     /**
@@ -90,8 +96,8 @@ public class Vector {
      *          | result.getY() == this.getY() + constant &&
      *          | result.getZ() == this.getZ() + constant
      */
-    public Vector add(double constant) {
-        return new Vector(getX() + constant, getY()+constant, getZ()+constant);
+    public IntVector add(int constant) {
+        return new IntVector(getX() + constant, getY()+constant, getZ()+constant);
     }
 
     /**
@@ -106,21 +112,8 @@ public class Vector {
      *          | result.getY() == this.getY() + dz &&
      *          | result.getZ() == this.getZ() + dy
      */
-    public Vector add(double dx, double dy, double dz) {
-        return new Vector(getX() + dx, getY()+dy, getZ()+dz);
-    }
-
-    /**
-     * Subtracts the given constant to each coordinate of the vector
-     * @param   constant
-     *          | The constant
-     * @return  A new vector ...
-     *          | result.getX() == this.getX() - constant &&
-     *          | result.getY() == this.getY() - constant &&
-     *          | result.getZ() == this.getZ() - constant
-     */
-    public Vector substract(double constant) {
-        return new Vector(getX() - constant, getY()-constant, getZ()-constant);
+    public IntVector add(int dx, int dy, int dz) {
+        return new IntVector(getX() + dx, getY()+dy, getZ()+dz);
     }
 
     /**
@@ -132,8 +125,8 @@ public class Vector {
      *          | result.getY() == this.getY() + other.getY() &&
      *          | result.getZ() == this.getZ() + other.getZ()
      */
-    public Vector add(Vector other) {
-        return new Vector(getX() + other.getX(), getY() + other.getY(), getZ() + other.getZ());
+    public IntVector add(IntVector other) {
+        return new IntVector(getX() + other.getX(), getY() + other.getY(), getZ() + other.getZ());
     }
 
     /**
@@ -145,8 +138,8 @@ public class Vector {
      *          | result.getY() == this.getY() - other.getY() &&
      *          | result.getZ() == this.getZ() - other.getZ()
      */
-    public Vector substract(Vector other) {
-        return new Vector(getX() - other.getX(), getY() - other.getY(), getZ() - other.getZ());
+    public IntVector substract(IntVector other) {
+        return new IntVector(getX() - other.getX(), getY() - other.getY(), getZ() - other.getZ());
     }
 
     /**
@@ -156,7 +149,7 @@ public class Vector {
      * @return  The dot product
      *          | result == (this.getX()*other.getX() + this.getY()*other.getY() + this.getZ()*other.getZ())
      */
-    public double dot(Vector other) {
+    public int dot(IntVector other) {
         return  getX()*other.getX() + getY()*other.getY() + getZ()*other.getZ();
     }
 
@@ -173,30 +166,26 @@ public class Vector {
      * Compares two vectors
      * @param   other
      *          | The vector with which this vector is compared
-     * @param   eps
-     *          | The maximum possible difference between each coordinats
      * @return  True if the two vectors are equal and the other vector is effective, False otherwise.
      *          | result == (other != null
      *          |            && Util.fuzzyEquals(this.getX(), other.getX(), eps)
      *          |            && Util.fuzzyEquals(this.getY(), other.getY(), eps)
      *          |            && Util.fuzzyEquals(this.getZ(), other.getZ(), eps))
      */
-    public boolean isEqualTo(Vector other, double eps) {
-        return other != null && Util.fuzzyEquals(getX(), other.getX(), eps)
-                && Util.fuzzyEquals(getY(), other.getY(), eps)
-                && Util.fuzzyEquals(getZ(), other.getZ(), eps);
+    public boolean isEqualTo(IntVector other) {
+        return other != null && getX() == other.getX() && getY() == other.getY() && getZ() == other.getZ();
     }
 
     /**
-     * Converts the vector to an array of doubles
+     * Converts the vector to an array of ints
      * @return  An array with length three where each element is either x, y or z.
      *          | result.length == 3 &&
      *          | result[0] == this.getX() &&
      *          | result[1] == this.getY() &&
      *          | result[2] == this.getZ()
      */
-    public double[] toDoubleArray() {
-        return new double[] {
+    public int[] toIntArray() {
+        return new int[] {
                 X,
                 Y,
                 Z
@@ -204,10 +193,24 @@ public class Vector {
     }
 
     /**
+     * Creates a new (double) vector from this intVector.
+     * (if cube centres are needed don't forget to ad Lc/2)
+     *
+     * @return  A vector with the same values.
+     *          | result.getX() == this.getX() &&
+     *          | result.getY() == this.getY() &&
+     *          | result.getZ() == this.getZ()
+     */
+    public Vector toVector() {
+        return new Vector(getX(), getY(), getZ());
+    }
+
+    /**
      * Returns the x coordinate of the vector.
      */
-    @Basic @Immutable
-    public double getX() {
+    @Basic
+    @Immutable
+    public int getX() {
         return X;
     }
 
@@ -215,7 +218,7 @@ public class Vector {
      * Returns the y coordinate of the vector.
      */
     @Basic @Immutable
-    public double getY() {
+    public int getY() {
         return Y;
     }
 
@@ -223,7 +226,7 @@ public class Vector {
      * Returns the z coordinate of the vector.
      */
     @Basic @Immutable
-    public double getZ() {
+    public int getZ() {
         return Z;
     }
 
@@ -231,16 +234,16 @@ public class Vector {
      * Prints the given vector
      */
     public void print() {
-        System.out.println(String.format("(%f, %f, %f)", getX(), getY(), getZ()));
+        System.out.println(String.format("(%d, %d, %d)", getX(), getY(), getZ()));
     }
 
     @Override
     public int hashCode() {
-        return (int)(8017*getX() + 104831 * getY() + 1301077 * getZ()) + 17;
+        return (8017*getX() + 104831 * getY() + 1301077 * getZ()) + 17;
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj != null && obj.getClass().equals(Vector.class) && this.isEqualTo((Vector)obj, 1e-6);
+        return obj != null && obj.getClass().equals(IntVector.class) && this.isEqualTo((IntVector)obj);
     }
 }

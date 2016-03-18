@@ -5,7 +5,8 @@ import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 import hillbillies.model.Faction;
 import hillbillies.model.PathFinder;
-import hillbillies.model.Vector;
+import hillbillies.model.Vector.IntVector;
+import hillbillies.model.Vector.Vector;
 import hillbillies.model.World;
 
 import java.util.stream.Stream;
@@ -26,6 +27,7 @@ import java.util.stream.Stream;
  *  - Check access modifiers
  *  - Create Integer Vector -> use that for pathfinding
  *  - Clean and refactor code
+ *  - Only use Vector and IntVector
  */
 
 /**
@@ -89,7 +91,7 @@ public class Unit {
     Faction faction;
     World world;
 
-    PathFinder<Vector> pathFinder;
+    PathFinder<IntVector> pathFinder;
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
@@ -163,7 +165,8 @@ public class Unit {
             throws IllegalArgumentException {
         this.world = world;
         setName(name);
-        setPosition(x + World.Lc/2, y + World.Lc/2, z + World.Lc/2);
+        Vector position = new Vector(x, y, z).add(World.Lc/2);
+        setPosition(position);
 
         if (toughness < 25)
             toughness = 25;
@@ -202,20 +205,20 @@ public class Unit {
 
         this.restMinuteTimer = REST_MINUTE;
 
-        pathFinder = new PathFinder<>(new PathFinder.PathGlue<Vector>() {
+        pathFinder = new PathFinder<>(new PathFinder.PathGlue<IntVector>() {
             @Override
-            public Stream<Vector> getNeighbours(Vector pos) {
-                return world.getNeighbours(pos).filter(n -> isValidPosition(n.getX(), n.getY(), n.getZ()) && isStablePosition(n));
+            public Stream<IntVector> getNeighbours(IntVector pos) {
+                return world.getNeighbours(pos).filter(n -> isValidPosition(n.toVector()) && isStablePosition(n));
             }
 
             @Override
-            public double getCost(Vector a, Vector b) {
+            public double getCost(IntVector a, IntVector b) {
                 return a.substract(b).norm();
             }
 
             @Override
-            public int getHeuristic(Vector a, Vector b) {
-                return (int) Math.floor(Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY()) + Math.abs(a.getZ() - b.getZ()));
+            public int getHeuristic(IntVector a, IntVector b) {
+                return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY()) + Math.abs(a.getZ() - b.getZ());
             }
         });
     }
@@ -272,7 +275,7 @@ public class Unit {
             rest();
         }
 
-        if (!isStablePosition(getPositionVector())) {
+        if (!isStablePosition(getPosition().toIntVector())) {
             this.currentActivity = new FallActivity(this);
             this.lastActivity = NONE_ACTIVITY; //TODO: save Last activity?
             assert isMoving();
@@ -343,51 +346,30 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Position">
-    boolean isStablePosition(Vector position) {
-        return isStablePosition(World.getCubePosition(position.toDoubleArray()));
-    }
-
-    boolean isStablePosition(int[] cube) {
+    boolean isStablePosition(IntVector cube) {
         // next to edges or a neighbour is solid
-        return  cube[0] == 0 || cube[0] == world.X_MAX - 1 || cube[1] == 0 ||
-                cube[1] == world.Y_MAX - 1 || cube[2] == 0 || cube[2] == world.Z_MAX - 1 ||
-                world.getNeighbours(new Vector(cube)).anyMatch(p ->
-                    World.isSolid(world.getCubeType((int) p.getX(), (int) p.getY(), (int) p.getZ())));
+        return  cube.getX() == 0 || cube.getX() == world.X_MAX - 1 || cube.getY() == 0 ||
+                cube.getY() == world.Y_MAX - 1 || cube.getZ() == 0 || cube.getZ() == world.Z_MAX - 1 ||
+                world.getNeighbours(cube).anyMatch(p ->
+                    World.isSolid(world.getCubeType(p)));
 
     }
 
     /**
      * Checks whether the given position is valid.
      *
-     * @param   x
-     *          The x value of the unit's position.
-     * @param   y
-     *          The y value of the unit's position.
-     * @param   z
-     *          The z value of the unit's position.
+     * @param   position
+     *          The position to be checked
      *
      * @return  True if the given position is within the boundaries of the world.
      *          | result == ((x >= 0) && (x < X_MAX) && (y >= 0) && (y < Y_MAX) && (z >= 0) && (z < Z_MAX))
      */
-    public boolean isValidPosition(double x,double y,double z) {
-        int[] cubePos = World.getCubePosition(new double[] {x, y ,z});
-        return world.isValidPosition(cubePos[0], cubePos[1], cubePos[2]) &&
-                !World.isSolid(world.getCubeType(cubePos[0], cubePos[1], cubePos[2]));
+    public boolean isValidPosition(Vector position) {
+        IntVector cubePos = position.toIntVector();
+        return world.isValidPosition(cubePos) &&
+                !World.isSolid(world.getCubeType(cubePos));
     }
 
-
-    /**
-     * Checks whether the given position is valid and effective.
-     *
-     * @param   position
-     *          The position to be tested.
-     *
-     * @return  True if the position is effective, has 3 components and is within bounds.
-     *          | result == isEffectivePosition(position) && isValidPosition(position[0], position[1], position[2])
-     */
-    public boolean isValidPosition(double[] position) {
-        return isEffectivePosition(position) && isValidPosition(position[0], position[1], position[2]);
-    }
 
     /**
      * Checks whether the given position is effective.
@@ -398,54 +380,8 @@ public class Unit {
      * @return  True if the position is effective and the length is 3.
      *          | result == position != null && position.length == 3
      */
-    public static boolean isEffectivePosition(double[] position) {
-        return position != null && position.length == 3;
-    }
-
-    /**
-     * Sets the position of the unit.
-     *
-     * @param   x
-     *          The x value of the new position.
-     * @param   y
-     *          The y value of the new position.
-     * @param   z
-     *          The z value of the new position.
-     *
-     * @post    The new position of this unit is equal to the given position.
-     *          | new.getPosition()[0] == x &&
-     *          | new.getPosition()[1] == y &&
-     *          | new.getPosition()[2] == z
-     *
-     * @throws  IllegalArgumentException
-     *          The given position is not valid.
-     *          | !isValidPosition(x, y, z)
-     */
-    @Raw
-    public void setPosition(double x, double y, double z) throws IllegalArgumentException {
-        if (!isValidPosition(x, y, z))
-            throw new IllegalArgumentException("The given position is out of bounds");
-        this.position = new Vector(x, y, z);
-    }
-
-
-    /**
-     * Sets the position of the unit.
-     *
-     * @param   position
-     *          The new position as an array.
-     *
-     * @effect  The new position of this unit is equal to the given position.
-     *          | this.setPosition(position[0], position[1], position[2])
-     *
-     * @throws  IllegalArgumentException
-     *          The given position is not effective.
-     *          | !isEffectivePosition(position)
-     */
-    public void setPosition(double[] position) throws IllegalArgumentException {
-        if (!isEffectivePosition(position))
-            throw new IllegalArgumentException("The given position is not effective");
-        this.setPosition(position[0], position[1], position[2]);
+    public static boolean isEffectivePosition(Vector position) {
+        return position != null;
     }
 
     /**
@@ -456,31 +392,23 @@ public class Unit {
      *
      * @post    The new position is equal to the given position.
      *          | new.getPosition() == position.toDoubleArray()
-     *          | new.getPositionVector() == position
+     *          | new.getPosition() == position
      *
      * @throws  IllegalArgumentException
      *          When the given position is not valid.
      *          | !isValidPosition(position.toDoubleArray())
      */
     public void setPosition(Vector position) throws IllegalArgumentException {
-        if (!isValidPosition(position.toDoubleArray()))
+        if (!isEffectivePosition(position) || !isValidPosition(position))
             throw new IllegalArgumentException("The given position is not valid");
         this.position = position;
-    }
-
-    /**
-     * Gets the position of the unit.
-     */
-    @Basic
-    public double[] getPosition() {
-        return position.toDoubleArray();
     }
 
     /**
      * Gets the current position as a vector.
      */
     @Basic
-    Vector getPositionVector() {
+    public Vector getPosition() {
         return this.position;
     }
     //</editor-fold>
@@ -959,9 +887,9 @@ public class Unit {
         }
 
         if (isMoving())
-            ((MoveActivity)getCurrentActivity()).updateAdjecent(dx, dy, dz);
+            ((MoveActivity)getCurrentActivity()).updateAdjacent(dx, dy, dz);
         else
-            setCurrentActivity(new MoveActivity(this, new int[] {dx, dy, dz}));
+            setCurrentActivity(new MoveActivity(this, dx, dy, dz));
     }
 
 
@@ -990,10 +918,9 @@ public class Unit {
             throw new IllegalStateException("can't path right now");
         }
 
-        Vector newTarget = new Vector(target[0], target[1], target[2]);
-        newTarget = newTarget.add(World.Lc/2);
+        Vector newTarget = new Vector(target).add(World.Lc /2);
 
-        if (!isValidPosition(newTarget.toDoubleArray())) {
+        if (!isValidPosition(newTarget)) {
             throw new IllegalArgumentException("invalid target");
         }
 
@@ -1099,6 +1026,16 @@ public class Unit {
         return currentActivity.equalsClass(AttackActivity.class);
     }
 
+    public boolean canAttack(Unit other) {
+        IntVector otherCube = other.getPosition().toIntVector();
+        IntVector posCube = getPosition().toIntVector();
+        IntVector intDiff = otherCube.substract(posCube);
+
+        return !(intDiff.getX() > 1 || intDiff.getX() < -1 ||
+                intDiff.getY() > 1 || intDiff.getY() < -1 ||
+                intDiff.getZ() > 1 || intDiff.getZ() < -1);
+    }
+
     /**
      * Attacks an other unit.
      *
@@ -1136,18 +1073,12 @@ public class Unit {
             throw new IllegalArgumentException("Can't attack units of the same faction");
 
         // TODO: move to attachActivity constructor:
-        Vector otherPos = other.getPositionVector();
-        int[] otherCube = World.getCubePosition(otherPos.toDoubleArray());
-        int[] posCube = World.getCubePosition(this.getPosition());
-
-        for (int i = 0; i < 3; i++) {
-            int diff = otherCube[i] - posCube[i];
-            if (diff > 1 || diff < -1) {
-                throw new IllegalArgumentException("the other unit is to far away");
-            }
+        Vector otherPos = other.getPosition();
+        if (!canAttack(other)) {
+            throw new IllegalArgumentException("Other unit is to far away");
         }
 
-        Vector diff = otherPos.substract(this.position);
+        Vector diff = otherPos.subtract(getPosition());
         this.setOrientation(Math.atan2(diff.getY(), diff.getX()));
         other.setOrientation(Math.atan2(-diff.getY(), -diff.getX()));
 
@@ -1199,16 +1130,16 @@ public class Unit {
                 else
                     newY = 2 * newRandom - 1;
             }
-            newX += getPositionVector().getX();
-            newY += getPositionVector().getY();
+            newX += getPosition().getX();
+            newY += getPosition().getY();
             if (newX < 0 || newX >= world.X_MAX){
                 newX = -newX;
             }
             if (newY < 0 ||newY >= world.Y_MAX) {
                 newY = -newY;
             }
-            setPosition(newX, newY, getPositionVector().getZ());
-            Vector diff = attacker.getPositionVector().substract(this.position);
+            setPosition(new Vector(newX, newY, getPosition().getZ()));
+            Vector diff = attacker.getPosition().subtract(this.position);
             this.setOrientation(Math.atan2(diff.getY(), diff.getX()));
             attacker.setOrientation(Math.atan2(-diff.getY(), -diff.getX()));
             this.addXp(20);

@@ -1,6 +1,7 @@
 package hillbillies.model;
 
 
+import hillbillies.model.Vector.Vector;
 
 public abstract class GameObject {
 

@@ -2,6 +2,7 @@ package hillbillies.model.Unit;
 
 /**
  * Created by timo on 3/17/16.
+ *
  */
 class RestActivity extends Activity {
     public static final double REST_DELAY = 0.2;

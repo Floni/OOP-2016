@@ -1,12 +1,14 @@
 package hillbillies.model.Unit;
 
-import hillbillies.model.Vector;
+import hillbillies.model.Vector.IntVector;
+import hillbillies.model.Vector.Vector;
 import hillbillies.model.World;
 
 import java.util.Set;
 
 /**
  * Created by timo on 3/17/16.
+ *
  */
 class NoneActivity extends Activity {
     public NoneActivity(Unit unit) {
@@ -35,19 +37,9 @@ class NoneActivity extends Activity {
                     break;
                 case 2: //attack
                     Set<Unit> units = unit.world.getUnits();
-                    for (Unit unit: units) {
-                        if (unit.getFaction() != unit.getFaction()) {
-                            boolean range = true;
-                            Vector otherPos = unit.getPositionVector();
-                            int[] otherCube = World.getCubePosition(otherPos.toDoubleArray());
-                            int[] posCube = World.getCubePosition(unit.getPosition());
-                            for (int i = 0; i < 3; i++) {
-                                int diff = otherCube[i] - posCube[i];
-                                if (diff > 1 || diff < -1) {
-                                    range = false;
-                                }
-                            }
-                            if (range) {
+                    for (Unit other : units) {
+                        if (other.getFaction() != unit.getFaction()) {
+                            if (unit.canAttack(other)) {
                                 unit.attack(unit);
                             }
                         }

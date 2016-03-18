@@ -1,10 +1,12 @@
 package hillbillies.model.Unit;
 
-import hillbillies.model.Vector;
+import hillbillies.model.Vector.IntVector;
+import hillbillies.model.Vector.Vector;
 import hillbillies.model.World;
 
 /**
  * Created by timo on 3/17/16.
+ *
  */
 class FallActivity extends MoveActivity {
 
@@ -12,21 +14,20 @@ class FallActivity extends MoveActivity {
         super(unit);
 
         speed = new Vector(0, 0, -3.0);
-        target = unit.getPositionVector(); // we use target as the starting position
+        target = unit.getPosition(); // we use target as the starting position
     }
 
     @Override
     void advanceTime(double dt) {
-        Vector newPosition = unit.getPositionVector().add(this.speed.multiply(dt));
+        Vector newPosition = unit.getPosition().add(this.speed.multiply(dt));
 
-        int[] newCube = World.getCubePosition(newPosition.toDoubleArray());
-        if (newCube[2] == 0 || World.isSolid(unit.world.getCubeType(newCube[0], newCube[1], newCube[2]-1))) {
-            int diffZ = (int)Math.floor(target.substract(newPosition).getZ());
+        IntVector newCube = newPosition.toIntVector();
+        if (newCube.getZ() == 0 || World.isSolid(unit.world.getCubeType(newCube.add(0, 0, -1)))) {
+            int diffZ = target.toIntVector().substract(newCube).getZ();
             unit.deduceHitPoints(10*diffZ);
             unit.finishCurrentActivity();
         }
         unit.setPosition(newPosition);
-
     }
 
     @Override
