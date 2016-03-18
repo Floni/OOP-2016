@@ -10,12 +10,13 @@ import java.util.stream.Stream;
 
 /**
  * Created by timo on 3/14/16.
+ *
  */
 public class World {
     private static class Cube {
         public Cube(int type) {
             this.type = type;
-            this.gameObjects = new HashSet<GameObject>();
+            this.gameObjects = new HashSet<>();
         }
         public int type;
         public Set<GameObject> gameObjects;
@@ -36,8 +37,6 @@ public class World {
     private final TerrainChangeListener updateListener;
 
     private Cube[][][] cubes;
-    private boolean[][][] connectedCubeFlags;
-    private boolean dirty;
 
     private int totalUnits;
     private Set<Faction> factions;
@@ -50,14 +49,11 @@ public class World {
     public World(int[][][] terrainTypes, TerrainChangeListener modelListener) {
         this.updateListener = modelListener;
 
-        this.dirty = true; //TODO: can terrain be invalid when constructed
-
         this.X_MAX = terrainTypes.length;
         this.Y_MAX = terrainTypes[0].length;
         this.Z_MAX = terrainTypes[0][0].length;
 
         this.cubes = new Cube[X_MAX][Y_MAX][Z_MAX];
-        this.connectedCubeFlags = new boolean[X_MAX][Y_MAX][Z_MAX];
 
         connectedToBorder = new ConnectedToBorder(X_MAX, Y_MAX, Z_MAX);
 
@@ -80,24 +76,6 @@ public class World {
         if (dt >= 0.2 || dt < 0)
             throw new IllegalArgumentException("invalid dt");
 
-        // update terrain if dirt
-        if (this.dirty) {
-            this.dirty = false;
-            //updateTerrain();
-            /*
-            for (int x = 0; x < X_MAX; x++) {
-                for (int y = 0; y < Y_MAX; y++) {
-                    for (int z = 0; z < Z_MAX; z++) {
-                        if (isSolid(getCubeType(x, y, z)) && !isCubeConnected(x, y, z)) {
-                            setCubeType(x, y, z, WORKSHOP);
-                            updateListener.notifyTerrainChanged(x, y, z);
-                            System.out.println("cave in!");
-                        }
-                    }
-                }
-            }
-            */
-        }
         // call advanceTime on all units
         for (Unit unit : getUnits()) {
             unit.advanceTime(dt);
@@ -108,80 +86,6 @@ public class World {
         return x >= 0 && x < X_MAX && y >= 0 && y < Y_MAX && z >= 0 && z < Z_MAX;
     }
 
-    /*
-
-    private void updateTerrain() {
-        for (boolean[][] xr : connectedCubeFlags) {
-            for (boolean[] yr : xr) {
-                Arrays.fill(yr, false);
-            }
-        }
-
-        // TODO: for each wall/direction, recursive
-        Queue<int[]> toCheckCubes = new ArrayDeque<>();
-
-        for (int z : new int[]{0, Z_MAX-1}) {
-            for (int x = 0; x < X_MAX; x++) {
-                for (int y = 0; y < Y_MAX; y++) {
-                    if (isSolid(getCubeType(x, y, z)))
-                        toCheckCubes.add(new int[]{x, y, z});
-                }
-            }
-        }
-        for (int y : new int[]{0, Y_MAX-1}) {
-            for (int x = 0; x < X_MAX; x++) {
-                for (int z = 0; z < Z_MAX; z++) {
-                    if (isSolid(getCubeType(x, y, z)))
-                        toCheckCubes.add(new int[]{x, y, z});
-                }
-            }
-        }
-        for (int x : new int[]{0, X_MAX-1}) {
-            for (int z = 0; z < Z_MAX; z++) {
-                for (int y = 0; y < Y_MAX; y++) {
-                    if (isSolid(getCubeType(x, y, z)))
-                        toCheckCubes.add(new int[]{x, y, z});
-                }
-            }
-        }
-
-        while (!toCheckCubes.isEmpty()) {
-            int[] cur_cube = toCheckCubes.remove();
-            int x = cur_cube[0];
-            int y = cur_cube[1];
-            int z = cur_cube[2];
-            connectedCubeFlags[x][y][z] = true;
-            if (isValidPosition(x, y, z+1) && isSolid(getCubeType(x, y, z+1)) && !connectedCubeFlags[x][y][z+1])
-                toCheckCubes.add(new int[]{x, y, z+1});
-            if (isValidPosition(x, y, z-1) && isSolid(getCubeType(x, y, z-1)) && !connectedCubeFlags[x][y][z-1])
-                toCheckCubes.add(new int[]{x, y, z-1});
-            if (isValidPosition(x, y-1, z) && isSolid(getCubeType(x, y-1, z)) && !connectedCubeFlags[x][y-1][z])
-                toCheckCubes.add(new int[]{x, y-1, z});
-            if (isValidPosition(x, y+1, z) && isSolid(getCubeType(x, y+1, z)) && !connectedCubeFlags[x][y+1][z])
-                toCheckCubes.add(new int[]{x, y+1, z});
-            if (isValidPosition(x-1, y, z) && isSolid(getCubeType(x-1, y, z)) && !connectedCubeFlags[x-1][y][z])
-                toCheckCubes.add(new int[]{x-1, y, z});
-            if (isValidPosition(x+1, y, z) && isSolid(getCubeType(x+1, y, z)) && !connectedCubeFlags[x+1][y][z])
-                toCheckCubes.add(new int[]{x+1, y, z});
-        }
-
-        for (int x = 0; x < X_MAX; x++) {
-            for (int y = 0; y < Y_MAX; y++) {
-                for (int z = 0; z < Z_MAX; z++) {
-                    if (!connectedCubeFlags[x][y][z] && isSolid(getCubeType(x, y, z))) {
-                        setCubeType(x, y, z, WORKSHOP);
-                        updateListener.notifyTerrainChanged(x, y, z);
-                        System.out.println("cave in!");
-                    }
-                        //caveIn(x, y, z);
-
-                }
-            }
-        }
-    }
-
-    */
-
     public static boolean isSolid(int type) {
         return type == ROCK || type == TREE;
     }
@@ -191,14 +95,18 @@ public class World {
     }
 
     public void setCubeType(int x, int y, int z, int type) {
-        //TODO: save affected cubes & cave in
-        if (isSolid(getCubeType(x, y, z)) && !isSolid(type))
-            connectedToBorder.changeSolidToPassable(x, y, z);
+        if (isSolid(getCubeType(x, y, z)) && !isSolid(type)) {
+            for (int[] coord : connectedToBorder.changeSolidToPassable(x, y, z)) {
+                cubes[coord[0]][coord[1]][coord[2]].type = AIR;
+                updateListener.notifyTerrainChanged(coord[0], coord[1], coord[2]);
+                //TODO: cave in?
+            }
+        }
         cubes[x][y][z].type = type;
+        updateListener.notifyTerrainChanged(x, y, z);
     }
 
     public boolean isCubeConnected(int x, int y, int z) {
-        //return connectedCubeFlags[x][y][z];
         return connectedToBorder.isSolidConnectedToBorder(x, y, z);
     }
 

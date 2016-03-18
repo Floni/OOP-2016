@@ -98,8 +98,6 @@ public class Unit {
      *
      * @param   world
      *          The world to which the unit belongs.
-     * @param   faction
-     *          The faction to which the unit belongs.
      * @param   name
      *          The name of the new unit.
      * @param   x
@@ -373,7 +371,7 @@ public class Unit {
      */
     public boolean isValidPosition(double x,double y,double z) {
         int[] cubePos = World.getCubePosition(new double[] {x, y ,z});
-        return x >= 0 && x < world.X_MAX && y >= 0 && y < world.Y_MAX && z >= 0 && z < world.Z_MAX &&
+        return world.isValidPosition(cubePos[0], cubePos[1], cubePos[2]) &&
                 !World.isSolid(world.getCubeType(cubePos[0], cubePos[1], cubePos[2]));
     }
 
