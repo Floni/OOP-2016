@@ -208,7 +208,7 @@ public class Unit {
         pathFinder = new PathFinder<>(new PathFinder.PathGlue<IntVector>() {
             @Override
             public Stream<IntVector> getNeighbours(IntVector pos) {
-                return world.getNeighbours(pos).filter(n -> isValidPosition(n.toVector()) && isStablePosition(n));
+                return World.getNeighbours(pos).filter(n -> isValidPosition(n.toVector()) && isStablePosition(n));
             }
 
             @Override

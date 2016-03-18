@@ -11,6 +11,7 @@ import ogp.framework.util.Util;
 @Value
 public class Vector {
     public static final Vector ZERO = new Vector(0, 0, 0);
+    public static final Vector IDENT = new Vector(1, 1, 1);
 
     private final double X;
     private final double Y;

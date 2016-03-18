@@ -262,9 +262,12 @@ public class World {
 
     };
 
-    public Stream<IntVector> getNeighbours(IntVector pos) {
-        List<int[]> offsets = Arrays.asList(neighbourOffsets);
-        return offsets.stream().map(offset -> pos.add(offset[0], offset[1], offset[2]));
+    public static Stream<IntVector> getNeighbours(IntVector pos) {
+        return Arrays.stream(neighbourOffsets).map(offset -> pos.add(offset[0], offset[1], offset[2]));
+    }
+
+    public static Stream<IntVector> getDirectlyAdjacent(IntVector pos) {
+        return Arrays.stream(neighbourOffsets).limit(6).map(offset -> pos.add(offset[0], offset[1], offset[2]));
     }
 
 

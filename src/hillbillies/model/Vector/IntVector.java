@@ -12,6 +12,8 @@ import be.kuleuven.cs.som.annotate.Value;
  */
 @Value
 public class IntVector {
+    public static final IntVector ZERO = new IntVector(0, 0, 0);
+
     private final int X;
     private final int Y;
     private final int Z;
