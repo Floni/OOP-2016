@@ -259,14 +259,29 @@ public class World {
     }
 
     public void removeGameObject (GameObject object) {
+        removeCubeObject(object);
         if (object.getClass().equals(Log.class)) {
             logs.remove(object);
-            getCube(object.getPosition().toIntVector()).logs.remove(object);
         } else if (object.getClass().equals(Boulder.class)) {
             boulders.remove(object);
-            getCube(object.getPosition().toIntVector()).boulders.remove(object);
         }
         object.destruct();
+    }
+
+    public void removeCubeObject(GameObject object) {
+        if (object.getClass().equals(Log.class)) {
+            getCube(object.getPosition().toIntVector()).logs.remove(object);
+        } else if (object.getClass().equals(Boulder.class)) {
+            getCube(object.getPosition().toIntVector()).boulders.remove(object);
+        }
+    }
+
+    public void addCubeObject(GameObject object) {
+        if (object.getClass().equals(Log.class)) {
+            getCube(object.getPosition().toIntVector()).logs.add((Log)object);
+        } else if (object.getClass().equals(Boulder.class)) {
+            getCube(object.getPosition().toIntVector()).boulders.add((Boulder)object);
+        }
     }
 
     private void dropChance(IntVector location) {

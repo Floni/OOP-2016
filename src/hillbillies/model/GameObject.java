@@ -5,16 +5,19 @@ import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
 
 public abstract class GameObject {
+    private static final double FALL_SPEED = -3.0;
 
     protected Vector position;
     protected final int weight;
     protected final World world;
+    protected boolean falling;
 
     // TODO: precond in world??
     public GameObject(World world, IntVector location) {
         position = location.toVector().add(World.Lc/2);
         this.weight = (int)Math.round(Math.random()*41 + 10);
         this.world = world;
+        this.falling = false;
     }
 
 
@@ -27,11 +30,16 @@ public abstract class GameObject {
     }
 
     public void advanceTime(double dt) {
-        // TODO: set cube in world
         IntVector cubePos = getPosition().toIntVector();
-        if (!(cubePos.getZ() == 1) && !World.isSolid(world.getCubeType(cubePos.add(0, 0, -1)))) { //TODO: fix floating rock
-            setPosition(getPosition().add(0, 0, -3 * dt)); //TODO speed constant and stuff
-            //
+        if (!(cubePos.getZ() == 1 || World.isSolid(world.getCubeType(cubePos.add(0, 0, -1))))
+                || (getPosition().getZ() - Math.floor(getPosition().getZ())) > 0.5) {
+            setPosition(getPosition().add(0, 0, FALL_SPEED * dt));
+            falling = true;
+            world.removeCubeObject(this);
+        } else {
+            if (falling)
+                world.addCubeObject(this);
+            falling = false;
         }
     }
 
