@@ -3,6 +3,7 @@ package hillbillies.part2.facade;
 import hillbillies.model.*;
 // import hillbillies.part1.facade.Facade;
 import hillbillies.model.Unit.Unit;
+import hillbillies.model.Vector.IntVector;
 import hillbillies.part2.listener.TerrainChangeListener;
 import ogp.framework.util.ModelException;
 
@@ -73,12 +74,12 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public boolean isCarryingLog(Unit unit) throws ModelException {
-        return false;
+        return unit.isCarryingLog();
     }
 
     @Override
     public boolean isCarryingBoulder(Unit unit) throws ModelException {
-        return false;
+        return unit.isCarryingBoulder();
     }
 
     @Override
@@ -93,7 +94,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public void workAt(Unit unit, int x, int y, int z) throws ModelException {
-
+        unit.workAt(new IntVector(x, y, z));
     }
 
     @Override

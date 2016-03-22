@@ -22,7 +22,7 @@ class NoneActivity extends Activity {
         } else if (unit.isDefaultEnabled()) {
             int random = (int)Math.floor(Math.random()*3);
             switch (random) {
-//                    case 3: // move to random location
+//                    case 3: //TODO: move to random location
 //                        int[] randLoc = new int[3];
 //                        for (int i = 0; i < 3; i++) {
 //                            randLoc[i] = (int)Math.floor(Math.random()*World.X_MAX);
@@ -30,7 +30,8 @@ class NoneActivity extends Activity {
 //                        moveTo(randLoc);
 //                        break;
                 case 0: // work
-                    unit.work();
+                    //unit.work();
+                    //TODO: select random location
                     break;
                 case 1: // rest
                     unit.rest();
@@ -40,11 +41,12 @@ class NoneActivity extends Activity {
                     for (Unit other : units) {
                         if (other.getFaction() != unit.getFaction()) {
                             if (unit.canAttack(other)) {
-                                unit.attack(unit);
+                                unit.attack(other);
                             }
                         }
                     }
                     break;
+
             }
         }
     }

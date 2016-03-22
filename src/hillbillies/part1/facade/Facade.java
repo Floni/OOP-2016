@@ -163,7 +163,8 @@ public class Facade implements IFacade {
     @Override
     public void work(Unit unit) throws ModelException {
         try{
-            unit.work();
+            //unit.work();
+            throw new ModelException("deprecated!");
         } catch (IllegalArgumentException err) {
             throw new ModelException(err.getMessage(), err);
         }

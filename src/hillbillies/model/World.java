@@ -17,10 +17,13 @@ public class World {
     private static class Cube {
         public Cube(int type) {
             this.type = type;
-            this.gameObjects = new HashSet<>();
+            this.logs = new HashSet<>();
+            this.boulders = new HashSet<>();
         }
         public int type;
-        public Set<GameObject> gameObjects;
+        public Set<Log> logs;
+        public Set<Boulder> boulders;
+
     }
     public static final int AIR = 0;
     public static final int WORKSHOP = 3;
@@ -81,6 +84,14 @@ public class World {
         for (Unit unit : getUnits()) {
             unit.advanceTime(dt);
         }
+
+        for (Boulder boulder : getBoulders()) {
+            boulder.advanceTime(dt);
+        }
+
+        for (Log log : getLogs()) {
+            log.advanceTime(dt);
+        }
     }
 
     /**
@@ -108,17 +119,57 @@ public class World {
     public void setCubeType(int x, int y, int z, int type) {
         if (isSolid(getCubeType(x, y, z)) && !isSolid(type)) {
             for (int[] coord : connectedToBorder.changeSolidToPassable(x, y, z)) {
+                dropChance(new IntVector(coord[0], coord[1], coord[2]));
                 cubes[coord[0]][coord[1]][coord[2]].type = AIR;
                 updateListener.notifyTerrainChanged(coord[0], coord[1], coord[2]);
-                //TODO: cave in?
             }
         }
         cubes[x][y][z].type = type;
         updateListener.notifyTerrainChanged(x, y, z);
     }
+    
+    private Cube getCube(IntVector cubeLoc) {
+        return cubes[cubeLoc.getX()][cubeLoc.getY()][cubeLoc.getZ()];
+    }        
 
     public void setCubeType(IntVector cube, int type) {
         setCubeType(cube.getX(), cube.getY(), cube.getZ(), type);
+    }
+
+    public Set<Log> getLogs(IntVector cubeLoc) {
+        Cube cube = getCube(cubeLoc);
+        return new HashSet<>(cube.logs);
+    }
+
+    public Set<Boulder> getBoulders(IntVector cubeLoc) {
+        Cube cube = getCube(cubeLoc);
+        return new HashSet<>(cube.boulders);
+    }
+
+    public void consumeLog(IntVector cubeLoc) {
+        Cube cube = getCube(cubeLoc);
+        if (cube.logs.size() >= 1)
+            removeGameObject(cube.logs.iterator().next());
+    }
+
+    public void consumeBoulder(IntVector cubeLoc) {
+        Cube cube = getCube(cubeLoc);
+        if (cube.boulders.size() >= 1)
+            removeGameObject(cube.boulders.iterator().next());
+    }
+
+    public void addLog(IntVector cubeLoc, Log log) {
+        log.setPosition(cubeLoc.toVector().add(Lc/2));
+        Cube cube = getCube(cubeLoc);
+        logs.add(log);
+        cube.logs.add(log);
+    }
+
+    public void addBoulder(IntVector cubeLoc, Boulder boulder) {
+        boulder.setPosition(cubeLoc.toVector().add(Lc/2));
+        Cube cube = getCube(cubeLoc);
+        boulders.add(boulder);
+        cube.boulders.add(boulder);
     }
 
     public boolean isCubeConnected(int x, int y, int z) {
@@ -137,17 +188,6 @@ public class World {
         return this.boulders;
     }
 
-    // TODO: advanceTime to drop object
-    private void addLog(int x, int y, int z) {
-        int weight = (int)Math.floor(10.0 + 41.0 * Math.random());
-        logs.add(new Log(x, y, z, weight));
-    }
-
-    // TODO: advanceTime to drop object
-    private void addBoulder (int x, int y, int z) {
-        int weight = (int)Math.floor(10.0 + 41.0 * Math.random());
-        boulders.add(new Boulder(x, y, z, weight));
-    }
 
 
     private Faction addFaction() {
@@ -219,12 +259,28 @@ public class World {
     }
 
     public void removeGameObject (GameObject object) {
-        if (object.getClass().equals(Log.class))
+        if (object.getClass().equals(Log.class)) {
             logs.remove(object);
-        else if (object.getClass().equals(Boulder.class))
+            getCube(object.getPosition().toIntVector()).logs.remove(object);
+        } else if (object.getClass().equals(Boulder.class)) {
             boulders.remove(object);
-
+            getCube(object.getPosition().toIntVector()).boulders.remove(object);
+        }
         object.destruct();
+    }
+
+    private void dropChance(IntVector location) {
+        if (Math.random() < 0.95) { //TODO: fix
+            if (getCubeType(location) == World.ROCK) {
+                addBoulder(location, new Boulder(this, location));
+            } else if (getCubeType(location) == World.TREE) {
+                addLog(location, new Log(this, location));
+            }
+        }
+    }
+    public void breakCube(IntVector location) {
+        dropChance(location);
+        setCubeType(location, AIR);
     }
 
     private static final int[][] neighbourOffsets = new int[][] {

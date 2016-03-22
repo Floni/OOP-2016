@@ -245,7 +245,7 @@ public class UnitTest {
 
     @Test
     public void testWork() throws Exception {
-        unit.work();
+        //unit.work();
         assertTrue(unit.isWorking());
         advanceTimeFor(unit, 5, 0.1);
         assertTrue(unit.isWorking());

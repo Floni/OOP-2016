@@ -3,11 +3,9 @@ package hillbillies.model.Unit;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
-import hillbillies.model.Faction;
-import hillbillies.model.PathFinder;
+import hillbillies.model.*;
 import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
-import hillbillies.model.World;
 
 import java.util.stream.Stream;
 
@@ -92,6 +90,9 @@ public class Unit {
     World world;
 
     PathFinder<IntVector> pathFinder;
+
+    private Log carryLog;
+    private Boulder carryBoulder;
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
@@ -481,7 +482,7 @@ public class Unit {
      */
     @Basic
     public int getWeight() {
-        return this.weight;
+        return this.weight + (isCarryingBoulder() ? carryBoulder.getWeight() : (isCarryingLog() ? carryLog.getWeight() : 0));
     }
 
     /**
@@ -564,7 +565,7 @@ public class Unit {
         else if (strength > MAX_ATTRIBUTE)
             strength = MAX_ATTRIBUTE;
         this.strength = strength;
-        setWeight(getWeight());
+        setWeight(this.weight);
     }
 
 
@@ -618,7 +619,7 @@ public class Unit {
         else if (agility > MAX_ATTRIBUTE)
             agility = MAX_ATTRIBUTE;
         this.agility = agility;
-        setWeight(getWeight());
+        setWeight(this.weight);
     }
 
 
@@ -1008,13 +1009,47 @@ public class Unit {
      *          Throws if the unit can't work.
      *          | (!canHaveAsActivity(Unit.WORK)
      */
-    public void work() throws IllegalArgumentException {
+    public void workAt(IntVector location) throws IllegalArgumentException {
         if (!getCurrentActivity().canSwitch(WorkActivity.class)) {
-            throw new IllegalArgumentException("can't work right now");
+            throw new IllegalArgumentException("Can't work right now");
         }
+        IntVector diff = getPosition().toIntVector().substract(location);
+        if (Math.abs(diff.getX()) > 1 || Math.abs(diff.getY()) > 1 || Math.abs(diff.getZ()) > 1 ) {
+            throw new IllegalArgumentException("Work location out of range");
+        }
+
         if (!isWorking())
-            setCurrentActivity(new WorkActivity(this));
+            setCurrentActivity(new WorkActivity(this, location));
     }
+
+    public boolean isCarryingLog() {
+        return this.carryLog != null;
+    }
+
+    public boolean isCarryingBoulder()  {
+        return this.carryBoulder != null;
+    }
+
+    void dropCarry(IntVector workLoc) {
+        if (isCarryingLog()) {
+            world.addLog(workLoc, carryLog);
+            carryLog = null;
+        } else if (isCarryingBoulder()) {
+            world.addBoulder(workLoc, carryBoulder);
+            carryBoulder = null;
+        }
+    }
+
+    void pickUpLog(Log log) {
+        carryLog = log;
+        world.removeGameObject(log);
+    }
+
+    void pickUpBoulder(Boulder boulder) {
+        carryBoulder = boulder;
+        world.removeGameObject(boulder);
+    }
+
     //</editor-fold>
 
     //<editor-fold desc="Fighting">
