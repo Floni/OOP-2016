@@ -12,7 +12,7 @@ public abstract class GameObject {
     protected final World world;
     protected boolean falling;
 
-    // TODO: precond in world??
+
     public GameObject(World world, IntVector location) {
         position = location.toVector().add(World.Lc/2);
         this.weight = (int)Math.round(Math.random()*41 + 10);
@@ -43,7 +43,9 @@ public abstract class GameObject {
         }
     }
 
-    public void setPosition(Vector pos) {
+    public void setPosition(Vector pos) throws IllegalArgumentException {
+        if (!world.isValidPosition(pos.toIntVector()) || World.isSolid(world.getCubeType(pos.toIntVector())))
+            throw new IllegalArgumentException("invalid position");
         this.position = pos;
     }
 

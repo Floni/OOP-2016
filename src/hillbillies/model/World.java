@@ -203,7 +203,7 @@ public class World {
         return (int)Math.floor(25 + 76*Math.random());
     }
 
-    public Unit spawnUnit(boolean defautBehaviour) {
+    public Unit spawnUnit(boolean defautBehaviour) { //TODO: defaultBehaviour
         if (totalUnits >= 100)
             return null; //TODO: throw?
 
@@ -239,7 +239,6 @@ public class World {
             Faction minFaction = factions.stream().filter(f -> f.getFactionSize() < MAX_FACTION_SIZE)
                     .min((f1, f2) -> Integer.compare(f1.getFactionSize(), f2.getFactionSize())).orElse(null);
             if (minFaction != null) {
-                // TODO: what if no faction is found? can't happen?
                 unit.setFaction(minFaction);
                 minFaction.addUnit(unit);
             }

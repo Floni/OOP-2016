@@ -23,9 +23,9 @@ import java.util.stream.Stream;
 /**
  * TODO:
  *  - Check access modifiers
- *  - Create Integer Vector -> use that for pathfinding
  *  - Clean and refactor code
  *  - Only use Vector and IntVector
+ *  - make all variable private if possible
  */
 
 /**
@@ -278,7 +278,7 @@ public class Unit {
 
         if (!isStablePosition(getPosition().toIntVector())) {
             this.currentActivity = new FallActivity(this);
-            this.lastActivity = NONE_ACTIVITY; //TODO: save Last activity?
+            this.lastActivity = NONE_ACTIVITY;
             assert isMoving();
         }
 
@@ -731,6 +731,7 @@ public class Unit {
     void deduceHitPoints(int hitPoints)  {
         int newHitPoints = this.getHitPoints() - hitPoints;
         if (newHitPoints <= 0) {
+            // TODO: destructor?
             currentActivity = NONE_ACTIVITY;
             lastActivity = NONE_ACTIVITY;
             pendingActivity = NONE_ACTIVITY;

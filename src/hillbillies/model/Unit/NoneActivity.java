@@ -4,7 +4,9 @@ import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
 import hillbillies.model.World;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by timo on 3/17/16.
@@ -22,16 +24,13 @@ class NoneActivity extends Activity {
         } else if (unit.isDefaultEnabled()) {
             int random = (int)Math.floor(Math.random()*3);
             switch (random) {
-//                    case 3: //TODO: move to random location
-//                        int[] randLoc = new int[3];
-//                        for (int i = 0; i < 3; i++) {
-//                            randLoc[i] = (int)Math.floor(Math.random()*World.X_MAX);
-//                        }
-//                        moveTo(randLoc);
-//                        break;
+                    case 3: //TODO: move to random location
+
+                        break;
                 case 0: // work
-                    //unit.work();
-                    //TODO: select random location
+                    List<IntVector> neighbours = unit.world.getNeighbours(unit.getPosition().toIntVector())
+                            .filter(v -> unit.world.isValidPosition(v)).collect(Collectors.toList());
+                    unit.workAt(neighbours.get((int)(Math.random() * neighbours.size())));
                     break;
                 case 1: // rest
                     unit.rest();

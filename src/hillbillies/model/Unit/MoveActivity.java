@@ -12,7 +12,6 @@ import java.util.List;
  */
 class MoveActivity extends Activity {
     public static final double SPRINT_DELAY = 0.1;
-    //TODO: make target & neighbour IntVectors
 
     protected Vector target;
     private Vector targetNeighbour;
@@ -72,6 +71,8 @@ class MoveActivity extends Activity {
             } else if (this.target == null || isAtTarget()) {
                 unit.finishCurrentActivity();
             } else {
+                if (path == null)
+                    updateTarget(this.target);
                 goToNextNeighbour();
             }
         } else {
@@ -137,7 +138,7 @@ class MoveActivity extends Activity {
 
     void updateAdjacent(int dx, int dy, int dz) throws IllegalArgumentException {
         moveToNeighbour(dx, dy, dz);
-        // TODO: recalc path
+        this.path = null;
     }
 
     void updateTarget(Vector newTarget) throws IllegalArgumentException {
