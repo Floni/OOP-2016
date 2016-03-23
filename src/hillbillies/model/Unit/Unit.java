@@ -55,7 +55,7 @@ import java.util.stream.Stream;
 public class Unit {
 
     //<editor-fold desc="Constants">
-    public static final double POS_EPS = 0.05;
+    public static final double POS_EPS = 1e-3;
 
     public static final double REST_MINUTE = 3*60;
 
@@ -210,7 +210,7 @@ public class Unit {
         pathFinder = new PathFinder<>(new PathFinder.PathGlue<IntVector>() {
             @Override
             public Stream<IntVector> getNeighbours(IntVector pos) {
-                return World.getNeighbours(pos).filter(n -> isValidPosition(n.toVector()) && isStablePosition(n));
+                return World.getNeighbours(pos).filter(n -> isValidPosition(n) && isStablePosition(n));
             }
 
             @Override
@@ -359,14 +359,13 @@ public class Unit {
     /**
      * Checks whether the given position is valid.
      *
-     * @param   position
+     * @param   cubePos
      *          The position to be checked
      *
      * @return  True if the given position is within the boundaries of the world.
      *          | result == ((x >= 0) && (x < X_MAX) && (y >= 0) && (y < Y_MAX) && (z >= 0) && (z < Z_MAX))
      */
-    public boolean isValidPosition(Vector position) {
-        IntVector cubePos = position.toIntVector();
+    public boolean isValidPosition(IntVector cubePos) {
         return world.isValidPosition(cubePos) &&
                 !World.isSolid(world.getCubeType(cubePos));
     }
@@ -400,7 +399,7 @@ public class Unit {
      *          | !isValidPosition(position.toDoubleArray())
      */
     public void setPosition(Vector position) throws IllegalArgumentException {
-        if (!isEffectivePosition(position) || !isValidPosition(position))
+        if (!isEffectivePosition(position) || !isValidPosition(position.toIntVector()))
             throw new IllegalArgumentException("The given position is not valid");
         this.position = position;
     }
@@ -735,10 +734,11 @@ public class Unit {
             currentActivity = NONE_ACTIVITY;
             lastActivity = NONE_ACTIVITY;
             pendingActivity = NONE_ACTIVITY;
-            this.hitPoints = 0;
+            this.setHitPoints(0);
             world.removeUnit(this);
+        } else {
+            this.setHitPoints(newHitPoints);
         }
-        this.setHitPoints(newHitPoints);
     }
 
     public boolean isAlive() {
@@ -922,7 +922,7 @@ public class Unit {
 
         Vector newTarget = new Vector(target).add(World.Lc /2);
 
-        if (!isValidPosition(newTarget)) {
+        if (!isValidPosition(newTarget.toIntVector())) {
             throw new IllegalArgumentException("invalid target");
         }
 
@@ -1153,28 +1153,20 @@ public class Unit {
      *
      */
     void defend(Unit attacker) {
-        double probabilityDodge = 0.20 * (this.getAgility() / attacker.getAgility());
+        double probabilityDodge = 0.99 * (this.getAgility() / attacker.getAgility());
         if (Math.random() < probabilityDodge) {
-            // TODO: fix dodging
-            double newX = 2 * Math.random() - 1;
-            double newY = 2 * Math.random() - 1;
-            if (newX == 0 && newY == 0) {
-                double range = 1 - POS_EPS;
-                double newRandom = Math.random() * range + POS_EPS;
-                if (Math.random() >= 0.5)
-                    newX = 2 * newRandom - 1;
-                else
-                    newY = 2 * newRandom - 1;
+            Vector randPos;
+            do {
+                randPos = new Vector(getPosition().getX() -1 + Math.random() * 2,
+                        getPosition().getY() -1 + Math.random() * 2,
+                        getPosition().getZ());
+            } while (!isValidPosition(randPos.toIntVector()));
+            setPosition(randPos);
+            if (isMoving()) {
+                MoveActivity ca = ((MoveActivity)getCurrentActivity());
+                if (ca.target != null)
+                    ca.updateTarget(ca.target);
             }
-            newX += getPosition().getX();
-            newY += getPosition().getY();
-            if (newX < 0 || newX >= world.X_MAX){
-                newX = -newX;
-            }
-            if (newY < 0 ||newY >= world.Y_MAX) {
-                newY = -newY;
-            }
-            setPosition(new Vector(newX, newY, getPosition().getZ()));
             Vector diff = attacker.getPosition().subtract(this.position);
             this.setOrientation(Math.atan2(diff.getY(), diff.getX()));
             attacker.setOrientation(Math.atan2(-diff.getY(), -diff.getX()));

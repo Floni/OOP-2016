@@ -66,7 +66,7 @@ public class World {
                 for (int z = 0; z < Z_MAX; z++) {
                     this.cubes[x][y][z] = new Cube(terrainTypes[x][y][z]);
                     if (!isSolid(terrainTypes[x][y][z]))
-                        connectedToBorder.changeSolidToPassable(x, y, z);
+                        connectedToBorder.changeSolidToPassable(x, y, z); // TODO: save changed
                 }
             }
         }
@@ -119,8 +119,9 @@ public class World {
     public void setCubeType(int x, int y, int z, int type) {
         if (isSolid(getCubeType(x, y, z)) && !isSolid(type)) {
             for (int[] coord : connectedToBorder.changeSolidToPassable(x, y, z)) {
-                dropChance(new IntVector(coord[0], coord[1], coord[2]));
+                int type_s = cubes[coord[0]][coord[1]][coord[2]].type;
                 cubes[coord[0]][coord[1]][coord[2]].type = AIR;
+                dropChance(new IntVector(coord[0], coord[1], coord[2]), type_s);
                 updateListener.notifyTerrainChanged(coord[0], coord[1], coord[2]);
             }
         }
@@ -207,23 +208,14 @@ public class World {
         if (totalUnits >= 100)
             return null; //TODO: throw?
 
-        //TODO: optimize
-        List<int[]> possiblePositions = new ArrayList<>();
-        if (getUnits().size() < MAX_UNITS) {
-            for (int x = 0; x < X_MAX; x++) {
-                for (int y = 0; y < Y_MAX; y++) {
-                    for (int z = 0; z < Z_MAX; z++) {
-                        if (!isSolid(getCubeType(x, y, z)) && (z == 0 || isSolid(getCubeType(x, y, z - 1))))
-                            possiblePositions.add(new int[]{x, y, z});
-                    }
-                }
-            }
-        }
+        IntVector randPos;
+        do {
+            randPos = new IntVector(Math.random()*X_MAX,
+                    Math.random()*Y_MAX,
+                    Math.random()*Z_MAX);
+        } while (!isValidPosition(randPos) || isSolid(getCubeType(randPos)) || (randPos.getZ() != 0 && !isSolid(getCubeType(randPos.add(0, 0, -1)))));
 
-        int randIdx = (int)Math.floor(possiblePositions.size() * Math.random());
-        int[] pos = possiblePositions.get(randIdx);
-
-        Unit unit = new Unit(this, "Spawn", pos[0], pos[1], pos[2], getRandomAttribute(), getRandomAttribute(),
+        Unit unit = new Unit(this, "Spawn", randPos.getX(), randPos.getY(), randPos.getZ(), getRandomAttribute(), getRandomAttribute(),
                 getRandomAttribute(), getRandomAttribute());
 
         addUnit(unit);
@@ -283,18 +275,19 @@ public class World {
         }
     }
 
-    private void dropChance(IntVector location) {
+    private void dropChance(IntVector location, int type) {
         if (Math.random() < 0.95) { //TODO: fix
-            if (getCubeType(location) == World.ROCK) {
+            if (type == World.ROCK) {
                 addBoulder(location, new Boulder(this, location));
-            } else if (getCubeType(location) == World.TREE) {
+            } else if (type == World.TREE) {
                 addLog(location, new Log(this, location));
             }
         }
     }
     public void breakCube(IntVector location) {
+        int type = getCubeType(location);
         setCubeType(location, AIR);
-        dropChance(location);
+        dropChance(location, type);
     }
 
     private static final int[][] neighbourOffsets = new int[][] {
