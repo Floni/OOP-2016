@@ -23,9 +23,10 @@ import java.util.stream.Stream;
 /**
  * TODO:
  *  - Check access modifiers
- *  - Clean and refactor code
  *  - Only use Vector and IntVector
  *  - make all variable private if possible
+ *  - fix destructor
+ *  - fix random locations
  */
 
 /**
@@ -276,10 +277,9 @@ public class Unit {
             rest();
         }
 
-        if (!isStablePosition(getPosition().toIntVector())) {
+        if (!isStablePosition(getPosition().toIntVector()) && !getCurrentActivity().equalsClass(FallActivity.class)) {
             this.currentActivity = new FallActivity(this);
             this.lastActivity = NONE_ACTIVITY;
-            assert isMoving();
         }
 
 

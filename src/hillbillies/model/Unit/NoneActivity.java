@@ -22,13 +22,20 @@ class NoneActivity extends Activity {
         if (!unit.lastActivity.equalsClass(NoneActivity.class)) {
             unit.finishCurrentActivity(); // we still have an interrupted activity
         } else if (unit.isDefaultEnabled()) {
-            int random = (int)Math.floor(Math.random()*3);
+            int random = (int)Math.floor(Math.random()*4);
             switch (random) {
-                    case 3: //TODO: move to random location
-
+                case 3: // move
+                        IntVector randpos;
+                        do {
+                            randpos = new IntVector(Math.random()*unit.world.X_MAX,
+                                    Math.random()*unit.world.Y_MAX,
+                                    Math.random()*unit.world.Z_MAX);
+                            // TODO: fix impossible to path
+                        } while (!unit.world.isValidPosition(randpos) || World.isSolid(unit.world.getCubeType(randpos)));
+                        unit.moveTo(randpos.toIntArray());
                         break;
                 case 0: // work
-                    List<IntVector> neighbours = unit.world.getNeighbours(unit.getPosition().toIntVector())
+                    List<IntVector> neighbours = World.getNeighbours(unit.getPosition().toIntVector())
                             .filter(v -> unit.world.isValidPosition(v)).collect(Collectors.toList());
                     unit.workAt(neighbours.get((int)(Math.random() * neighbours.size())));
                     break;

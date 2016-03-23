@@ -293,8 +293,8 @@ public class World {
         }
     }
     public void breakCube(IntVector location) {
-        dropChance(location);
         setCubeType(location, AIR);
+        dropChance(location);
     }
 
     private static final int[][] neighbourOffsets = new int[][] {
