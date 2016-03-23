@@ -24,9 +24,7 @@ import java.util.stream.Stream;
  * TODO:
  *  - Check access modifiers
  *  - Only use Vector and IntVector
- *  - make all variable private if possible
  *  - fix destructor
- *  - fix random locations
  */
 
 /**
@@ -69,25 +67,24 @@ public class Unit {
     // constant used for none, none has no state!
     final Activity NONE_ACTIVITY = new NoneActivity(this);
 
-    Vector position;
+    private Vector position;
 
-    String name;
+    private String name;
 
-    int weight, strength, agility, toughness;
-    double orientation;
-    int hitPoints, stamina;
-    int xp, xpDiff;
+    private int weight, strength, agility, toughness;
+    private double orientation;
+    private int hitPoints, stamina;
+    private int xp, xpDiff;
 
     Activity currentActivity = NONE_ACTIVITY;
     Activity lastActivity = NONE_ACTIVITY;
-
     Activity pendingActivity = NONE_ACTIVITY;
 
-    double restMinuteTimer;
+    private double restMinuteTimer;
 
-    boolean defaultEnabled;
+    private boolean defaultEnabled;
 
-    Faction faction;
+    private Faction faction;
     World world;
 
     PathFinder<IntVector> pathFinder;

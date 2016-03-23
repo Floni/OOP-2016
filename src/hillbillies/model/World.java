@@ -94,15 +94,9 @@ public class World {
         }
     }
 
-    /**
-     * @deprecated  use IntVector
-     */
-    public boolean isValidPosition(int x, int y, int z) {
-        return x >= 0 && x < X_MAX && y >= 0 && y < Y_MAX && z >= 0 && z < Z_MAX;
-    }
-
     public boolean isValidPosition(IntVector pos) {
-        return isValidPosition(pos.getX(), pos.getY(), pos.getZ());
+        return pos.getX() >= 0 && pos.getX() < X_MAX && pos.getY() >= 0
+                && pos.getY() < Y_MAX && pos.getZ() >= 0 && pos.getZ() < Z_MAX;
     }
 
     public static boolean isSolid(int type) {
@@ -205,7 +199,7 @@ public class World {
 
     public Unit spawnUnit(boolean defautBehaviour) { //TODO: defaultBehaviour
         if (totalUnits >= 100)
-            return null; //TODO: throw?
+            return null; // silently reject?
 
         //TODO: optimize
         List<int[]> possiblePositions = new ArrayList<>();
@@ -338,28 +332,5 @@ public class World {
 
     public static Stream<IntVector> getDirectlyAdjacent(IntVector pos) {
         return Arrays.stream(neighbourOffsets).limit(6).map(offset -> pos.add(offset[0], offset[1], offset[2]));
-    }
-
-
-    /**
-     * Returns the coordinates of the cube that the unit currently occupies.
-     *
-     * @deprecated Use IntVector instead?
-     *
-     * @param   position
-     *          The position to be converted.
-     *
-     * @return  Returns the rounded down position.
-     *          | result[0] == floor(position[0]) &&
-     *          | result[1] == floor(position[1]) &&
-     *          | result[2] == floor(position[2]}
-     */
-    @Deprecated
-    public static int[] getCubePosition(double[] position) {
-        return new int[] {
-                (int)Math.floor(position[0]),
-                (int)Math.floor(position[1]),
-                (int)Math.floor(position[2])
-        };
     }
 }
