@@ -21,13 +21,6 @@ import java.util.stream.Stream;
  */
 
 /**
- * TODO:
- *  - Check access modifiers
- *  - Only use Vector and IntVector
- *  - fix destructor
- */
-
-/**
  * The unit class, this class keeps tracks of the unit's position, speed and other attributes.
  * It provides methods to move, to attack or to rest.
  *

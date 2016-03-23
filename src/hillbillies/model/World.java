@@ -14,6 +14,10 @@ import java.util.stream.Stream;
  * Created by timo on 3/14/16.
  *
  */
+/**
+ * TODO:
+ *  - Only use Vector and IntVector
+ */
 public class World {
     private static class Cube {
         public Cube(int type) {
@@ -26,18 +30,23 @@ public class World {
         public Set<Boulder> boulders;
 
     }
+
+
+    //<editor-fold desc="Constants">
     public static final int AIR = 0;
     public static final int WORKSHOP = 3;
     public static final int ROCK = 1;
     public static final int TREE = 2;
 
+    public static final double Lc = 1.0;
+    public static final int MAX_UNITS = 100;
+    public static final int MAX_FACTION_SIZE = 50;
+    //</editor-fold>
+
+    //<editor-fold desc="Variables">
     public final int X_MAX;
     public final int Y_MAX;
     public final int Z_MAX;
-
-    public final static double Lc = 1.0;
-    public final static int MAX_UNITS = 100;
-    public final static int MAX_FACTION_SIZE = 50;
 
     private final TerrainChangeListener updateListener;
 
@@ -48,9 +57,10 @@ public class World {
     private Set<Log> logs;
     private Set<Boulder> boulders;
 
-
     private ConnectedToBorder connectedToBorder;
+    //</editor-fold>
 
+    //<editor-fold desc="Constructor">
     public World(int[][][] terrainTypes, TerrainChangeListener modelListener) {
         this.updateListener = modelListener;
 
@@ -81,7 +91,9 @@ public class World {
         startCaveIn.forEach(this::breakCube);
 
     }
+    //</editor-fold>
 
+    //<editor-fold desc="advanceTime">
     public void advanceTime(double dt) throws ModelException {
         if (dt >= 0.2 || dt < 0)
             throw new IllegalArgumentException("invalid dt");
@@ -99,6 +111,7 @@ public class World {
             log.advanceTime(dt);
         }
     }
+    //</editor-fold>
 
     public boolean isValidPosition(IntVector pos) {
         return pos.getX() >= 0 && pos.getX() < X_MAX && pos.getY() >= 0
@@ -107,6 +120,15 @@ public class World {
 
     public static boolean isSolid(int type) {
         return type == ROCK || type == TREE;
+    }
+
+    //<editor-fold desc="Cubes">
+    private Cube getCube(IntVector cubeLoc) {
+        return cubes[cubeLoc.getX()][cubeLoc.getY()][cubeLoc.getZ()];
+    }
+
+    public boolean isCubeConnected(int x, int y, int z) {
+        return connectedToBorder.isSolidConnectedToBorder(x, y, z);
     }
 
     public int getCubeType(int x, int y, int z) {
@@ -126,13 +148,34 @@ public class World {
         cubes[x][y][z].type = type;
         updateListener.notifyTerrainChanged(x, y, z);
     }
-    
-    private Cube getCube(IntVector cubeLoc) {
-        return cubes[cubeLoc.getX()][cubeLoc.getY()][cubeLoc.getZ()];
-    }        
-
     public void setCubeType(IntVector cube, int type) {
         setCubeType(cube.getX(), cube.getY(), cube.getZ(), type);
+    }
+
+    private void dropChance(IntVector location, int type) {
+        if (Math.random() < 0.25) {
+            if (type == World.ROCK) {
+                addBoulder(location, new Boulder(this, location));
+            } else if (type == World.TREE) {
+                addLog(location, new Log(this, location));
+            }
+        }
+    }
+
+    public void breakCube(IntVector location) {
+        int type = getCubeType(location);
+        setCubeType(location, AIR);
+        dropChance(location, type);
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="Logs and Boulders">
+    public  Set<Log> getLogs() {
+        return this.logs;
+    }
+
+    public Set<Boulder> getBoulders() {
+        return this.boulders;
     }
 
     public Set<Log> getLogs(IntVector cubeLoc) {
@@ -143,18 +186,6 @@ public class World {
     public Set<Boulder> getBoulders(IntVector cubeLoc) {
         Cube cube = getCube(cubeLoc);
         return new HashSet<>(cube.boulders);
-    }
-
-    public void consumeLog(IntVector cubeLoc) {
-        Cube cube = getCube(cubeLoc);
-        if (cube.logs.size() >= 1)
-            removeGameObject(cube.logs.iterator().next());
-    }
-
-    public void consumeBoulder(IntVector cubeLoc) {
-        Cube cube = getCube(cubeLoc);
-        if (cube.boulders.size() >= 1)
-            removeGameObject(cube.boulders.iterator().next());
     }
 
     public void addLog(IntVector cubeLoc, Log log) {
@@ -171,23 +202,49 @@ public class World {
         cube.boulders.add(boulder);
     }
 
-    public boolean isCubeConnected(int x, int y, int z) {
-        return connectedToBorder.isSolidConnectedToBorder(x, y, z);
+    public void consumeLog(IntVector cubeLoc) {
+        Cube cube = getCube(cubeLoc);
+        if (cube.logs.size() >= 1)
+            removeGameObject(cube.logs.iterator().next());
     }
 
+    public void consumeBoulder(IntVector cubeLoc) {
+        Cube cube = getCube(cubeLoc);
+        if (cube.boulders.size() >= 1)
+            removeGameObject(cube.boulders.iterator().next());
+    }
+
+    public void removeGameObject (GameObject object) {
+        removeCubeObject(object);
+        if (object.getClass().equals(Log.class)) {
+            logs.remove(object);
+        } else if (object.getClass().equals(Boulder.class)) {
+            boulders.remove(object);
+        }
+        object.terminate();
+    }
+
+    public void removeCubeObject(GameObject object) {
+        if (object.getClass().equals(Log.class)) {
+            getCube(object.getPosition().toIntVector()).logs.remove(object);
+        } else if (object.getClass().equals(Boulder.class)) {
+            getCube(object.getPosition().toIntVector()).boulders.remove(object);
+        }
+    }
+
+    public void addCubeObject(GameObject object) {
+        if (object.getClass().equals(Log.class)) {
+            getCube(object.getPosition().toIntVector()).logs.add((Log)object);
+        } else if (object.getClass().equals(Boulder.class)) {
+            getCube(object.getPosition().toIntVector()).boulders.add((Boulder)object);
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="Factions">
     public Set<Faction> getFactions() {
         return this.factions;
     }
-
-    public  Set<Log> getLogs() {
-        return this.logs;
-    }
-
-    public Set<Boulder> getBoulders() {
-        return this.boulders;
-    }
-
-
 
     private Faction addFaction() {
         assert factions.size() < 5;
@@ -197,13 +254,15 @@ public class World {
         return faction;
 
     }
+    //</editor-fold>
 
+    //<editor-fold desc="Units">
     private int getRandomAttribute() {
         return (int)Math.floor(25 + 76*Math.random());
     }
 
-    public Unit spawnUnit(boolean defautBehaviour) {
-        if (totalUnits >= 100)
+    public Unit spawnUnit(boolean defaultBehaviour) {
+        if (totalUnits >= MAX_UNITS)
             return null; // silently reject?
 
         IntVector randPos;
@@ -215,7 +274,7 @@ public class World {
 
         Unit unit = new Unit(this, "Spawn", randPos.getX(), randPos.getY(), randPos.getZ(), getRandomAttribute(), getRandomAttribute(),
                 getRandomAttribute(), getRandomAttribute());
-        if (defautBehaviour)
+        if (defaultBehaviour)
             unit.startDefaultBehaviour();
         addUnit(unit);
         return unit;
@@ -247,48 +306,9 @@ public class World {
         if (unitFac.getFactionSize() <= 0)
             factions.remove(unitFac);
     }
+    //</editor-fold>
 
-    public void removeGameObject (GameObject object) {
-        removeCubeObject(object);
-        if (object.getClass().equals(Log.class)) {
-            logs.remove(object);
-        } else if (object.getClass().equals(Boulder.class)) {
-            boulders.remove(object);
-        }
-        object.terminate();
-    }
-
-    public void removeCubeObject(GameObject object) {
-        if (object.getClass().equals(Log.class)) {
-            getCube(object.getPosition().toIntVector()).logs.remove(object);
-        } else if (object.getClass().equals(Boulder.class)) {
-            getCube(object.getPosition().toIntVector()).boulders.remove(object);
-        }
-    }
-
-    public void addCubeObject(GameObject object) {
-        if (object.getClass().equals(Log.class)) {
-            getCube(object.getPosition().toIntVector()).logs.add((Log)object);
-        } else if (object.getClass().equals(Boulder.class)) {
-            getCube(object.getPosition().toIntVector()).boulders.add((Boulder)object);
-        }
-    }
-
-    private void dropChance(IntVector location, int type) {
-        if (Math.random() < 0.25) {
-            if (type == World.ROCK) {
-                addBoulder(location, new Boulder(this, location));
-            } else if (type == World.TREE) {
-                addLog(location, new Log(this, location));
-            }
-        }
-    }
-    public void breakCube(IntVector location) {
-        int type = getCubeType(location);
-        setCubeType(location, AIR);
-        dropChance(location, type);
-    }
-
+    //<editor-fold desc="Neighbours">
     private static final int[][] neighbourOffsets = new int[][] {
 
             { -1, 0, 0 },
@@ -331,4 +351,5 @@ public class World {
     public static Stream<IntVector> getDirectlyAdjacent(IntVector pos) {
         return Arrays.stream(neighbourOffsets).limit(6).map(offset -> pos.add(offset[0], offset[1], offset[2]));
     }
+    //</editor-fold>
 }
