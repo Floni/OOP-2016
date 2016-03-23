@@ -34,4 +34,9 @@ class FallActivity extends MoveActivity {
     boolean canSwitch(Class<? extends Activity> newActivity) {
         return false;
     }
+
+    @Override
+    public void resume() throws IllegalStateException {
+        throw new IllegalStateException("can't resume falling because can't interrupt falling");
+    }
 }

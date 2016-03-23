@@ -30,10 +30,9 @@ class NoneActivity extends Activity {
                             randPos = new IntVector(Math.random()*unit.world.X_MAX,
                                     Math.random()*unit.world.Y_MAX,
                                     Math.random()*unit.world.Z_MAX);
-                            // TODO: fix impossible to path
                             if (unit.isValidPosition(randPos)) {
                                 try {
-                                    unit.moveTo(randPos.toIntArray());
+                                    unit.moveTo(randPos);
                                     break;
                                 } catch (IllegalArgumentException ignored) {}
                             }
@@ -66,5 +65,10 @@ class NoneActivity extends Activity {
     @Override
     boolean canSwitch(Class<? extends Activity> newActivity) {
         return unit.isAlive();
+    }
+
+    @Override
+    public void resume() {
+
     }
 }

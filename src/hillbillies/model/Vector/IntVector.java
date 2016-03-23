@@ -5,9 +5,8 @@ import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Value;
 
 /**
- * Java doesn't allow math on general integer type -> we can't use generics.
+ * Java doesn't allow math on general number type -> we can't use generics.
  * (Java sucks)
- * TODO: add vector base class?
  *
  */
 @Value

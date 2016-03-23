@@ -7,6 +7,7 @@ import hillbillies.util.ConnectedToBorder;
 import ogp.framework.util.ModelException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -61,19 +62,24 @@ public class World {
 
         connectedToBorder = new ConnectedToBorder(X_MAX, Y_MAX, Z_MAX);
 
+        this.factions = new HashSet<>();
+        this.logs = new HashSet<>();
+        this.boulders = new HashSet<>();
+
+        Set<IntVector> startCaveIn = new HashSet<>();
+
         for (int x = 0; x < X_MAX; x++) {
             for (int y = 0; y < Y_MAX; y++) {
                 for (int z = 0; z < Z_MAX; z++) {
                     this.cubes[x][y][z] = new Cube(terrainTypes[x][y][z]);
                     if (!isSolid(terrainTypes[x][y][z]))
-                        connectedToBorder.changeSolidToPassable(x, y, z); // TODO: save changed
+                        startCaveIn.addAll(connectedToBorder.changeSolidToPassable(x, y, z).stream().map(IntVector::new).collect(Collectors.toSet()));
                 }
             }
         }
 
-        this.factions = new HashSet<>();
-        this.logs = new HashSet<>();
-        this.boulders = new HashSet<>();
+        startCaveIn.forEach(this::breakCube);
+
     }
 
     public void advanceTime(double dt) throws ModelException {
@@ -113,9 +119,7 @@ public class World {
     public void setCubeType(int x, int y, int z, int type) {
         if (isSolid(getCubeType(x, y, z)) && !isSolid(type)) {
             for (int[] coord : connectedToBorder.changeSolidToPassable(x, y, z)) {
-                int type_s = cubes[coord[0]][coord[1]][coord[2]].type;
-                cubes[coord[0]][coord[1]][coord[2]].type = AIR;
-                dropChance(new IntVector(coord[0], coord[1], coord[2]), type_s);
+                breakCube(new IntVector(coord));
                 updateListener.notifyTerrainChanged(coord[0], coord[1], coord[2]);
             }
         }
@@ -198,7 +202,7 @@ public class World {
         return (int)Math.floor(25 + 76*Math.random());
     }
 
-    public Unit spawnUnit(boolean defautBehaviour) { //TODO: defaultBehaviour
+    public Unit spawnUnit(boolean defautBehaviour) {
         if (totalUnits >= 100)
             return null; // silently reject?
 
@@ -211,7 +215,8 @@ public class World {
 
         Unit unit = new Unit(this, "Spawn", randPos.getX(), randPos.getY(), randPos.getZ(), getRandomAttribute(), getRandomAttribute(),
                 getRandomAttribute(), getRandomAttribute());
-
+        if (defautBehaviour)
+            unit.startDefaultBehaviour();
         addUnit(unit);
         return unit;
     }
@@ -250,7 +255,7 @@ public class World {
         } else if (object.getClass().equals(Boulder.class)) {
             boulders.remove(object);
         }
-        object.destruct();
+        object.terminate();
     }
 
     public void removeCubeObject(GameObject object) {
@@ -270,7 +275,7 @@ public class World {
     }
 
     private void dropChance(IntVector location, int type) {
-        if (Math.random() < 0.95) { //TODO: fix
+        if (Math.random() < 0.25) {
             if (type == World.ROCK) {
                 addBoulder(location, new Boulder(this, location));
             } else if (type == World.TREE) {

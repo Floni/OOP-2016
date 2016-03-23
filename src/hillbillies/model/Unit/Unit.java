@@ -192,7 +192,6 @@ public class Unit {
         setAgility(agility);
         setWeight(weight);
 
-        // TODO: getter & setter?
         this.xpDiff = 0;
         this.xp = 0;
 
@@ -220,6 +219,14 @@ public class Unit {
                 return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY()) + Math.abs(a.getZ() - b.getZ());
             }
         });
+    }
+
+    private void terminate() {
+        currentActivity = NONE_ACTIVITY;
+        lastActivity = NONE_ACTIVITY;
+        pendingActivity = NONE_ACTIVITY;
+        this.setHitPoints(0);
+        world.removeUnit(this);
     }
     //</editor-fold>
 
@@ -337,8 +344,8 @@ public class Unit {
      *          | new.lastActivity == Unit.NONE
      */
     void finishCurrentActivity() {
-        //TODO: provide reset method in activity to reset timers & stuff
         this.currentActivity = this.lastActivity;
+        this.currentActivity.resume();
         this.lastActivity = NONE_ACTIVITY;
     }
     //</editor-fold>
@@ -727,12 +734,7 @@ public class Unit {
     void deduceHitPoints(int hitPoints)  {
         int newHitPoints = this.getHitPoints() - hitPoints;
         if (newHitPoints <= 0) {
-            // TODO: destructor?
-            currentActivity = NONE_ACTIVITY;
-            lastActivity = NONE_ACTIVITY;
-            pendingActivity = NONE_ACTIVITY;
-            this.setHitPoints(0);
-            world.removeUnit(this);
+            this.terminate();
         } else {
             this.setHitPoints(newHitPoints);
         }
@@ -912,12 +914,12 @@ public class Unit {
      *          | !this.canHaveAsActivity(Unit.MOVE)f
      *
      */
-    public void moveTo(int[] target) throws IllegalArgumentException, IllegalStateException {
+    public void moveTo(IntVector target) throws IllegalArgumentException, IllegalStateException {
         if (!currentActivity.canSwitch(MoveActivity.class)) {
             throw new IllegalStateException("can't path right now");
         }
 
-        Vector newTarget = new Vector(target).add(World.Lc /2);
+        Vector newTarget =  target.toVector().add(World.Lc /2);
 
         if (!isValidPosition(newTarget.toIntVector())) {
             throw new IllegalArgumentException("invalid target");
@@ -1105,19 +1107,7 @@ public class Unit {
         if (this.getFaction() == other.getFaction())
             throw new IllegalArgumentException("Can't attack units of the same faction");
 
-        // TODO: move to attachActivity constructor:
-        Vector otherPos = other.getPosition();
-        if (!canAttack(other)) {
-            throw new IllegalArgumentException("Other unit is to far away");
-        }
-
-        Vector diff = otherPos.subtract(getPosition());
-        this.setOrientation(Math.atan2(diff.getY(), diff.getX()));
-        other.setOrientation(Math.atan2(-diff.getY(), -diff.getX()));
-
-        other.defend(this);
-
-        setCurrentActivity(new AttackActivity(this));
+        setCurrentActivity(new AttackActivity(this, other));
     }
 
     /**
@@ -1150,7 +1140,7 @@ public class Unit {
      *
      */
     void defend(Unit attacker) {
-        double probabilityDodge = 0.99 * (this.getAgility() / attacker.getAgility());
+        double probabilityDodge = 0.20 * (this.getAgility() / attacker.getAgility());
         if (Math.random() < probabilityDodge) {
             Vector randPos;
             do {

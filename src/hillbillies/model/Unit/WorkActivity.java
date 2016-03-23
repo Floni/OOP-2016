@@ -12,8 +12,6 @@ class WorkActivity extends Activity {
     private double workTimer = 0;
     private IntVector location;
 
-    //TODO: interupt working
-
     WorkActivity(Unit unit, IntVector location) {
         super(unit);
         this.workTimer  = 500.0 / unit.getStrength();
@@ -64,5 +62,10 @@ class WorkActivity extends Activity {
     @Override
     boolean canSwitch(Class<? extends Activity> newActivity) {
         return true;
+    }
+
+    @Override
+    public void resume() {
+        unit.finishCurrentActivity();
     }
 }

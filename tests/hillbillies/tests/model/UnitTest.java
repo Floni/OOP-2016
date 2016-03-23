@@ -1,6 +1,7 @@
 package hillbillies.tests.model;
 
 import hillbillies.model.Unit.Unit;
+import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
 import hillbillies.model.World;
 import ogp.framework.util.ModelException;
@@ -182,7 +183,7 @@ public class UnitTest {
 
     @Test
     public void testIsMoving() throws Exception {
-        unit.moveTo(new int[] {0,0,5});
+        unit.moveTo(new IntVector(0,0,5));
         assertTrue(unit.isMoving());
     }
 
@@ -204,7 +205,7 @@ public class UnitTest {
     @Test
     public void testMoveTo() throws Exception {
         unit.setPosition(Vector.ZERO);
-        unit.moveTo(new int[] {5, 5, 3});
+        unit.moveTo(new IntVector(5, 5, 3));
         advanceTimeFor(unit, 30, 0.1);
         assertIntegerPositionEquals(5, 5, 3, unit.getPosition().toIntVector().toIntArray());
     }
@@ -276,7 +277,7 @@ public class UnitTest {
     @Test
     public void testRestRegenStamina() throws Exception {
         unit.setPosition(Vector.ZERO);
-        unit.moveTo(new int[] {15, 15, 0});
+        unit.moveTo(new IntVector(15, 15, 0));
         unit.setSprint(true);
         advanceTimeFor(unit, 20, 0.1);
         double seconds = 8;

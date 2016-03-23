@@ -49,4 +49,11 @@ class RestActivity extends Activity {
     boolean canSwitch(Class<? extends Activity> newActivity) {
         return !initialRest;
     }
+
+    @Override
+    public void resume() {
+        this.restTimer = REST_DELAY;
+        this.initialRest = true;
+        this.restDiff = 0;
+    }
 }

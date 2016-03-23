@@ -21,4 +21,6 @@ abstract class Activity {
     boolean equalsClass(Class<? extends Activity> other) {
         return other.isAssignableFrom(this.getClass());
     }
+
+    public abstract void resume();
 }

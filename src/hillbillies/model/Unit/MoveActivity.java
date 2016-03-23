@@ -92,6 +92,11 @@ class MoveActivity extends Activity {
         return this.target != null;
     }
 
+    @Override
+    public void resume() {
+
+    }
+
     /**
      * Checks whether the unit has arrived at the target
      *

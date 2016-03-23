@@ -1,6 +1,7 @@
 package hillbillies.part1.facade;
 
 import hillbillies.model.Unit.Unit;
+import hillbillies.model.Vector.IntVector;
 import ogp.framework.util.ModelException;
 
 /**
@@ -154,7 +155,7 @@ public class Facade implements IFacade {
     @Override
     public void moveTo(Unit unit, int[] cube) throws ModelException {
         try {
-            unit.moveTo(cube);
+            unit.moveTo(new IntVector(cube));
         } catch (Exception err) {
             throw new ModelException(err.getMessage(), err);
         }
