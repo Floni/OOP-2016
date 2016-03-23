@@ -4,6 +4,7 @@ import hillbillies.model.Unit.Unit;
 import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
 import hillbillies.model.World;
+import hillbillies.part2.listener.TerrainChangeListener;
 import ogp.framework.util.ModelException;
 import ogp.framework.util.Util;
 import org.junit.After;
@@ -26,7 +27,8 @@ public class UnitTest {
     @Before
     public void setUp() throws Exception {
         // TODO: provide terrain & .. to world
-        this.world = new World(null, null);
+        this.world = new World(new int[][][]{{{0}}}, (x, y, z) -> {});
+
         this.unit = new Unit(world, "Timothy", 0, 0, 0, 50, 50, 50, 50);
     }
 

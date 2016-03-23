@@ -1,4 +1,4 @@
-package hillbillies.model;
+package hillbillies.tests.model;
 
 import hillbillies.model.Vector.Vector;
 import org.junit.Test;

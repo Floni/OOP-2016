@@ -1,6 +1,7 @@
-package hillbillies.model;
+package hillbillies.tests.model;
 
 import hillbillies.model.Vector.IntVector;
+import hillbillies.model.World;
 import org.junit.Before;
 import org.junit.Test;
 
