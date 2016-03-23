@@ -7,6 +7,7 @@ import java.util.Set;
 
 /**
  * Created by timo on 3/14/16.
+ *
  */
 public class Faction {
 

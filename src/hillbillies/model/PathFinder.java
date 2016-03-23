@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 
 /**
  * Created by timo on 3/17/16.
+ *
  */
 public class PathFinder<T> {
     public class PriorityData implements Comparable<PriorityData> {

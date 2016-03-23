@@ -2,6 +2,7 @@ package hillbillies.model.Unit;
 
 /**
  * Created by timo on 3/17/16.
+ * 
  */
 abstract class Activity {
     protected Unit unit;

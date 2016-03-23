@@ -4,6 +4,7 @@ import hillbillies.model.Vector.Vector;
 
 /**
  * Created by timo on 3/17/16.
+ *
  */
 class AttackActivity extends Activity {
     public static final double ATTACK_DELAY = 1;

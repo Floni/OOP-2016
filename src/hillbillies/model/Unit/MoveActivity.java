@@ -17,8 +17,6 @@ class MoveActivity extends Activity {
     private Vector targetNeighbour;
     protected Vector speed;
 
-    private Vector startPos;
-
     double sprintStaminaTimer;
     boolean sprinting;
 
@@ -150,8 +148,6 @@ class MoveActivity extends Activity {
 
     void updateTarget(Vector newTarget) throws IllegalArgumentException {
         this.target = newTarget;
-
-        startPos = unit.getPosition();
 
         this.path = unit.pathFinder.getPath(unit.getPosition().toIntVector(), newTarget.toIntVector());
         if (path == null || path.size() == 0)

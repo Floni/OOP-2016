@@ -1,7 +1,6 @@
 package hillbillies.model.Unit;
 
 import hillbillies.model.Vector.IntVector;
-import hillbillies.model.Vector.Vector;
 import hillbillies.model.World;
 
 import java.util.List;
