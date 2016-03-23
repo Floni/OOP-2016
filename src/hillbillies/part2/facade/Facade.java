@@ -37,7 +37,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
     public void advanceTime(World world, double dt) throws ModelException {
         try {
             world.advanceTime(dt);
-        } catch (Exception ex) {
+        } catch (IllegalArgumentException ex) {
             throw new ModelException(ex.getMessage(), ex);
         }
     }

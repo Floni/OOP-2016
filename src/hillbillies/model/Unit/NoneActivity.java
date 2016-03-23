@@ -25,14 +25,19 @@ class NoneActivity extends Activity {
             int random = (int)Math.floor(Math.random()*4);
             switch (random) {
                 case 3: // move
-                        IntVector randpos;
+                        IntVector randPos;
                         do {
-                            randpos = new IntVector(Math.random()*unit.world.X_MAX,
+                            randPos = new IntVector(Math.random()*unit.world.X_MAX,
                                     Math.random()*unit.world.Y_MAX,
                                     Math.random()*unit.world.Z_MAX);
                             // TODO: fix impossible to path
-                        } while (!unit.world.isValidPosition(randpos) || World.isSolid(unit.world.getCubeType(randpos)));
-                        unit.moveTo(randpos.toIntArray());
+                            if (unit.isValidPosition(randPos)) {
+                                try {
+                                    unit.moveTo(randPos.toIntArray());
+                                    break;
+                                } catch (IllegalArgumentException ignored) {}
+                            }
+                        } while (true);
                         break;
                 case 0: // work
                     List<IntVector> neighbours = World.getNeighbours(unit.getPosition().toIntVector())
@@ -46,8 +51,9 @@ class NoneActivity extends Activity {
                     Set<Unit> units = unit.world.getUnits();
                     for (Unit other : units) {
                         if (other.getFaction() != unit.getFaction()) {
-                            if (unit.canAttack(other)) {
+                            if (unit.canAttack(other) && !other.getCurrentActivity().equalsClass(FallActivity.class)) {
                                 unit.attack(other);
+                                break;
                             }
                         }
                     }

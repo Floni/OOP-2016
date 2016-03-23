@@ -17,6 +17,8 @@ class MoveActivity extends Activity {
     private Vector targetNeighbour;
     protected Vector speed;
 
+    private Vector startPos;
+
     double sprintStaminaTimer;
     boolean sprinting;
 
@@ -124,7 +126,7 @@ class MoveActivity extends Activity {
     private void moveToNeighbour(IntVector neighbour) throws IllegalArgumentException {
         this.targetNeighbour = neighbour.toVector().add(World.Lc/2);
 
-        if (!unit.isValidPosition(this.targetNeighbour))
+        if (!unit.isValidPosition(this.targetNeighbour.toIntVector()))
             throw new IllegalArgumentException("Illegal neighbour");
 
         this.speed = calculateSpeed(this.targetNeighbour);
@@ -144,10 +146,13 @@ class MoveActivity extends Activity {
     void updateTarget(Vector newTarget) throws IllegalArgumentException {
         this.target = newTarget;
 
-        this.path = unit.pathFinder.getPath(unit.getPosition().toIntVector(), newTarget.toIntVector());
-        if (path == null)
-            throw new IllegalArgumentException("Impossible to path!!");
+        startPos = unit.getPosition();
 
+        this.path = unit.pathFinder.getPath(unit.getPosition().toIntVector(), newTarget.toIntVector());
+        if (path == null || path.size() == 0)
+            throw new IllegalArgumentException("Impossible to path!!");
+        if (!unit.getPosition().subtract(unit.getPosition().toIntVector().toVector()).isEqualTo(new Vector(0.5, 0.5, 0.5), Unit.POS_EPS))
+            this.path.add(unit.getPosition().toIntVector());
         idx = path.size() - 1;
         goToNextNeighbour();
     }

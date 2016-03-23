@@ -31,7 +31,7 @@ public abstract class GameObject {
 
     public void advanceTime(double dt) {
         IntVector cubePos = getPosition().toIntVector();
-        if (!(cubePos.getZ() == 1 || World.isSolid(world.getCubeType(cubePos.add(0, 0, -1))))
+        if (!(cubePos.getZ() == 0 || World.isSolid(world.getCubeType(cubePos.add(0, 0, -1))))
                 || (getPosition().getZ() - Math.floor(getPosition().getZ())) > 0.5) {
             setPosition(getPosition().add(0, 0, FALL_SPEED * dt));
             falling = true;
