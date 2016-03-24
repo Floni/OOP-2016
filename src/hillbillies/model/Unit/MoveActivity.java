@@ -64,10 +64,9 @@ class MoveActivity extends Activity {
         if (isAtNeighbour(newPosition)) {
             unit.addXp(1);
             unit.setPosition(this.targetNeighbour);
-            if (!unit.pendingActivity.equalsClass(NoneActivity.class)) {
-                unit.currentActivity = unit.pendingActivity;
-                unit.pendingActivity = unit.NONE_ACTIVITY;
-                unit.lastActivity = this;
+            if (!unit.getPendingActivity().equalsClass(NoneActivity.class)) {
+                unit.clearPendingActivity();
+                unit.setLastActivity(this);
             } else if (this.target == null || isAtTarget()) {
                 unit.finishCurrentActivity();
             } else {
@@ -149,7 +148,7 @@ class MoveActivity extends Activity {
     void updateTarget(Vector newTarget) throws IllegalArgumentException {
         this.target = newTarget;
 
-        this.path = unit.pathFinder.getPath(unit.getPosition().toIntVector(), newTarget.toIntVector());
+        this.path = unit.getPathFinder().getPath(unit.getPosition().toIntVector(), newTarget.toIntVector());
         if (path == null || path.size() == 0)
             throw new IllegalArgumentException("Impossible to path!!");
         if (!unit.getPosition().subtract(unit.getPosition().toIntVector().toVector()).isEqualTo(new Vector(0.5, 0.5, 0.5), Unit.POS_EPS))

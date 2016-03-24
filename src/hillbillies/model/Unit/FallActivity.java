@@ -22,7 +22,7 @@ class FallActivity extends MoveActivity {
         Vector newPosition = unit.getPosition().add(this.speed.multiply(dt));
 
         IntVector newCube = newPosition.toIntVector();
-        if (newCube.getZ() == 0 || World.isSolid(unit.world.getCubeType(newCube.add(0, 0, -1)))) {
+        if (newCube.getZ() == 0 || World.isSolid(unit.getWorld().getCubeType(newCube.add(0, 0, -1)))) {
             int diffZ = target.toIntVector().substract(newCube).getZ();
             unit.deduceHitPoints(10*diffZ);
             unit.finishCurrentActivity();

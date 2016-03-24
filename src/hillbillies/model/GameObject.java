@@ -7,13 +7,13 @@ import hillbillies.model.Vector.Vector;
 public abstract class GameObject {
     private static final double FALL_SPEED = -3.0;
 
-    protected Vector position;
-    protected final int weight;
-    protected final World world;
-    protected boolean falling;
+    private Vector position;
+    private final int weight;
+    private final World world;
+    private boolean falling;
 
 
-    public GameObject(World world, IntVector location) {
+    protected GameObject(World world, IntVector location) {
         position = location.toVector().add(World.Lc/2);
         this.weight = (int)Math.round(Math.random()*41 + 10);
         this.world = world;

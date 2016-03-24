@@ -7,7 +7,7 @@ package hillbillies.model.Unit;
 abstract class Activity {
     protected Unit unit;
 
-    public Activity(Unit unit) {
+    protected Activity(Unit unit) {
         this.unit = unit;
     }
 
