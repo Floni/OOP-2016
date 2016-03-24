@@ -13,11 +13,12 @@ import java.util.stream.Stream;
  *
  * Names of students:
  *
- * Timothy Werquin      ingenieurswetenschappen (computerwetenschappen en elektrotechniek)
- * Florian Van Heghe    ingenieurswetenschappen (computerwetenschappen en elektrotechniek)
+ * Timothy Werquin      Ingenieurswetenschappen (Computerwetenschappen en Elektrotechniek)
+ * Florian Van Heghe    Ingenieurswetenschappen (Computerwetenschappen en Elektrotechniek)
  *
  * Link to git repository:
  * https://gitlab.com/timothyw/OOP-project
+ *
  */
 
 /**
@@ -34,14 +35,15 @@ import java.util.stream.Stream;
  *          | isValidStrength(this.getStrength())
  * @invar   The Agility of the unit must be valid.
  *          | isValidAgility(this.getAgility())
- * @invar   The Agility of the unit must be valid.
- *          | isValidAgility(this.getAgility())
  * @invar   The Toughness of the unit must be valid.
  *          | isValidToughness(this.getToughness())
  * @invar   The HitPoints must be valid.
  *          | canHaveAsHitPoints(this.getHitPoints())
  * @invar   The stamina must be valid.
  *          | canHaveAsStamina(this.getStamina())
+ * @invar   The unit must always be in a faction if the world is effective.
+ *          | if (getWorld() != null)
+ *          |   then (getFaction != null)
  */
 public class Unit {
 
@@ -144,6 +146,8 @@ public class Unit {
      * @post    Sets the hit points to their maximum value.
      *          | new.getHitPoints() == new.getMaxPoints()
      *          | && new.getStamina() == new.getMaxPoints()
+     * @post    Sets the current xp to 0.
+     *          | new.getXp == 0
      *
      * @effect  Set the name to the given name.
      *          | setName(name)
@@ -214,21 +218,47 @@ public class Unit {
         });
     }
 
+
+    /**
+     * Terminates the current unit.
+     *
+     * @post    The unit is not doing any activities.
+     *          | !isMoving() && !isWorking() && !isResting() && !isAttacking()
+     * @post    The unit's hit points will be 0.
+     *          | new.getHitPoints() == 0
+     * @post    The unit is not alive.
+     *          | new.isAlive() == False
+     * @post    The unit is removed from the world.
+     *          | !this.getWorld().getUnits().contains(this)
+     * @post    The unit's world will be set to null
+     *          | new.getWorld() == null
+     */
     private void terminate() {
         currentActivity = NONE_ACTIVITY;
         lastActivity = NONE_ACTIVITY;
         pendingActivity = NONE_ACTIVITY;
         this.setHitPoints(0);
         world.removeUnit(this);
+        setWorld(null);
     }
 
+    /**
+     * Sets the world of the unit.
+     *
+     * @param   world
+     *          The world to which the unit is added.
+     *
+     * @post    The unit's world will be set to the given world.
+     *          | new.getWorld() == world
+     */
+    @Raw
     public void setWorld(World world) {
         this.world = world;
     }
     //</editor-fold>
 
     //<editor-fold desc="advanceTime">
-    /**
+    /** TODO: this comment block
      * Updates the units state.
      *
      * @param   dt
@@ -306,19 +336,15 @@ public class Unit {
      * @pre     The unit must be able to switch to the new activity.
      *          | canHaveAsActivity(newActivity)
      *
-     * @post    If we are moving and the newActivity isn't moving or defending we set the pendingActivity.
-     *          Otherwise we set the currentActivity
-     *          | if this.isMoving() && newActivity != Unit.MOVE && newActivity != Unit.DEFEND
-     *          | then new.pendingActivity == newActivity
+     * @post    If we are moving and the newActivity is not MOVE, we set the pendingActivity.
+     *          Otherwise we set the currentActivity.
+     *          | if this.isMoving() && !newActivity.equalsClass(MoveActivity.class)
+     *          |   then new.pendingActivity == newActivity
      *          | else new.getCurrentActivity() == newActivity
      *
-     * @post    lastActivity is set to the current activity.
+     * @post    LastActivity is set to the current activity.
      *          | if this.getCurrentActivity() != newActivity
-     *          | then new.lastActivity == this.getCurrentActivity()
-     *
-     * @effect  If the unit is resting we reset the rest timers.
-     *          | if this.isResting()
-     *          | then this.resetRest()
+     *          |   then new.lastActivity == this.getCurrentActivity()
      */
     void setCurrentActivity(Activity newActivity) {
         assert currentActivity.canSwitch(newActivity.getClass());
@@ -326,7 +352,7 @@ public class Unit {
         if (!newActivity.equalsClass(currentActivity))
             this.lastActivity = getCurrentActivity();
 
-        if (isMoving() && !newActivity.getClass().equals(MoveActivity.class))
+        if (isMoving() && !newActivity.equalsClass(MoveActivity.class))
             this.pendingActivity = newActivity;
         else
             this.currentActivity = newActivity;
@@ -335,10 +361,13 @@ public class Unit {
     /**
      * Finishes the current activity.
      *
-     * @post    The new activity will be the last activity (for when interrupted).
+     * @post    The new activity will be the last activity (in case of an interruption).
      *          | new.getCurrentActivity() == this.lastActivity
      * @post    The lastActivity is set to None.
      *          | new.lastActivity == Unit.NONE
+     *
+     * @effect  The last activity will be resumed.
+     *          | this.lastActivity.resume()
      */
     void finishCurrentActivity() {
         this.currentActivity = this.lastActivity;
@@ -348,6 +377,19 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Position">
+
+    /**
+     * Check whether the cube is a stable position for unit's to be at.
+     *
+     * @param   cube
+     *          The cube to check.
+     *
+     * @return  True if the cube is next to a border of the world or if it has any solid neighbours.
+     *          | result == (cube.getX() == 0 || cube.getX() == world.X_MAX - 1 ||
+     *          |           cube.getY() == 0 || cube.getY() == world.Y_MAX - 1 ||
+     *          |           cube.getZ() == 0 || cube.getZ() == world.Z_MAX - 1 ||
+     *          |           World.getNeighbours(cube).anyMatch(p -> World.isSolid(world.getCubeType(p))))
+     */
     boolean isStablePosition(IntVector cube) {
         // next to edges or a neighbour is solid
         return  cube.getX() == 0 || cube.getX() == world.X_MAX - 1 || cube.getY() == 0 ||
@@ -363,8 +405,10 @@ public class Unit {
      * @param   cubePos
      *          The position to be checked
      *
-     * @return  True if the given position is within the boundaries of the world.
-     *          | result == ((x >= 0) && (x < X_MAX) && (y >= 0) && (y < Y_MAX) && (z >= 0) && (z < Z_MAX))
+     * @return  True if the given position is within the boundaries of the world and if it is not solid or
+     *          if the world is null.
+     *          | result == ((getWorld().isValidPosition(cubePos)) && (!World.isSolid(world.getCubeType(cubePos))) ||
+     *          |           (this.getWorld() == null)
      */
     public boolean isValidPosition(IntVector cubePos) {
         return world == null || (world.isValidPosition(cubePos) &&
@@ -378,8 +422,8 @@ public class Unit {
      * @param   position
      *          The position to be tested.
      *
-     * @return  True if the position is effective and the length is 3.
-     *          | result == position != null && position.length == 3
+     * @return  True if the position is effective.
+     *          | result == (position != null)
      */
     public static boolean isEffectivePosition(Vector position) {
         return position != null;
@@ -392,12 +436,11 @@ public class Unit {
      *          The new position for this unit.
      *
      * @post    The new position is equal to the given position.
-     *          | new.getPosition() == position.toDoubleArray()
      *          | new.getPosition() == position
      *
      * @throws  IllegalArgumentException
-     *          When the given position is not valid.
-     *          | !isValidPosition(position.toDoubleArray())
+     *          When the given position is not valid or not effective
+     *          | !isValidPosition(position) || !isEffectivePosition(position)
      */
     public void setPosition(Vector position) throws IllegalArgumentException {
         if (!isEffectivePosition(position) || !isValidPosition(position.toIntVector()))
@@ -478,12 +521,39 @@ public class Unit {
     }
 
     /**
-     * Returns the weight of the unit.
+     * Returns the weight of the unit with carry weight included.
+     *
+     * @return  Returns the total weight of the unit.
+     *          | result == getBasicWeight() + getCarryWeight()
+     */
+    public int getWeight() {
+        return getBasicWeight() + getCarryWeight();
+    }
+
+    /**
+     * Returns the weight of the unit without any carry weight.
      */
     @Basic
-    public int getWeight() {
-        return this.weight + (isCarryingBoulder() ? carryBoulder.getWeight() : (isCarryingLog() ? carryLog.getWeight() : 0));
+    public int getBasicWeight() {
+        return this.weight;
     }
+
+    /**
+     * Returns the weight of the gameObject which the unit is carrying.
+     *
+     * @return  Returns the weight which the unit is carrying.
+     *          | if (isCarryingBoulder())
+     *          |   then result == boulder.getWeight()
+     *          | else if (isCarryingLog())
+     *          |   then result == log.getWeight()
+     *          | else
+     *          |   result == 0
+     */
+    @Model
+    private int getCarryWeight() {
+        return (isCarryingBoulder() ? carryBoulder.getWeight() : (isCarryingLog() ? carryLog.getWeight() : 0));
+    }
+
 
     /**
      * Sets the units weight to the new weight.
@@ -492,16 +562,20 @@ public class Unit {
      *          The new weight.
      *
      * @post    If the weight is less then (strength+agility)/2, it's set to this value.
-     *          | if weight < (this.strength + this.agility)/2
-     *          | then new.getWeight() == (this.strength + this.agility)/2
+     *          | if weight < (this.getStrength + this.getAgility)/2
+     *          |   then new.getWeight() == (this.getStrength + this.getAgility)/2
+     *
      *          Otherwise if the weight is more then MAX_ATTRIBUTE, it's set to MAX_ATTRIBUTE.
-     *          | if weight > MAX_ATTRIBUTE
-     *          | then new.getWeight() == MAX_ATTRIBUTE
+     *          | else if weight > MAX_ATTRIBUTE
+     *          |   then new.getWeight() == MAX_ATTRIBUTE
+     *
      *          If the weight is still less than MIN_ATTRIBUTE, it's set to MIN_ATTRIBUTE.
-     *          | if weight < MIN_ATTRIBUTE
-     *          | then new.getWeight == min(1, (this.strength + this.agility)/2)
+     *          | else if weight < MIN_ATTRIBUTE
+     *          |   then new.getWeight == min(1, (this.getStrength + this.getAgility)/2)
+     *
      *          Otherwise the weight is set to the given weight.
-     *          | else new.getWeight() == weight
+     *          | else
+     *          |   new.getWeight() == weight
      */
     @Model
     public void setWeight(int weight) {
@@ -509,7 +583,7 @@ public class Unit {
             weight = MIN_ATTRIBUTE;
         else if (weight > MAX_ATTRIBUTE)
             weight = MAX_ATTRIBUTE;
-        int min = (strength + agility) / 2;
+        int min = (this.getStrength() + this.getAgility()) / 2;
         if (weight < min)
             weight = min;
         this.weight = weight;
@@ -547,16 +621,21 @@ public class Unit {
      *
      * @post    If the given strength is less than MIN_ATTRIBUTE, the new strength is MIN_ATTRIBUTE.
      *          | if strength < MIN_ATTRIBUTE
-     *          | then new.getStrength() == MIN_ATTRIBUTE
+     *          |   then new.getStrength() == MIN_ATTRIBUTE
+     *
      *          If the given strength is more then MAX_ATTRIBUTE, the new strength is MAX_ATTRIBUTE.
      *          | else if strength > MAX_ATTRIBUTE
-     *          | then new.getStrength() == MAX_ATTRIBUTE
+     *          |   then new.getStrength() == MAX_ATTRIBUTE
+     *
      *          Otherwise the new strength is the given strength
-     *          | else new.getStrength() == strength
+     *          | else
+     *          |   new.getStrength() == strength
+     *
      * @post    The weight is adapted to match the new strength.
      *          | if this.getWeight < (strength + this.agility)/2
-     *          | then new.getWeight() == (strength + this.agility)/2
-     *          | else new.getWeight() == this.getWeight()
+     *          |   then new.getWeight() == (strength + this.agility)/2
+     *          | else
+     *          |   new.getWeight() == this.getWeight()
      */
     @Raw
     public void setStrength(int strength) {
@@ -601,16 +680,21 @@ public class Unit {
      *
      * @post    If the given agility is less then MIN_ATTRIBUTE, the new agility is MIN_ATTRIBUTE.
      *          | if agility < MIN_ATTRIBUTE
-     *          | then new.getAgility() == MIN_ATTRIBUTE
+     *          |   then new.getAgility() == MIN_ATTRIBUTE
+     *
      *          If the given agility is more then MAX_ATTRIBUTE, the new agility is MAX_ATTRIBUTE.
      *          | else if agility > MAX_ATTRIBUTE
-     *          | then new.getAgility() == MAX_ATTRIBUTE
+     *          |   then new.getAgility() == MAX_ATTRIBUTE
+     *
      *          Otherwise the new agility is the given agility.
-     *          | else new.getAgility() == agility
+     *          | else
+     *          |   new.getAgility() == agility
+     *
      * @post    The weight is adapted to match the new agility.
      *          | if this.getWeight < (this.strength + agility)/2
-     *          | then new.getWeight() == (this.strength + agility)/2
-     *          | else new.getWeight() == this.getWeight()
+     *          |   then new.getWeight() == (this.strength + agility)/2
+     *          | else
+     *          |   new.getWeight() == this.getWeight()
      */
     @Raw
     public void setAgility(int agility) {
@@ -655,12 +739,13 @@ public class Unit {
      *
      * @post    If the given toughness is less then MIN_ATTRIBUTE, the new toughness is MIN_ATTRIBUTE.
      *          | if toughness < MIN_ATTRIBUTE
-     *          | then new.getToughness() == MIN_ATTRIBUTE
+     *          |   then new.getToughness() == MIN_ATTRIBUTE
      *          If the given toughness is more then MAX_ATTRIBUTE, the new toughness is MAX_ATTRIBUTE.
      *          | else if toughness > MAX_ATTRIBUTE
-     *          | then new.getToughness() == MAX_ATTRIBUTE
+     *          |   then new.getToughness() == MAX_ATTRIBUTE
      *          Otherwise the new toughness is the given toughness.
-     *          | else new.getToughness() == toughness
+     *          | else
+     *          |   new.getToughness() == toughness
      */
     @Raw
     public void setToughness(int toughness) {
@@ -725,7 +810,10 @@ public class Unit {
      *          | if ( (old.getHitPoints() - hitPoints) > 0 )
      *          |   then new.getHitPoints ()== old.getHitPoints() - hitPoints
      *          | else
-     *          |   new.getHitPoints() == 0
+     *          |   this.terminate()
+     *
+     * @effect  If the units hp hits 0 or goes below zero the unit will be terminated
+     *          | this.terminate()
      */
     @Model
     void deduceHitPoints(int hitPoints)  {
@@ -737,9 +825,17 @@ public class Unit {
         }
     }
 
+
+    /**
+     * Returns whether the unit is alive.
+     *
+     * @return  Returns true if the unit's hp is greater than 0.
+     *          | result == this.getHitPoints() > 0
+     */
     public boolean isAlive() {
         return (this.getHitPoints() > 0);
     }
+
 
     /**
      * Returns whether the stamina is valid.
@@ -804,7 +900,7 @@ public class Unit {
      *          The orientation to be verified.
      *
      * @return  Returns true if the orientation is equal to or larger than 0
-     *          and smaller than 2*PI
+     *          and smaller than 2*PI.
      *          | result == (orientation < 2*Math.PI) && (orientation >= 0)
      */
     @SuppressWarnings("unused")
@@ -844,6 +940,7 @@ public class Unit {
         return currentActivity.equalsClass(MoveActivity.class);
     }
 
+    //  TODO: all comments from here
 
     /**
      * Starts the unit moving towards one of the adjacent cubes.

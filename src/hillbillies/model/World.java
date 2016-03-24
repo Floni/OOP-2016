@@ -14,10 +14,6 @@ import java.util.stream.Stream;
  * Created by timo on 3/14/16.
  *
  */
-/**
- * TODO:
- *  - Only use Vector and IntVector
- */
 public class World {
     private static class Cube {
         public Cube(int type) {

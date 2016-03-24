@@ -3,6 +3,7 @@ package hillbillies.model;
 
 import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
+import jdk.nashorn.internal.ir.annotations.Immutable;
 
 public abstract class GameObject {
     private static final double FALL_SPEED = -3.0;
@@ -49,6 +50,7 @@ public abstract class GameObject {
         this.position = pos;
     }
 
+    @Immutable
     public int getWeight() {
         return this.weight;
     }
