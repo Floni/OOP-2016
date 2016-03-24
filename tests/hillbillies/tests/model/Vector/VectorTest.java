@@ -35,9 +35,9 @@ public class VectorTest {
         Vector a = new Vector(1, 2, 3);
         Vector c = new Vector(1, 2, 3);
         Vector b = new Vector(4, 5, 6);
-        assertTrue(a.equals(c));
-        assertFalse(a.equals(null));
-        assertFalse(a.equals(b));
+        assertEquals(a, c);
+        assertNotEquals(a, null);
+        assertNotEquals(a, b);
     }
 
     @Test
