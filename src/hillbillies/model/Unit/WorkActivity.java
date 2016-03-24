@@ -34,30 +34,30 @@ class WorkActivity extends Activity {
 
     private void finishWork() {
         if (unit.isCarryingLog() || unit.isCarryingBoulder()){ //BOULDER OR LOG
-            if (!World.isSolid(unit.world.getCubeType(location))) {
+            if (!World.isSolid(unit.getWorld().getCubeType(location))) {
                 unit.dropCarry(location);
                 unit.addXp(10);
             }
-        } else if (unit.world.getCubeType(location) == World.WORKSHOP && unit.world.getLogs(location).size() >= 1 &&
-                unit.world.getBoulders(location).size() >= 1) {
+        } else if (unit.getWorld().getCubeType(location) == World.WORKSHOP && unit.getWorld().getLogs(location).size() >= 1 &&
+                unit.getWorld().getBoulders(location).size() >= 1) {
 
-            unit.world.consumeBoulder(location);
-            unit.world.consumeLog(location);
+            unit.getWorld().consumeBoulder(location);
+            unit.getWorld().consumeLog(location);
 
             unit.setWeight(unit.getWeight() + 1);
             unit.setToughness(unit.getToughness() + 1);
             unit.addXp(10);
-        } else if (unit.world.getBoulders(location).size() >= 1) {
-            unit.pickUpBoulder(unit.world.getBoulders(location).iterator().next());
+        } else if (unit.getWorld().getBoulders(location).size() >= 1) {
+            unit.pickUpBoulder(unit.getWorld().getBoulders(location).iterator().next());
             unit.addXp(10);
-        } else if (unit.world.getLogs(location).size() >= 1) {
-            unit.pickUpLog(unit.world.getLogs(location).iterator().next());
+        } else if (unit.getWorld().getLogs(location).size() >= 1) {
+            unit.pickUpLog(unit.getWorld().getLogs(location).iterator().next());
             unit.addXp(10);
-        } else if (unit.world.getCubeType(location) == World.TREE) {
-            unit.world.breakCube(location);
+        } else if (unit.getWorld().getCubeType(location) == World.TREE) {
+            unit.getWorld().breakCube(location);
             unit.addXp(10);
-        } else if (unit.world.getCubeType(location) == World.ROCK) {
-            unit.world.breakCube(location);
+        } else if (unit.getWorld().getCubeType(location) == World.ROCK) {
+            unit.getWorld().breakCube(location);
             unit.addXp(10);
         }
     }

@@ -71,18 +71,18 @@ public class Unit {
     private int hitPoints, stamina;
     private int xp, xpDiff;
 
-    Activity currentActivity = NONE_ACTIVITY;
-    Activity lastActivity = NONE_ACTIVITY;
-    Activity pendingActivity = NONE_ACTIVITY;
+    private Activity currentActivity = NONE_ACTIVITY;
+    private Activity lastActivity = NONE_ACTIVITY;
+    private Activity pendingActivity = NONE_ACTIVITY;
 
     private double restMinuteTimer;
 
     private boolean defaultEnabled;
 
     private Faction faction;
-    World world;
+    private World world;
 
-    PathFinder<IntVector> pathFinder;
+    private PathFinder<IntVector> pathFinder;
 
     private Log carryLog;
     private Boulder carryBoulder;
@@ -255,6 +255,15 @@ public class Unit {
     public void setWorld(World world) {
         this.world = world;
     }
+
+    @Basic
+    World getWorld() {
+        return this.world;
+    }
+
+    public PathFinder<IntVector> getPathFinder() {
+        return pathFinder;
+    }
     //</editor-fold>
 
     //<editor-fold desc="advanceTime">
@@ -373,6 +382,44 @@ public class Unit {
         this.currentActivity = this.lastActivity;
         this.currentActivity.resume();
         this.lastActivity = NONE_ACTIVITY;
+    }
+
+
+    /**
+     * Returns the last activity.
+     */
+    @Basic
+    Activity getLastActivity() {
+        return lastActivity;
+    }
+
+    /**
+     * Sets the last Activity.
+     *
+     * @param   lastActivity
+     *          The last activity to be set.
+     */
+    void setLastActivity(Activity lastActivity) {
+        this.lastActivity = lastActivity;
+    }
+
+    /**
+     * Returns the pending activity to be completed while moving.
+     */
+    @Basic
+    Activity getPendingActivity() {
+        return this.pendingActivity;
+    }
+
+    /**
+     * @post    The currentActivity becomes the pendingActivity
+     *          | new.getCurrentActivity() == this.getPendingActivity()
+     * @post    The pendingActivity is set to None
+     *          | new.getPendingActivity().equalsClass(NoneActivity.class)
+     */
+    void clearPendingActivity() {
+        this.currentActivity = this.pendingActivity;
+        this.pendingActivity = NONE_ACTIVITY;
     }
     //</editor-fold>
 

@@ -18,7 +18,7 @@ class NoneActivity extends Activity {
 
     @Override
     void advanceTime(double dt) {
-        if (!unit.lastActivity.equalsClass(NoneActivity.class)) {
+        if (!unit.getLastActivity().equalsClass(NoneActivity.class)) {
             unit.finishCurrentActivity(); // we still have an interrupted activity
         } else if (unit.isDefaultEnabled()) {
             int random = (int)Math.floor(Math.random()*4);
@@ -26,9 +26,9 @@ class NoneActivity extends Activity {
                 case 3: // move
                         IntVector randPos;
                         do {
-                            randPos = new IntVector(Math.random()*unit.world.X_MAX,
-                                    Math.random()*unit.world.Y_MAX,
-                                    Math.random()*unit.world.Z_MAX);
+                            randPos = new IntVector(Math.random()*unit.getWorld().X_MAX,
+                                    Math.random()*unit.getWorld().Y_MAX,
+                                    Math.random()*unit.getWorld().Z_MAX);
                             if (unit.isValidPosition(randPos)) {
                                 try {
                                     unit.moveTo(randPos);
@@ -39,14 +39,14 @@ class NoneActivity extends Activity {
                         break;
                 case 0: // work
                     List<IntVector> neighbours = World.getNeighbours(unit.getPosition().toIntVector())
-                            .filter(v -> unit.world.isValidPosition(v)).collect(Collectors.toList());
+                            .filter(v -> unit.getWorld().isValidPosition(v)).collect(Collectors.toList());
                     unit.workAt(neighbours.get((int)(Math.random() * neighbours.size())));
                     break;
                 case 1: // rest
                     unit.rest();
                     break;
                 case 2: //attack
-                    Set<Unit> units = unit.world.getUnits();
+                    Set<Unit> units = unit.getWorld().getUnits();
                     for (Unit other : units) {
                         if (other.getFaction() != unit.getFaction()) {
                             if (unit.canAttack(other) && !other.getCurrentActivity().equalsClass(FallActivity.class)) {
