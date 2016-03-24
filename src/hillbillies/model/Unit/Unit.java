@@ -1029,10 +1029,10 @@ public class Unit {
 
     void dropCarry(IntVector workLoc) {
         if (isCarryingLog()) {
-            world.addLog(workLoc, carryLog);
+            world.addGameObject(workLoc, carryLog);
             carryLog = null;
         } else if (isCarryingBoulder()) {
-            world.addBoulder(workLoc, carryBoulder);
+            world.addGameObject(workLoc, carryBoulder);
             carryBoulder = null;
         }
     }

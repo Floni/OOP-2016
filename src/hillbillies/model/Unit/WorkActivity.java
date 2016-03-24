@@ -40,8 +40,10 @@ class WorkActivity extends Activity {
             }
         } else if (unit.world.getCubeType(location) == World.WORKSHOP && unit.world.getLogs(location).size() >= 1 &&
                 unit.world.getBoulders(location).size() >= 1) {
+
             unit.world.consumeBoulder(location);
             unit.world.consumeLog(location);
+
             unit.setWeight(unit.getWeight() + 1);
             unit.setToughness(unit.getToughness() + 1);
             unit.addXp(10);

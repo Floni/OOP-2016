@@ -25,7 +25,7 @@ public abstract class GameObject {
         return this.position;
     }
 
-    private void terminate() {
+    void terminate() {
 
     }
 

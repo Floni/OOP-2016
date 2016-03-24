@@ -22,12 +22,10 @@ public class World {
     private static class Cube {
         public Cube(int type) {
             this.type = type;
-            this.logs = new HashSet<>();
-            this.boulders = new HashSet<>();
+            this.gameObjects = new HashSet<>();
         }
         public int type;
-        public Set<Log> logs;
-        public Set<Boulder> boulders;
+        public Set<GameObject> gameObjects;
 
     }
 
@@ -54,8 +52,7 @@ public class World {
 
     private int totalUnits;
     private Set<Faction> factions;
-    private Set<Log> logs;
-    private Set<Boulder> boulders;
+    private Set<GameObject> gameObjects;
 
     private ConnectedToBorder connectedToBorder;
     //</editor-fold>
@@ -73,8 +70,7 @@ public class World {
         connectedToBorder = new ConnectedToBorder(X_MAX, Y_MAX, Z_MAX);
 
         this.factions = new HashSet<>();
-        this.logs = new HashSet<>();
-        this.boulders = new HashSet<>();
+        this.gameObjects = new HashSet<>();
 
         Set<IntVector> startCaveIn = new HashSet<>();
 
@@ -155,9 +151,9 @@ public class World {
     private void dropChance(IntVector location, int type) {
         if (Math.random() < 0.25) {
             if (type == World.ROCK) {
-                addBoulder(location, new Boulder(this, location));
+                addGameObject(location, new Boulder(this, location));
             } else if (type == World.TREE) {
-                addLog(location, new Log(this, location));
+                addGameObject(location, new Log(this, location));
             }
         }
     }
@@ -170,74 +166,60 @@ public class World {
     //</editor-fold>
 
     //<editor-fold desc="Logs and Boulders">
+    //TODO: return stream?
     public  Set<Log> getLogs() {
-        return this.logs;
+        return this.gameObjects.stream().filter(o -> o instanceof Log)
+                .map(Log.class::cast).collect(Collectors.toSet());
     }
 
     public Set<Boulder> getBoulders() {
-        return this.boulders;
+        return this.gameObjects.stream().filter(o -> o instanceof Boulder)
+                .map(Boulder.class::cast).collect(Collectors.toSet());
     }
 
     public Set<Log> getLogs(IntVector cubeLoc) {
         Cube cube = getCube(cubeLoc);
-        return new HashSet<>(cube.logs);
+        return cube.gameObjects.stream().filter(o -> o instanceof Log)
+                .map(Log.class::cast).collect(Collectors.toSet());
     }
 
     public Set<Boulder> getBoulders(IntVector cubeLoc) {
         Cube cube = getCube(cubeLoc);
-        return new HashSet<>(cube.boulders);
+        return cube.gameObjects.stream().filter(o -> o instanceof Boulder)
+                .map(Boulder.class::cast).collect(Collectors.toSet());
     }
 
-    public void addLog(IntVector cubeLoc, Log log) {
-        log.setPosition(cubeLoc.toVector().add(Lc/2));
+    public void addGameObject(IntVector cubeLoc, GameObject gameObject) {
+        gameObject.setPosition(cubeLoc.toVector().add(Lc/2));
         Cube cube = getCube(cubeLoc);
-        logs.add(log);
-        cube.logs.add(log);
-    }
-
-    public void addBoulder(IntVector cubeLoc, Boulder boulder) {
-        boulder.setPosition(cubeLoc.toVector().add(Lc/2));
-        Cube cube = getCube(cubeLoc);
-        boulders.add(boulder);
-        cube.boulders.add(boulder);
+        gameObjects.add(gameObject);
+        cube.gameObjects.add(gameObject);
     }
 
     public void consumeLog(IntVector cubeLoc) {
-        Cube cube = getCube(cubeLoc);
-        if (cube.logs.size() >= 1)
-            removeGameObject(cube.logs.iterator().next());
+        Set<Log> cubeLogs = getLogs(cubeLoc);
+        if (cubeLogs.size() >= 1)
+            removeGameObject(cubeLogs.iterator().next());
     }
 
     public void consumeBoulder(IntVector cubeLoc) {
-        Cube cube = getCube(cubeLoc);
-        if (cube.boulders.size() >= 1)
-            removeGameObject(cube.boulders.iterator().next());
+        Set<Boulder> boulders = getBoulders(cubeLoc);
+        if (boulders.size() >= 1)
+            removeGameObject(boulders.iterator().next());
     }
 
     public void removeGameObject (GameObject object) {
         removeCubeObject(object);
-        if (object.getClass().equals(Log.class)) {
-            logs.remove(object);
-        } else if (object.getClass().equals(Boulder.class)) {
-            boulders.remove(object);
-        }
+        gameObjects.remove(object);
         object.terminate();
     }
 
     public void removeCubeObject(GameObject object) {
-        if (object.getClass().equals(Log.class)) {
-            getCube(object.getPosition().toIntVector()).logs.remove(object);
-        } else if (object.getClass().equals(Boulder.class)) {
-            getCube(object.getPosition().toIntVector()).boulders.remove(object);
-        }
+        getCube(object.getPosition().toIntVector()).gameObjects.remove(object);
     }
 
     public void addCubeObject(GameObject object) {
-        if (object.getClass().equals(Log.class)) {
-            getCube(object.getPosition().toIntVector()).logs.add((Log)object);
-        } else if (object.getClass().equals(Boulder.class)) {
-            getCube(object.getPosition().toIntVector()).boulders.add((Boulder)object);
-        }
+        getCube(object.getPosition().toIntVector()).gameObjects.add(object);
     }
     //</editor-fold>
 
