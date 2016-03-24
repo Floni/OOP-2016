@@ -1,4 +1,4 @@
-package hillbillies.tests.model;
+package hillbillies.tests.model.Vector;
 
 import hillbillies.model.Vector.Vector;
 import org.junit.Test;
@@ -38,5 +38,80 @@ public class VectorTest {
         assertTrue(a.equals(c));
         assertFalse(a.equals(null));
         assertFalse(a.equals(b));
+    }
+
+    @Test
+    public void testMultiply() throws Exception {
+
+    }
+
+    @Test
+    public void testDivide() throws Exception {
+
+    }
+
+    @Test
+    public void testAdd() throws Exception {
+
+    }
+
+    @Test
+    public void testAdd1() throws Exception {
+
+    }
+
+    @Test
+    public void testAdd2() throws Exception {
+
+    }
+
+    @Test
+    public void testSubtract() throws Exception {
+
+    }
+
+    @Test
+    public void testDot() throws Exception {
+
+    }
+
+    @Test
+    public void testNorm() throws Exception {
+
+    }
+
+    @Test
+    public void testIsEqualTo() throws Exception {
+
+    }
+
+    @Test
+    public void testToDoubleArray() throws Exception {
+
+    }
+
+    @Test
+    public void testToIntVector() throws Exception {
+
+    }
+
+    @Test
+    public void testGetX() throws Exception {
+
+    }
+
+    @Test
+    public void testGetY() throws Exception {
+
+    }
+
+    @Test
+    public void testGetZ() throws Exception {
+
+    }
+
+    @Test
+    public void testToString() throws Exception {
+
     }
 }

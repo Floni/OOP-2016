@@ -1,11 +1,11 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="VectorTests" type="JUnit" factoryName="JUnit">
+  <configuration default="false" name="ProvidedTestsPart1" type="JUnit" factoryName="JUnit">
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
     <module name="OGP1516-Hillbillies" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" />
-    <option name="PACKAGE_NAME" value="hillbillies.tests.model.Vector" />
-    <option name="MAIN_CLASS_NAME" value="hillbillies.tests.model.Vector.VectorTest" />
+    <option name="PACKAGE_NAME" value="hillbillies.tests.facade" />
+    <option name="MAIN_CLASS_NAME" value="hillbillies.tests.facade.Part1TestPartial" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="class" />
     <option name="VM_PARAMETERS" value="-ea" />

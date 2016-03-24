@@ -281,6 +281,7 @@ public class World {
     }
 
     public void addUnit(Unit unit) {
+        unit.setWorld(this);
         if (factions.size() < 5) {
             Faction newFaction = addFaction();
             unit.setFaction(newFaction);

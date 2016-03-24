@@ -155,7 +155,7 @@ public class Unit {
     @Raw
     public Unit(World world, String name, int x, int y, int z, int weight, int strength, int agility, int toughness)
             throws IllegalArgumentException {
-        this.world = world;
+        setWorld(world);
         setName(name);
         Vector position = new Vector(x, y, z).add(World.Lc/2);
         setPosition(position);
@@ -220,6 +220,10 @@ public class Unit {
         pendingActivity = NONE_ACTIVITY;
         this.setHitPoints(0);
         world.removeUnit(this);
+    }
+
+    public void setWorld(World world) {
+        this.world = world;
     }
     //</editor-fold>
 
@@ -363,8 +367,8 @@ public class Unit {
      *          | result == ((x >= 0) && (x < X_MAX) && (y >= 0) && (y < Y_MAX) && (z >= 0) && (z < Z_MAX))
      */
     public boolean isValidPosition(IntVector cubePos) {
-        return world.isValidPosition(cubePos) &&
-                !World.isSolid(world.getCubeType(cubePos));
+        return world == null || (world.isValidPosition(cubePos) &&
+                !World.isSolid(world.getCubeType(cubePos)));
     }
 
 
