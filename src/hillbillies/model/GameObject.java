@@ -1,9 +1,9 @@
 package hillbillies.model;
 
 
+import be.kuleuven.cs.som.annotate.Immutable;
 import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
-import jdk.nashorn.internal.ir.annotations.Immutable;
 
 public abstract class GameObject {
     private static final double FALL_SPEED = -3.0;
