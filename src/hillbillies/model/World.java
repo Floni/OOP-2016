@@ -20,12 +20,12 @@ import java.util.stream.Stream;
  */
 public class World {
     private static class Cube {
-        public Cube(int type) {
+        Cube(int type) {
             this.type = type;
             this.gameObjects = new HashSet<>();
         }
         public int type;
-        public Set<GameObject> gameObjects;
+        Set<GameObject> gameObjects;
 
     }
 
@@ -37,8 +37,8 @@ public class World {
     public static final int TREE = 2;
 
     public static final double Lc = 1.0;
-    public static final int MAX_UNITS = 100;
-    public static final int MAX_FACTION_SIZE = 50;
+    private static final int MAX_UNITS = 100;
+    private static final int MAX_FACTION_SIZE = 50;
     //</editor-fold>
 
     //<editor-fold desc="Variables">
@@ -114,38 +114,36 @@ public class World {
                 && pos.getY() < Y_MAX && pos.getZ() >= 0 && pos.getZ() < Z_MAX;
     }
 
+    //<editor-fold desc="Cubes">
     public static boolean isSolid(int type) {
         return type == ROCK || type == TREE;
     }
 
-    //<editor-fold desc="Cubes">
-    private Cube getCube(IntVector cubeLoc) {
+    private Cube getCube(IntVector cubeLoc) throws IllegalArgumentException {
+        if (!isValidPosition(cubeLoc))
+            throw new IllegalArgumentException("invalid position");
         return cubes[cubeLoc.getX()][cubeLoc.getY()][cubeLoc.getZ()];
     }
 
-    public boolean isCubeConnected(int x, int y, int z) {
-        return connectedToBorder.isSolidConnectedToBorder(x, y, z);
+    public boolean isCubeConnected(IntVector pos) throws IllegalArgumentException {
+        if (!isValidPosition(pos))
+            throw new IllegalArgumentException("invalid position");
+        return connectedToBorder.isSolidConnectedToBorder(pos.getX(), pos.getY(), pos.getZ());
     }
 
-    public int getCubeType(int x, int y, int z) {
-         return cubes[x][y][z].type;
-    }
-    public int getCubeType(IntVector cube) {
-         return getCubeType(cube.getX(), cube.getY(), cube.getZ());
+    public int getCubeType(IntVector cube) throws IllegalArgumentException {
+         return getCube(cube).type;
     }
 
-    public void setCubeType(int x, int y, int z, int type) {
-        if (isSolid(getCubeType(x, y, z)) && !isSolid(type)) {
-            for (int[] coord : connectedToBorder.changeSolidToPassable(x, y, z)) {
+    public void setCubeType(IntVector pos, int type) {
+        if (isSolid(getCubeType(pos)) && !isSolid(type)) {
+            for (int[] coord : connectedToBorder.changeSolidToPassable(pos.getX(), pos.getY(), pos.getZ())) {
                 breakCube(new IntVector(coord));
                 updateListener.notifyTerrainChanged(coord[0], coord[1], coord[2]);
             }
         }
-        cubes[x][y][z].type = type;
-        updateListener.notifyTerrainChanged(x, y, z);
-    }
-    public void setCubeType(IntVector cube, int type) {
-        setCubeType(cube.getX(), cube.getY(), cube.getZ(), type);
+        cubes[pos.getX()][pos.getY()][pos.getZ()].type = type;
+        updateListener.notifyTerrainChanged(pos.getX(), pos.getY(), pos.getZ());
     }
 
     private void dropChance(IntVector location, int type) {
@@ -245,7 +243,7 @@ public class World {
 
     public Unit spawnUnit(boolean defaultBehaviour) {
         if (totalUnits >= MAX_UNITS)
-            return null; // silently reject?
+            return null; // TODO: return dead unit
 
         IntVector randPos;
         do {
@@ -301,12 +299,12 @@ public class World {
             { 0, 0, -1 },
             { 0, 0, +1 },
 
-            { -1, -1, -1 },
+            { -1, -1, -1},
             { -1, -1, 0 },
             { -1, 0, -1 },
             { 0, -1, -1 },
 
-            { +1, +1, +1 },
+            { +1, +1, +1},
             { +1, +1, 0 },
             { +1, 0, +1 },
             { 0, +1, +1 },

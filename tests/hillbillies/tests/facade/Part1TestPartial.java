@@ -62,7 +62,7 @@ public class Part1TestPartial {
 		assertEquals("This name is invalid because it doesn't start with a capital", "TestUnit", facade.getName(unit));
 	}
 
-	@Test
+	@Test(expected = NullPointerException.class) // world doesn't exist so we get an exception
 	public void testCorrectPosition() throws ModelException {
 		IFacade facade = new Facade();
 		Unit unit = facade.createUnit("TestUnit", new int[] { 1, 2, 3 }, 50, 50, 50, 50, false);

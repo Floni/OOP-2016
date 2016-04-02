@@ -10,7 +10,7 @@ import ogp.framework.util.ModelException;
 import java.util.Set;
 
 /**
- * Created by timo on 3/14/16.
+ * Facade
  */
 public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
     @Override
@@ -44,17 +44,17 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public int getCubeType(World world, int x, int y, int z) throws ModelException {
-        return world.getCubeType(x, y, z);
+        return world.getCubeType(new IntVector(x, y, z));
     }
 
     @Override
     public void setCubeType(World world, int x, int y, int z, int value) throws ModelException {
-        world.setCubeType(x, y, z, value);
+        world.setCubeType(new IntVector(x, y, z), value);
     }
 
     @Override
     public boolean isSolidConnectedToBorder(World world, int x, int y, int z) throws ModelException {
-        return world.isCubeConnected(x, y, z);
+        return world.isCubeConnected(new IntVector(x, y, z));
     }
 
     @Override
