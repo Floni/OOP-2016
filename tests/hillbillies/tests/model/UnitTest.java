@@ -27,7 +27,6 @@ public class UnitTest {
 
     @Before
     public void setUp() throws Exception {
-        // TODO: provide terrain & .. to world
         this.world = new World(new int[50][50][2], (x, y, z) -> {});
 
         this.unit = new Unit(world, "Timothy", 0, 0, 0, 50, 50, 50, 50);
