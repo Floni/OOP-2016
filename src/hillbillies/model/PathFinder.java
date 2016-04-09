@@ -39,6 +39,10 @@ public class PathFinder<T> {
 
     private PathGlue<T> glue;
 
+    /**
+     *
+     * @param glue
+     */
     public PathFinder(PathGlue<T> glue) {
         this.glue = glue;
     }

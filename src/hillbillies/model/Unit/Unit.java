@@ -450,7 +450,7 @@ public class Unit {
      *          |           cube.getZ() == 0 || cube.getZ() == world.Z_MAX - 1 ||
      *          |           World.getNeighbours(cube).anyMatch(p -> World.isSolid(world.getCubeType(p))))
      */
-    private boolean isStablePosition(IntVector cube) {
+    boolean isStablePosition(IntVector cube) {
         // next to edges or a neighbour is solid
         return  cube.getX() == 0 || cube.getX() == world.X_MAX - 1 || cube.getY() == 0 ||
                 cube.getY() == world.Y_MAX - 1 || cube.getZ() == 0 || cube.getZ() == world.Z_MAX - 1 ||

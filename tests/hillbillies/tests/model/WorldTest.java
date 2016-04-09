@@ -221,6 +221,7 @@ public class WorldTest {
             assertTrue(unit.isAlive());
         }
         assertEquals(100, world.getUnits().size());
+        assertEquals(5, world.getFactions().size());
     }
 
         @Test

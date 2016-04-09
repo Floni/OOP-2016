@@ -133,6 +133,11 @@ class MoveActivity extends Activity {
      *          | moveToNeighbour(path.get(idx))
      */
     private void goToNextNeighbour() {
+        IntVector next = path.get(idx);
+        if (!unit.isStablePosition(next) || !unit.isValidPosition(next)) {
+            this.updateTarget(this.target); // recalc path
+            return;
+        }
         moveToNeighbour(path.get(idx));
         idx -= 1;
     }
@@ -196,7 +201,8 @@ class MoveActivity extends Activity {
     private void moveToNeighbour(IntVector neighbour) throws IllegalArgumentException {
         this.targetNeighbour = neighbour.toVector().add(World.Lc/2);
 
-        if (!unit.isValidPosition(this.targetNeighbour.toIntVector()))
+        if (!unit.isStablePosition(this.targetNeighbour.toIntVector()) ||
+                !unit.isValidPosition(this.targetNeighbour.toIntVector()))
             throw new IllegalArgumentException("Illegal neighbour");
 
         this.speed = calculateSpeed(this.targetNeighbour);
@@ -252,8 +258,10 @@ class MoveActivity extends Activity {
         this.target = newTarget;
 
         this.path = unit.getPathFinder().getPath(unit.getPosition().toIntVector(), newTarget.toIntVector());
-        if (path == null || path.size() == 0)
+        if (path == null || path.size() == 0) {
+            unit.finishCurrentActivity();
             throw new IllegalArgumentException("Impossible to path!!");
+        }
         if (!unit.getPosition().subtract(unit.getPosition().toIntVector().toVector()).isEqualTo(new Vector(0.5, 0.5, 0.5), Unit.POS_EPS))
             this.path.add(unit.getPosition().toIntVector());
         idx = path.size() - 1;

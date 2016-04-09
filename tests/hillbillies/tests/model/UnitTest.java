@@ -364,4 +364,28 @@ public class UnitTest {
         unit.setFaction(test);
         assertEquals(test, unit.getFaction());
     }
+
+    @Test
+    public void testFalling() throws Exception {
+        World world = new World(new int[5][5][5], ((x, y, z) -> {}));
+        Unit unit = new Unit("Test", 0, 0, 0, 50, 50, 50, 50);
+        world.addUnit(unit);
+        unit.setPosition(new Vector(2.5, 2.5, 2.5));
+        advanceTimeFor(unit, 0.2, 0.1);
+        assertTrue(unit.isMoving()); // we are falling
+        advanceTimeFor(unit, 10, 0.1);
+        assertEquals(new Vector(2.5, 2.5, 0.5), unit.getPosition());
+    }
+
+    @Test
+    public void testPathBlocked() throws Exception {
+        World world = new World(new int[5][5][1], (x, y, z) -> {});
+        Unit unit = new Unit("Test", 0, 0, 0, 50, 50, 50, 50);
+        world.addUnit(unit);
+        unit.moveTo(new IntVector(4, 0, 0));
+        advanceTimeFor(unit, 0.2, 0.1);
+        world.setCubeType(new IntVector(3, 0, 0), World.ROCK);
+        advanceTimeFor(unit, 10, 0.1);
+        assertEquals(new Vector(4.5, 0.5, 0.5), unit.getPosition());
+    }
 }

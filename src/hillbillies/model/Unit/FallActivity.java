@@ -43,12 +43,18 @@ class FallActivity extends MoveActivity {
         Vector newPosition = unit.getPosition().add(this.speed.multiply(dt));
 
         IntVector newCube = newPosition.toIntVector();
-        if (newCube.getZ() == 0 || World.isSolid(unit.getWorld().getCubeType(newCube.add(0, 0, -1)))) {
+        //if (newCube.getZ() == 0 || World.isSolid(unit.getWorld().getCubeType(newCube.add(0, 0, -1)))) {
+        if ((newCube.getZ() == 0 || World.isSolid(unit.getWorld().getCubeType(newCube.add(0, 0, -1))))
+                && (newPosition.getZ() - Math.floor(newPosition.getZ())) <= World.Lc/2.0) {
+
             int diffZ = target.toIntVector().substract(newCube).getZ();
+            unit.setPosition(new Vector(unit.getPosition().getX(), unit.getPosition().getY(),
+                    Math.floor(unit.getPosition().getZ()) + World.Lc / 2.0));
             unit.deduceHitPoints(10*diffZ);
             unit.finishCurrentActivity();
+        } else {
+            unit.setPosition(newPosition);
         }
-        unit.setPosition(newPosition);
     }
 
     /**
