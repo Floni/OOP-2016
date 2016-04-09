@@ -7,6 +7,7 @@ import hillbillies.model.*;
 import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
 
+import java.util.ArrayList;
 import java.util.stream.Stream;
 
 /**
@@ -392,8 +393,8 @@ public class Unit {
      */
     void finishCurrentActivity() {
         this.currentActivity = this.lastActivity;
-        this.currentActivity.resume();
         this.lastActivity = NONE_ACTIVITY;
+        this.currentActivity.resume();
     }
 
 
@@ -1490,13 +1491,21 @@ public class Unit {
     @Model
     private void levelUp() {
         while (this.xpDiff >= 10) {
-            int rand = (int) Math.floor(Math.random()*3);
+            ArrayList<Integer> attributes = new ArrayList();
+            if (this.getStrength() < 200)
+                attributes.add(0);
+            if (this.getAgility() < 200)
+                attributes.add(1);
+            if (this.getStrength() < 200)
+                attributes.add(2);
+            int rand = (int) Math.floor(Math.random()*attributes.size());
             this.xpDiff -= 10;
-            if (rand == 0)
+            int attr = attributes.get(rand);
+            if (attr == 0)
                 this.setStrength(this.getStrength() + 1);
-            else if (rand == 1)
+            else if (attr == 1)
                 this.setAgility(this.getAgility() + 1);
-            else
+            else if (attr == 2)
                 this.setToughness(this.getToughness() + 1);
         }
     }
