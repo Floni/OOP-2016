@@ -20,7 +20,6 @@ import static org.junit.Assert.*;
 
 /**
  * The test for the class Unit.
- * TODO: add new tests for new methods.
  *
  */
 public class UnitTest {

@@ -1000,7 +1000,6 @@ public class Unit {
         return currentActivity.equalsClass(MoveActivity.class);
     }
 
-    //  TODO: all comments from here
 
     /**
      * Makes the unit move towards one of the adjacent cubes.

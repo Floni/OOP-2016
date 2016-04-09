@@ -265,7 +265,6 @@ public class World {
     //</editor-fold>
 
     //<editor-fold desc="Logs and Boulders">
-    //TODO: return stream?
 
     /**
      * Returns all the logs in the world.
