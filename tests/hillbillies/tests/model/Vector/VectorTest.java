@@ -21,9 +21,6 @@ public class VectorTest {
         testMap.put(a, 12);
         testMap.put(b, 13);
 
-        System.out.println(a.hashCode());
-        System.out.println(b.hashCode());
-
         assertEquals(12, (long)testMap.get(new Vector(1, 2, 3)));
         assertEquals(12, (long)testMap.get(a));
         assertEquals(13, (long)testMap.get(new Vector(4, 5, 6)));

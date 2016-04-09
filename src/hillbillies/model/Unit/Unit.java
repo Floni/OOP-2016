@@ -48,14 +48,14 @@ import java.util.stream.Stream;
 public class Unit {
 
     //<editor-fold desc="Constants">
-    public static final double POS_EPS = 1e-3;
+    static final double POS_EPS = 1e-3;
 
-    public static final double REST_MINUTE = 3*60;
+    private static final double REST_MINUTE = 3*60;
 
-    public static final int MIN_ATTRIBUTE = 1;
-    public static final int MAX_ATTRIBUTE = 200;
+    private static final int MIN_ATTRIBUTE = 1;
+    private static final int MAX_ATTRIBUTE = 200;
 
-    public static final double INIT_ORIENTATION = Math.PI / 2;
+    private static final double INIT_ORIENTATION = Math.PI / 2;
 
     // for documentation:
     public static final Class<? extends Activity> MOVE_ACTIVITY_CLASS = MoveActivity.class;
@@ -68,7 +68,7 @@ public class Unit {
 
     //<editor-fold desc="Variables">
     // constant used for none, none has no state!
-    final Activity NONE_ACTIVITY = new NoneActivity(this);
+    private final Activity NONE_ACTIVITY = new NoneActivity(this);
 
     private Vector position;
 
@@ -269,7 +269,7 @@ public class Unit {
         return this.world;
     }
 
-    public PathFinder<IntVector> getPathFinder() {
+    PathFinder<IntVector> getPathFinder() {
         return pathFinder;
     }
     //</editor-fold>
@@ -367,7 +367,7 @@ public class Unit {
      *          | if this.getCurrentActivity() != newActivity
      *          |   then new.lastActivity == this.getCurrentActivity()
      */
-    void setCurrentActivity(Activity newActivity) {
+    private void setCurrentActivity(Activity newActivity) {
         assert currentActivity.canSwitch(newActivity.getClass());
         // don't do the same activity twice
         if (!newActivity.equalsClass(currentActivity))
@@ -449,7 +449,7 @@ public class Unit {
      *          |           cube.getZ() == 0 || cube.getZ() == world.Z_MAX - 1 ||
      *          |           World.getNeighbours(cube).anyMatch(p -> World.isSolid(world.getCubeType(p))))
      */
-    boolean isStablePosition(IntVector cube) {
+    private boolean isStablePosition(IntVector cube) {
         // next to edges or a neighbour is solid
         return  cube.getX() == 0 || cube.getX() == world.X_MAX - 1 || cube.getY() == 0 ||
                 cube.getY() == world.Y_MAX - 1 || cube.getZ() == 0 || cube.getZ() == world.Z_MAX - 1 ||
@@ -469,7 +469,7 @@ public class Unit {
      *          | result == ((getWorld().isValidPosition(cubePos)) && (!World.isSolid(world.getCubeType(cubePos))) ||
      *          |           (this.getWorld() == null)
      */
-    public boolean isValidPosition(IntVector cubePos) {
+    boolean isValidPosition(IntVector cubePos) {
         return world == null || (world.isValidPosition(cubePos) &&
                 !World.isSolid(world.getCubeType(cubePos)));
     }
@@ -484,7 +484,7 @@ public class Unit {
      * @return  True if the position is effective.
      *          | result == (position != null)
      */
-    public static boolean isEffectivePosition(Vector position) {
+    private static boolean isEffectivePosition(Vector position) {
         return position != null;
     }
 
@@ -527,7 +527,7 @@ public class Unit {
      *          starts with an uppercase letter and contains only letters, spaces and quotes.
      *          | result == (name.length() > 2) && name.matches("[A-Z][a-zA-Z'\" ]*")
      */
-    public static boolean isValidName(String name) {
+    private static boolean isValidName(String name) {
         return name.length() > 2 && name.matches("[A-Z][a-zA-Z'\" ]*");
     }
 
@@ -1268,7 +1268,7 @@ public class Unit {
      *          | intDiff.getY() > 1 || intDiff.getY() < -1 ||
      *          | intDiff.getZ() > 1 || intDiff.getZ() < -1)
      */
-    public boolean canAttack(Unit other) {
+    boolean canAttack(Unit other) {
         IntVector otherCube = other.getPosition().toIntVector();
         IntVector posCube = getPosition().toIntVector();
         IntVector intDiff = otherCube.substract(posCube);

@@ -8,12 +8,12 @@ import java.util.stream.Stream;
  *
  */
 public class PathFinder<T> {
-    public class PriorityData implements Comparable<PriorityData> {
+    class PriorityData implements Comparable<PriorityData> {
 
         private int priority;
         private T vector;
 
-        public PriorityData(int priority, T vector) {
+        PriorityData(int priority, T vector) {
             this.vector = vector;
             this.priority = priority;
         }
