@@ -1,6 +1,7 @@
 package hillbillies.model;
 
 
+import be.kuleuven.cs.som.annotate.Basic;
 import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
 import jdk.nashorn.internal.ir.annotations.Immutable;
@@ -21,15 +22,23 @@ public abstract class GameObject {
         this.falling = false;
     }
 
-
+    /**
+     * Returns the position of the gameobject.
+     */
+    @Basic
     public Vector getPosition() {
         return this.position;
     }
 
-    void terminate() {
-
-    }
-
+    /**
+     * Updates the state of the game object.
+     *
+     * @param   dt
+     *          The time step that is taken.
+     *
+     * @post    If the object is not above a solid cube or the world ground,
+     *          then it falls at the falling speed.
+     */
     public void advanceTime(double dt) {
         IntVector cubePos = getPosition().toIntVector();
         if (!(cubePos.getZ() == 0 || World.isSolid(world.getCubeType(cubePos.add(0, 0, -1))))
@@ -46,13 +55,28 @@ public abstract class GameObject {
         }
     }
 
+
+    /**
+     * Sets the position of the game object.
+     *
+     * @param   pos
+     *          The position to which the object should be moved.
+     *
+     * @post    The new position of the object will be the given position.
+     *
+     * @throws  IllegalArgumentException
+     *          The position is not valid or the position is a solid cube.
+     */
     public void setPosition(Vector pos) throws IllegalArgumentException {
         if (!world.isValidPosition(pos.toIntVector()) || World.isSolid(world.getCubeType(pos.toIntVector())))
             throw new IllegalArgumentException("invalid position");
         this.position = pos;
     }
 
-    @Immutable
+    /**
+     * Returns the weight of the game object.
+     */
+    @Immutable @Basic
     public int getWeight() {
         return this.weight;
     }

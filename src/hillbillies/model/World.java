@@ -207,7 +207,6 @@ public class World {
     public void removeGameObject (GameObject object) {
         removeCubeObject(object);
         gameObjects.remove(object);
-        object.terminate();
     }
 
     public void removeCubeObject(GameObject object) {
