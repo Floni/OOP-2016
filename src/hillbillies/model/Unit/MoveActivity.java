@@ -1,5 +1,6 @@
 package hillbillies.model.Unit;
 
+import be.kuleuven.cs.som.annotate.Model;
 import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
 import hillbillies.model.World;

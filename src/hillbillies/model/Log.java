@@ -7,6 +7,8 @@ import hillbillies.model.Vector.IntVector;
  *
  */
 public class Log extends GameObject {
+
+    // TODO: check @effect for super
     public Log(World world, IntVector vector) {
         super(world, vector);
     }

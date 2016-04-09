@@ -239,6 +239,7 @@ public class IntVector {
         return String.format("Vector(%d, %d, %d)", getX(), getY(), getZ());
     }
 
+    //TODO: Finish commenting
     @Override
     public int hashCode() {
         return (8017*getX() + 104831 * getY() + 1301077 * getZ()) + 17;

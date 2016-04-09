@@ -56,6 +56,14 @@ public class Unit {
     private static final int MAX_ATTRIBUTE = 200;
 
     private static final double INIT_ORIENTATION = Math.PI / 2;
+
+    // for documentation:
+    public static final Class<? extends Activity> MOVE_ACTIVITY_CLASS = MoveActivity.class;
+    public static final Class<? extends Activity> WORK_ACTIVITY_CLASS = WorkActivity.class;
+    public static final Class<? extends Activity> ATTACK_ACTIVITY_CLASS = AttackActivity.class;
+    public static final Class<? extends Activity> FALL_ACTIVITY_CLASS = FallActivity.class;
+    public static final Class<? extends Activity> REST_ACTIVITY_CLASS = RestActivity.class;
+
     //</editor-fold>
 
     //<editor-fold desc="Variables">
@@ -334,6 +342,10 @@ public class Unit {
     @Basic
     Activity getCurrentActivity() {
         return this.currentActivity;
+    }
+
+    public boolean canHaveAsActivity(Class<? extends Activity> newActivity) {
+        return getCurrentActivity().canSwitch(newActivity);
     }
 
     /**
@@ -990,7 +1002,7 @@ public class Unit {
     //  TODO: all comments from here
 
     /**
-     * Starts the unit moving towards one of the adjacent cubes.
+     * Makes the unit move towards one of the adjacent cubes.
      *
      * @param   dx
      *          the x direction
@@ -1017,7 +1029,7 @@ public class Unit {
      *          | Math.abs(dx) > 1 || Math.abs(dy) > 1 || Math.abs(dz) > 1
      * @throws  IllegalStateException
      *          If the unit can't move right now
-     *          | !canHaveAsActivity(Unit.MOVE)
+     *          | !canHaveAsActivity(MOVE_ACTIVITY_CLASS)
      */
     public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException, IllegalStateException {
         if (!currentActivity.canSwitch(MoveActivity.class)) {
@@ -1043,7 +1055,6 @@ public class Unit {
      *
      * @post    The unit starts moving.
      *          | new.isMoving() == true
-     *
      * @post    The unit will move to the target when calling advanceTime().
      *          | new.getPosition == target.add(Lc/2)
      *
@@ -1052,7 +1063,7 @@ public class Unit {
      *          | !isValidPosition(target[0], target[1], target[2])
      * @throws  IllegalStateException
      *          If the unit can't move.
-     *          | !this.canHaveAsActivity(Unit.MOVE)f
+     *          | !this.canHaveAsActivity(MOVE_ACTIVITY_CLASS)
      *
      */
     public void moveTo(IntVector target) throws IllegalArgumentException, IllegalStateException {
@@ -1076,7 +1087,7 @@ public class Unit {
 
     //<editor-fold desc="SpeedNSprint">
     /**
-     * Gets the units movement speed.
+     * Gets the unit's movement speed.
      *
      * @return  Returns the base speed if the unit is moving and not sprinting.
      *          Returns 0 if the unit is not moving.
@@ -1114,7 +1125,6 @@ public class Unit {
         if (sprint && (getStamina() == 0 || !isMoving())) {
             throw new IllegalStateException("Can't sprint right now");
         }
-        if (!isMoving()) return; // throw?
 
         MoveActivity current = (MoveActivity)getCurrentActivity();
         if (!current.sprinting && sprint)
@@ -1141,14 +1151,17 @@ public class Unit {
     }
 
     /**
-     * The unit starts working.
+     * The unit starts working at the given location.
      *
      * @post    Makes the unit start working
      *          | new.isWorking == True
      *
      * @throws  IllegalArgumentException
      *          Throws if the unit can't work.
-     *          | (!canHaveAsActivity(Unit.WORK)
+     *          | (!canHaveAsActivity(WORK_ACTIVITY_CLASS)
+     * @throws  IllegalArgumentException
+     *          Throws if the location is out of range
+     *          | (Math.abs(diff.getX()) > 1 || Math.abs(diff.getY()) > 1 || Math.abs(diff.getZ()) > 1)
      */
     public void workAt(IntVector location) throws IllegalArgumentException {
         if (!getCurrentActivity().canSwitch(WorkActivity.class)) {
@@ -1163,14 +1176,35 @@ public class Unit {
             setCurrentActivity(new WorkActivity(this, location));
     }
 
+    /**
+     *  Returns whether the unit is carrying a log.
+     */
+    @Basic
     public boolean isCarryingLog() {
         return this.carryLog != null;
     }
 
+    /**
+     *  Returns whether the unit is carrying a boulder.
+     */
+    @Basic
     public boolean isCarryingBoulder()  {
         return this.carryBoulder != null;
     }
 
+    /**
+     * Makes the unit drop whatever it is carrying.
+     *
+     * @param   workLoc
+     *          The location to drop the object.
+     *
+     * @post    If the unit is carrying a log, drop it on the given location.
+     *          | world.addGameObject(workLoc, carryLog)
+     *          | carryLog = null
+     * @post    Else if the unit is carrying a boulder, drop it on the given location.
+     *          | world.addGameObject(workLoc, carryBoulder)
+     *          | carryBoulder = null
+     */
     void dropCarry(IntVector workLoc) {
         if (isCarryingLog()) {
             world.addGameObject(workLoc, carryLog);
@@ -1181,11 +1215,31 @@ public class Unit {
         }
     }
 
+    /**
+     * Picks up the given log.
+     *
+     * @param   log
+     *          The log to pick up.
+     *
+     * @post    The log will be picked up and carried by the unit.
+     *          | carryLog = log
+     *          | world.removeGameObject(log)
+     */
     void pickUpLog(Log log) {
         carryLog = log;
         world.removeGameObject(log);
     }
 
+    /**
+     * Picks up the given boulder.
+     *
+     * @param   boulder
+     *          The boulder to pick up.
+     *
+     * @post    The boulder will be picked up and carried by the unit.
+     *          | carryBoulder = boulder
+     *          | world.removeGameObject(boulder)
+     */
     void pickUpBoulder(Boulder boulder) {
         carryBoulder = boulder;
         world.removeGameObject(boulder);
@@ -1202,6 +1256,18 @@ public class Unit {
         return currentActivity.equalsClass(AttackActivity.class);
     }
 
+
+    /**
+     * Returns wheter the unit can attack the other unit.
+     *
+     * @param   other
+     *          The unit to attack.
+     *
+     * @return  Returns True if the unit's are in adjacent cubes.
+     *          | result == !(intDiff.getX() > 1 || intDiff.getX() < -1 ||
+     *          | intDiff.getY() > 1 || intDiff.getY() < -1 ||
+     *          | intDiff.getZ() > 1 || intDiff.getZ() < -1)
+     */
     boolean canAttack(Unit other) {
         IntVector otherCube = other.getPosition().toIntVector();
         IntVector posCube = getPosition().toIntVector();
@@ -1213,7 +1279,7 @@ public class Unit {
     }
 
     /**
-     * Attacks an other unit.
+     * Attacks another unit.
      *
      * @param   other
      *          The unit that is attacked by this unit.
@@ -1229,16 +1295,17 @@ public class Unit {
      *          | new.isAttacking == True
      *
      * @throws  IllegalArgumentException
-     *          Throws if the other unit is null or if the unit tries to attack itself.
-     *          | (other == null || other == this)
+     *          Throws if the other unit is null or if the unit tries to attack itself or if the other unit is falling
+     *          | (other == null || other == this || other.getCurrentActivity.equalsClass(FALL_ACTIVITY_CLASS))
      * @throws  IllegalArgumentException
      *          Throws if the unit can't attack.
-     *          | !canHaveAsActivity(Unit.ATTACK)
+     *          | !canHaveAsActivity(ATTACK_ACTIVITY_CLASS)
      * @throws  IllegalArgumentException
      *          Throws if the other unit is not in attack range.
-     *          | ( (abs(this.getPosition[0] - other.getPosition[0])) > 1 ||
-     *          | ( (abs(this.getPosition[1] - other.getPosition[1])) > 1 ||
-     *          | ( (abs(this.getPosition[2] - other.getPosition[2])) > 1 )
+     *          | (!this.canAttack(other))
+     * @throws  IllegalArgumentException
+     *          Throws if the other unit is in the same faction.
+     *          | (this.getFaction() == other.getFaction())
      */
     public void attack(Unit other) throws IllegalArgumentException {
         if (other == null || other == this || other.getCurrentActivity().equalsClass(FallActivity.class))
@@ -1251,6 +1318,8 @@ public class Unit {
         setCurrentActivity(new AttackActivity(this, other));
     }
 
+    //TODO: fix comments DEFEND
+
     /**
      * Defends against another unit's attack.
      *
@@ -1261,16 +1330,17 @@ public class Unit {
      *          both with a distance in range of -1 to 1
      *          and the new position can not be equal to the original.
      *          The unit does not take any damage.
+     *          The unit receives xp and the units look at each other.
      *          | if (random < (0.20 * this.getAgility() / attacker.getAgility()) )
-     *          |   then new.getPosition()[0] == old.getPosition[0] + 2 * Math.random -1 &&
+     *          |   then (new.getPosition()[0] == old.getPosition[0] + 2 * Math.random -1 &&
      *          |       new.getPosition()[1] == old.getPosition[1] + 2 * Math.random -1) &&
-     *          |       (new.getHitPoints == old.getHitPoints)
-     *          Else if the attack is blocked, the unit will not take any damage.
+     *          |       (new.getHitPoints == old.getHitPoints) &&
+     *          |         *          Else if the attack is blocked, the unit will not take any damage and will get xp.
      *          | else if ( random < (0.25 * (this.getStrength + this.getAgility)/(other.getStrength + other.getAgility)))
-     *          |   then ( new.getHitPoints == old.getHitPoints)
-     *          Else if the attack hit the unit, it will take damage equal to the attacker's strength/10.
+     *          |   then ( new.getHitPoints == old.getHitPoints) && this.addXp(20)
+     *          Else if the attack hit the unit, it will take damage equal to the attacker's strength/10 and the attackers receives xp.
      *          | Else
-     *          |   ( deduceHitPoints (attack.getStrength() / 10) )
+     *          |   ( deduceHitPoints (attacker.getStrength() / 10) ) && attacker.addXp(20)
      *
      * @effect  Finishes the current activity.
      *          | finishCurrentActivity()
@@ -1278,7 +1348,10 @@ public class Unit {
      *          | setPosition()
      * @effect  Deduces the given amount of hit points from the unit's hp.
      *          | deduceHitPoints()
-     *
+     * @effect  Adds xp for dodge, block and attack.
+     *          | addXp()
+     * @effect  Turns the units towards each other.
+     *          | setOrientation()
      */
     void defend(Unit attacker) {
         double probabilityDodge = 0.20 * (this.getAgility() / attacker.getAgility());
@@ -1325,15 +1398,12 @@ public class Unit {
     /**
      * Starts resting.
      *
-     * @post    If the unit is not resting then reset the rest state.
-     *          | if !old.isResting
-     *          | then new.initialRest == true && new.restDiff == 0
      * @post    The unit is resting.
      *          | new.isResting() == true
      *
      * @throws  IllegalStateException
      *          Throws if the unit is moving.
-     *          | this.isMoving()
+     *          | !this.canHaveAsActivity(REST_ACTIVITY_CLASS)
      */
     public void rest() throws IllegalStateException {
         if (!currentActivity.canSwitch(RestActivity.class))
@@ -1386,7 +1456,7 @@ public class Unit {
      *          | new.getXp() == this.getXp() + xp
      *
      * @effect  The unit will level up
-     *          | ...
+     *          | levelUp()
      */
     void addXp(int xp) {
         this.xp += xp;
@@ -1395,10 +1465,29 @@ public class Unit {
     }
 
     @Basic
+    /**
+     * Returns the amount of xp.
+     */
     public int getXp() {
         return this.xp;
     }
 
+    //TODO : fix comments levelup
+    /**
+     * Levels the unit.
+     *
+     * @post    While the xpDiff is larger than or equal to 10, increase a random attribute by 1.
+     *          |while (this.xpDiff  >= 10)
+     *          |   int rand = (int) Math.floor(Math.random()*3)
+     *          |   new.xpDiff == old.xpDiff - 10
+     *          |   if (rand == 0)
+     *          |       then new.getStrength == old.getStrength() + 1
+     *          |   else if (rand == 1)
+     *          |       then new.getAgility == old.getAgility() + 1
+     *          |   else
+     *          |       new.getToughness == old.getToughness() + 1
+     */
+    @Model
     private void levelUp() {
         while (this.xpDiff >= 10) {
             int rand = (int) Math.floor(Math.random()*3);
@@ -1414,11 +1503,25 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Faction">
+
+    /**
+     * Returns the faction of the unit.
+     */
     @Basic
     public Faction getFaction() {
         return faction;
     }
 
+
+    /**
+     * Sets the faction of the unit.
+     *
+     * @param   faction
+     *          The faction to which the unit should be added.
+     *
+     * @post    The unit's faction is the given faction.
+     *          |new.getFaction == faction
+     */
     public void setFaction(Faction faction) {
         this.faction = faction;
     }
