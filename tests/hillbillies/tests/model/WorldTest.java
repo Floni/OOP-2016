@@ -1,10 +1,8 @@
 package hillbillies.tests.model;
 
-import hillbillies.model.Boulder;
-import hillbillies.model.GameObject;
-import hillbillies.model.Log;
+import hillbillies.model.*;
+import hillbillies.model.Unit.Unit;
 import hillbillies.model.Vector.IntVector;
-import hillbillies.model.World;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,9 +27,9 @@ public class WorldTest {
 
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testAdvanceTime() throws Exception {
-
+        world.advanceTime(2.0);
     }
 
     @Test
@@ -75,22 +73,27 @@ public class WorldTest {
     @Test
     public void testGetLogs() throws Exception {
         assertEquals(0, world.getLogs().size());
+        Log log = new Log(world, new IntVector(0, 0, 0));
+        world.addGameObject(log.getPosition().toIntVector(), log);
+        assertEquals(1, world.getLogs().size());
+        assertEquals(1, world.getLogs(log.getPosition().toIntVector()).size());
+        assertEquals(0, world.getBoulders().size());
+        assertTrue(world.getLogs().contains(log));
+        assertTrue(world.getLogs(log.getPosition().toIntVector()).contains(log));
 
     }
 
     @Test
     public void testGetBoulders() throws Exception {
         assertEquals(0, world.getBoulders().size());
-    }
-
-    @Test
-    public void testGetLogs1() throws Exception {
-        assertEquals(0, world.getLogs(new IntVector(1, 1, 1)).size());
-    }
-
-    @Test
-    public void testGetBoulders1() throws Exception {
-        assertEquals(0, world.getBoulders(new IntVector(1, 1, 1)).size());
+        assertEquals(0, world.getBoulders(new IntVector(0, 0, 0)).size());
+        Boulder boulder = new Boulder(world, new IntVector(0, 0, 0));
+        world.addGameObject(boulder.getPosition().toIntVector(), boulder);
+        assertEquals(1, world.getBoulders().size());
+        assertEquals(1, world.getBoulders(new IntVector(0, 0, 0)).size());
+        assertEquals(0, world.getLogs().size());
+        assertTrue(world.getBoulders().contains(boulder));
+        assertTrue(world.getBoulders(boulder.getPosition().toIntVector()).contains(boulder));
     }
 
     @Test
@@ -162,31 +165,73 @@ public class WorldTest {
 
     @Test
     public void testGetFactions() throws Exception {
-
+        assertEquals(0, world.getFactions().size());
+        world.spawnUnit(false);
+        assertEquals(1, world.getFactions().size());
+        world.spawnUnit(false);
+        assertEquals(2, world.getFactions().size());
+        world.spawnUnit(false);
+        assertEquals(3, world.getFactions().size());
+        world.spawnUnit(false);
+        assertEquals(4, world.getFactions().size());
+        world.spawnUnit(false);
+        assertEquals(5, world.getFactions().size());
+        world.spawnUnit(false);
+        assertEquals(5, world.getFactions().size());
     }
 
     @Test
     public void testSpawnUnit() throws Exception {
+        Unit unit1 = world.spawnUnit(false);
+        assertFalse(unit1.isDefaultEnabled());
+        assertTrue(world.getFactions().contains(unit1.getFaction()));
+        assertTrue(world.getUnits().contains(unit1));
+        Unit unit2 = world.spawnUnit(true);
+        assertTrue(unit2.isDefaultEnabled());
+        assertTrue(world.getFactions().contains(unit2.getFaction()));
+        assertTrue(world.getUnits().contains(unit2));
 
+        assertEquals(2, world.getUnits().size());
+    }
+
+    @Test
+    public void testSpawnUnit2() throws Exception {
+        for(int i = 0; i < 110; i++) {
+            Unit unit = world.spawnUnit(false);
+            if (i > 100)
+                assertFalse(unit.isAlive());
+        }
+        assertEquals(100, world.getUnits().size());
     }
 
     @Test
     public void testAddUnit() throws Exception {
-
+        Unit unit = new Unit("Test", 0, 0, 0, 50, 50, 50, 50);
+        world.addUnit(unit);
+        assertTrue(world.getFactions().contains(unit.getFaction()));
+        assertTrue(world.getUnits().contains(unit));
     }
 
     @Test
-    public void testGetUnits() throws Exception {
-        assertEquals(0, world.getUnits().size());
+    public void testAddUnit2() throws Exception {
+        for(int i = 0; i < 110; i++) {
+
+            Unit unit = new Unit("Test", 0, 0, 0, 50, 50, 50, 50);
+            world.addUnit(unit);
+            assertTrue(unit.isAlive());
+        }
+        assertEquals(100, world.getUnits().size());
     }
 
-    @Test
+        @Test
     public void testRemoveUnit() throws Exception {
-
-    }
-
-    @Test
-    public void testGetNeighbours() throws Exception {
+        Unit unit = world.spawnUnit(false);
+        assertTrue(world.getUnits().contains(unit));
+        Faction oldFaction = unit.getFaction();
+        world.removeUnit(unit);
+        assertFalse(world.getUnits().contains(unit));
+        assertFalse(world.getFactions().contains(oldFaction));
+        assertNull(unit.getFaction());
 
     }
 

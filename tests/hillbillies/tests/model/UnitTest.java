@@ -1,5 +1,8 @@
 package hillbillies.tests.model;
 
+import hillbillies.model.Boulder;
+import hillbillies.model.Faction;
+import hillbillies.model.Log;
 import hillbillies.model.Unit.Unit;
 import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
@@ -29,12 +32,14 @@ public class UnitTest {
     public void setUp() throws Exception {
         this.world = new World(new int[50][50][2], (x, y, z) -> {});
 
-        this.unit = new Unit(world, "Timothy", 0, 0, 0, 50, 50, 50, 50);
+        this.unit = new Unit("Timothy", 0, 0, 0, 50, 50, 50, 50);
+
+        world.addUnit(unit);
     }
 
     @After
     public void tearDown() throws Exception {
-
+        unit.terminate();
     }
 
     @Test
@@ -62,12 +67,6 @@ public class UnitTest {
     @Test(expected = IllegalArgumentException.class)
     public void testSetPosition1Null() throws Exception {
         unit.setPosition(null);
-    }
-
-    @Test
-    public void testAdvanceTime() throws Exception {
-        // can we test AdvanceTime seperatly, we could check for the resting after three minutes?
-
     }
 
     @Test
@@ -247,29 +246,20 @@ public class UnitTest {
     }
 
     @Test
-    public void testWorkAt() throws Exception {
-        /*
-        //unit.work();
-        assertTrue(unit.isWorking());
-        advanceTimeFor(unit, 5, 0.1);
-        assertTrue(unit.isWorking());
-        advanceTimeFor(unit, 5.01, 0.1);
-        assertFalse(unit.isWorking());
-        */
-    }
-
-    @Test
     public void testAttack() throws Exception {
         Unit other = world.spawnUnit(false);
         other.setPosition(unit.getPosition().add(0, 1, 0));
         unit.attack(other);
         assertTrue(unit.isAttacking());
+        assertEquals(Math.PI/2, unit.getOrientation(), 1e-6);
     }
 
     @Test (expected = IllegalArgumentException.class)
     public void testAttackOutOfRange() throws Exception {
-        Unit other = new Unit(world, "Florian",5 , 5, 0, 50, 50, 50, 50);
+        Unit other = new Unit("Florian", 5 , 5, 0, 50, 50, 50, 50);
+        world.addUnit(other);
         unit.attack(other);
+        other.terminate();
     }
 
     @Test
@@ -281,30 +271,14 @@ public class UnitTest {
 
     @Test
     public void testRestRegenStamina() throws Exception {
-        /*
-        TODO: test if xp fucks up this test.
         unit.setPosition(Vector.ZERO);
         unit.moveTo(new IntVector(15, 15, 0));
         unit.setSprint(true);
         advanceTimeFor(unit, 20, 0.1);
-        double seconds = 8;
-        int extra_points = (int)((seconds / 0.2) * ((double)unit.getToughness() / 100.0));
         unit.rest();
-        advanceTimeFor(unit, seconds, 0.1);
-        assertEquals(extra_points, unit.getStamina());
-        */
+        advanceTimeFor(unit, 60, 0.1);
+        assertEquals(unit.getMaxPoints(), unit.getStamina());
     }
-
-//    @Test
-//    public void testRestRegenHP() throws Exception {
-//        unit.setHitPoints(0);
-//        unit.setStamina(unit.getMaxPoints() / 2);
-//        double seconds = 8;
-//        int extra_points = (int)((seconds / 0.2) * ((double)unit.getToughness() / 200.0));
-//        unit.rest();
-//        advanceTimeFor(unit, seconds, 0.1);
-//        assertEquals(extra_points, unit.getHitPoints());
-//    }
 
     @Test
     public void testStartDefaultBehaviour() throws Exception {
@@ -324,5 +298,71 @@ public class UnitTest {
         for (int i = 0; i < n; i++)
             unit.advanceTime(step);
         unit.advanceTime(time - n * step);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setWorld() throws Exception {
+        Unit unit = new Unit("Test", 0, 0, 0, 50, 50, 50, 50);
+        unit.setWorld(world);
+        unit.setPosition(new Vector(world.X_MAX, 0, 0));
+        unit.terminate();
+    }
+
+    @Test
+    public void isAlive() throws Exception {
+        Unit test = new Unit("Test", 0, 0, 0, 50, 50, 50, 50);
+        world.addUnit(test);
+        test.terminate();
+        assertFalse(test.isAlive());
+        assertFalse(world.getUnits().contains(test));
+    }
+
+    @Test
+    public void testWorkAtLog() throws Exception {
+        world.setCubeType(new IntVector(0, 0, 0), World.TREE);
+        unit.setPosition(new Vector(1.5, 1.5, 0.5));
+        unit.workAt(new IntVector(0, 0, 0));
+        advanceTimeFor(unit, 500.0 / unit.getStrength() + 1.0, 0.1);
+        assertFalse(unit.isWorking());
+        assertEquals(World.AIR, world.getCubeType(new IntVector(0, 0, 0)));
+    }
+
+
+    @Test
+    public void isCarryingBoulder() throws Exception {
+        Boulder boulder = new Boulder(world, new IntVector(0, 0, 0));
+        world.addGameObject(boulder.getPosition().toIntVector(), boulder);
+        unit.setPosition(new Vector(1.5, 1.5, 0.5));
+        unit.workAt(boulder.getPosition().toIntVector());
+        advanceTimeFor(unit,  500.0 / unit.getStrength() + 1.0, 0.1);
+        assertTrue(unit.isCarryingBoulder());
+    }
+
+    @Test
+    public void isCarryingLog() throws Exception {
+        Log log = new Log(world, new IntVector(0, 0, 0));
+        world.addGameObject(log.getPosition().toIntVector(), log);
+        unit.setPosition(new Vector(1.5, 1.5, 0.5));
+        unit.workAt(log.getPosition().toIntVector());
+        advanceTimeFor(unit,  500.0 / unit.getStrength() + 1.0, 0.1);
+        assertTrue(unit.isCarryingLog());
+    }
+
+    @Test
+    public void getXp() throws Exception {
+        assertEquals(0, unit.getXp());
+    }
+
+    @Test
+    public void getFaction() throws Exception {
+        assertNotNull(unit.getFaction());
+        assertTrue(unit.getFaction().getUnits().contains(unit));
+    }
+
+    @Test
+    public void setFaction() throws Exception {
+        Faction test = new Faction();
+        unit.setFaction(test);
+        assertEquals(test, unit.getFaction());
     }
 }
