@@ -98,7 +98,7 @@ public class Unit {
 
     //<editor-fold desc="Constructor">
     /**
-     * Creates a new unit with the given position.
+     * Creates a new unit with the given position and attributes.
      *
      * @param   world
      *          The world to which the unit belongs.

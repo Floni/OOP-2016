@@ -1,5 +1,6 @@
 package hillbillies.model.Unit;
 
+import be.kuleuven.cs.som.annotate.Basic;
 import hillbillies.model.Vector.IntVector;
 import hillbillies.model.World;
 
@@ -12,10 +13,31 @@ import java.util.stream.Collectors;
  *
  */
 class NoneActivity extends Activity {
+
+
+    /**
+     * Initializes the default behavior activity.
+     *
+     * @param   unit
+     *          The unit who starts default behavior.
+     */
     public NoneActivity(Unit unit) {
         super(unit);
     }
 
+    /**
+     * Updates the default behavior activity for the given time step.
+     *
+     * @param   dt
+     *          The time step to update the activity with.
+     *
+     * @post    If the unit still has an unfinished activity, he will resume this activity.
+     * @post    Else if default behavior is enabled the unit does with an equal chance one of the following things.
+     *          - The unit moves to a random valid position in the world which the unit can reach.
+     *          - The unit works on a neighbouring cube.
+     *          - The unit starts resting.
+     *          - The unit attacks an enemy unit that is in range.
+     */
     @Override
     void advanceTime(double dt) {
         if (!unit.getLastActivity().equalsClass(NoneActivity.class)) {
@@ -61,11 +83,18 @@ class NoneActivity extends Activity {
         }
     }
 
-    @Override
+    /**
+     * Returns whether the unit can switch activities which is true when the unit is alive.
+     */
+    @Override @Basic
     boolean canSwitch(Class<? extends Activity> newActivity) {
         return unit.isAlive();
     }
 
+
+    /**
+     * Resumes the activity, which does nothing.
+     */
     @Override
     public void resume() {
 

@@ -1,5 +1,6 @@
 package hillbillies.model.Unit;
 
+import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
@@ -24,21 +25,66 @@ class MoveActivity extends Activity {
     private List<IntVector> path;
     private int idx;
 
+    /**
+     * Initializes the move activity for the given unit.
+     *
+     * @param   unit
+     *          The unit that starts moving.
+     */
     protected MoveActivity(Unit unit) {
         super(unit);
     }
 
+    /**
+     * Makes the unit move to the given location.
+     *
+     * @param   unit
+     *          The unit that moves.
+     * @param   target
+     *          The location that the unit moves to.
+     *
+     * @effect  Updates the target of the unit.
+     *          | updateTarget(target)
+     */
     public MoveActivity(Unit unit, Vector target) {
         super(unit);
         updateTarget(target);
 
     }
 
+    /**
+     * Moves the unit to the given neighbouring position.
+     *
+     * @param   unit
+     *          The unit who moves.
+     * @param   dx
+     *          The x component of the target direction.
+     * @param   dy
+     *          The y component of the target direction.
+     * @param   dz
+     *          The z component of the target direction.
+     *
+     * @effect  Moves the unit to the neighbouring cube.
+     *          | moveToNeighbour(dx, dy, dz)
+     */
     public MoveActivity(Unit unit, int dx, int dy, int dz) throws IllegalArgumentException {
         super(unit);
         moveToNeighbour(dx, dy, dz);
     }
 
+
+    /**
+     * Updates the move activity for the given time step
+     *
+     * @param   dt
+     *          The given time step.
+     *
+     * @post    If default behavior is enabled the unit has a small chance to start sprinting.
+     * @post    If the unit is sprinting, his stamina will drain by 1 point every .1 seconds and his speed will be doubled.
+     * @post    If the unit arrives at the centre of a new cube he will receive 1 xp.
+     * @post    The new position is equal to the old position + the speed multiplied by the time step.
+     * @post    If the new new position is equal to the target the unit stops moving, otherwise he will continue moving.
+     */
     @Override
     void advanceTime(double dt) {
         double mod = 1;
@@ -80,16 +126,28 @@ class MoveActivity extends Activity {
         }
     }
 
+    /**
+     * Move to the next neighbour in the path and move the index of the path.
+     *
+     * @effect  Move to the next neighbour.
+     *          | moveToNeighbour(path.get(idx))
+     */
     private void goToNextNeighbour() {
         moveToNeighbour(path.get(idx));
         idx -= 1;
     }
 
-    @Override
+    /**
+     * Returns whether the unit can switch activities, this is possible when the target is not null.
+     */
+    @Override @Basic
     boolean canSwitch(Class<? extends Activity> newActivity) {
         return this.target != null;
     }
 
+    /**
+     * Resumes the moving activity, which does nothing since the target would only be updated.
+     */
     @Override
     public void resume() {
 
@@ -123,8 +181,17 @@ class MoveActivity extends Activity {
 
     /**
      * Moves to specified neighbour cube (must be next to current position).
-     * @param neighbour The neighbour to move to.
-     * @throws IllegalArgumentException
+     *
+     * @param   neighbour
+     *          The neighbour to move to.
+     *
+     * @post    The speed is calculated to move to the next cube.
+     *
+     * @effect  Sets the orientation of the unit in the direction of the next cube.
+     *          | setOrientation()
+     *
+     * @throws  IllegalArgumentException
+     *          Throws when the neighbour position is not a valid position.
      */
     private void moveToNeighbour(IntVector neighbour) throws IllegalArgumentException {
         this.targetNeighbour = neighbour.toVector().add(World.Lc/2);
@@ -136,16 +203,51 @@ class MoveActivity extends Activity {
         unit.setOrientation(Math.atan2(this.speed.getY(), this.speed.getX()));
     }
 
+    /**
+     * Moves to specified neighbour cube.
+     *
+     * @effect  Move to the next neighbour.
+     *          | moveToNeighbour(curPos.add(dx, dy, dz))
+     */
     private void moveToNeighbour(int dx, int dy, int dz) throws IllegalArgumentException {
         IntVector curPos = unit.getPosition().toIntVector();
         moveToNeighbour(curPos.add(dx, dy, dz));
     }
 
+
+    /**
+     * Moves to the given adjacent cube.
+     *
+     * @param   dx
+     *          The x direction to move to.
+     * @param   dy
+     *          The y direction to move to.
+     * @param   dz
+     *          The z direction to move to.
+     *
+     * @effect  Move the unit to the given neighbour cube.
+     *          | moveToNeighbour(dx, dy, dz)
+     */
     void updateAdjacent(int dx, int dy, int dz) throws IllegalArgumentException {
         moveToNeighbour(dx, dy, dz);
         this.path = null;
     }
 
+
+    /**
+     * Updates the target to move to.
+     *
+     * @param   newTarget
+     *          The new target to move to.
+     *
+     * @post    The route will be recalculated.
+     *
+     * @effect  Move to the new next neighbour.
+     *          | goToNextNeighbour().
+     *
+     * @throws  IllegalArgumentException
+     *          Throws if the path is null or is empty.
+     */
     void updateTarget(Vector newTarget) throws IllegalArgumentException {
         this.target = newTarget;
 

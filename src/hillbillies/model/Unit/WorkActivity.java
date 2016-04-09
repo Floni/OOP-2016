@@ -1,5 +1,6 @@
 package hillbillies.model.Unit;
 
+import be.kuleuven.cs.som.annotate.Basic;
 import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
 import hillbillies.model.World;
@@ -13,6 +14,17 @@ class WorkActivity extends Activity {
     private double workTimer = 0;
     private IntVector location;
 
+    /**
+     * Initialises the work activity for the given unit at the given position.
+     *
+     * @param   unit
+     *          The unit which starts working.
+     * @param   location
+     *          The location at which the unit starts working.
+     *
+     * @effect  Makes the unit face in the direction of the working location
+     *          | setOrientation()
+     */
     WorkActivity(Unit unit, IntVector location) {
         super(unit);
         this.workTimer  = 500.0 / unit.getStrength();
@@ -22,6 +34,16 @@ class WorkActivity extends Activity {
     }
 
 
+    /**
+     * Updates the working of the unit in function of the time.
+     *
+     * @param   dt
+     *          The time step to update the activity with.
+     *
+     * @effect  If the work is done the work activity is finished
+     *          | finishWork()
+     *          | finishCurrentActivity()
+     */
     @Override
     void advanceTime(double dt) {
         workTimer -= dt;
@@ -32,6 +54,23 @@ class WorkActivity extends Activity {
         }
     }
 
+
+    /**
+     * Finishes the work activity and executes the required action.
+     *
+     * @post    If the unit carries a boulder or log, the boulder or log is dropped at the centre
+     *          of the cube targeted by the labour action.
+     * @post    Else if the target cube is a workshop and one boulder and one log are available on
+     *          that cube, the unit will improve their equipment, consuming one boulder and one log
+     *          (from the workshop cube), and increasing the unit's weight and toughness.
+     * @post    Else if a boulder is present on the target cube, the unit shall pick up the boulder.
+     * @post    Else if a log is present on the target cube, the unit shall pick up the log.
+     * @post    Else if the target cube is wood, the cube collapses leaving a log.
+     * @post    Else if the target cube is rock, the cube collapses leaving a boulder.
+     *
+     * @effect  If work is done, the unit receives 10 xp.
+     *          | addXp()
+     */
     private void finishWork() {
         if (unit.isCarryingLog() || unit.isCarryingBoulder()){ //BOULDER OR LOG
             if (!World.isSolid(unit.getWorld().getCubeType(location))) {
@@ -62,11 +101,18 @@ class WorkActivity extends Activity {
         }
     }
 
-    @Override
+    /**
+     * Returns whether the unit can switch activities.
+     */
+    @Override @Basic
     boolean canSwitch(Class<? extends Activity> newActivity) {
         return true;
     }
 
+
+    /**
+     * Resumes the work activity.
+     */
     @Override
     public void resume() {
         unit.finishCurrentActivity();

@@ -14,7 +14,18 @@ public abstract class GameObject {
     private final World world;
     private boolean falling;
 
-
+    /**
+     * Creates a new gameobject in a given world an at a given location.
+     *
+     * @param   world
+     *          The world in which the gameobject needs to be created.
+     * @param   location
+     *          The location at which the gameobject needs to be created.
+     *
+     * @post    The position is set to the middle of the cube of the given position.
+     * @post    The weight of the object is random between 10 and 50.
+     *
+     */
     protected GameObject(World world, IntVector location) {
         this.world = world;
         setPosition(location.toVector().add(World.Lc/2));

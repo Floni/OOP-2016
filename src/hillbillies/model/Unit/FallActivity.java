@@ -1,5 +1,6 @@
 package hillbillies.model.Unit;
 
+import be.kuleuven.cs.som.annotate.Basic;
 import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
 import hillbillies.model.World;
@@ -10,6 +11,13 @@ import hillbillies.model.World;
  */
 class FallActivity extends MoveActivity {
 
+    /**
+     * Initializes the fall activity.
+     *
+     * @param   unit
+     *          The unit who is falling.
+     *
+     */
     public FallActivity(Unit unit) {
         super(unit);
 
@@ -17,8 +25,21 @@ class FallActivity extends MoveActivity {
         target = unit.getPosition(); // we use target as the starting position
     }
 
+    /**
+     * Updates the falling activity for a given time step.
+     *
+     * @param   dt
+     *          The time step to update with.
+     *
+     * @post    Moves the unit down with the falling speed, if the new position is above a solid cube or the world ground,
+     *          the unit will take damage equal to 10 times the amount off cubes he has traveled.
+     *          Else the unit will keep falling and his position will be set to the new position.
+     *
+     * @effect  Sets the position of the unit to the new position.
+     *          | unit.setPosition(newPosition)
+     */
     @Override
-    void advanceTime(double dt) {
+    void advanceTime(double dt) throws IllegalArgumentException {
         Vector newPosition = unit.getPosition().add(this.speed.multiply(dt));
 
         IntVector newCube = newPosition.toIntVector();
@@ -30,11 +51,20 @@ class FallActivity extends MoveActivity {
         unit.setPosition(newPosition);
     }
 
-    @Override
+    /**
+     * Returns whether the unit can switch activities, which always returns false.
+     */
+    @Override @Basic
     boolean canSwitch(Class<? extends Activity> newActivity) {
         return false;
     }
 
+    /**
+     * Resumes the falling activity, which is impossible.
+     *
+     * @throws  IllegalStateException
+     *          Always throws.
+     */
     @Override
     public void resume() throws IllegalStateException {
         throw new IllegalStateException("can't resume falling because can't interrupt falling");
