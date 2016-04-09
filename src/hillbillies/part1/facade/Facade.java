@@ -13,7 +13,7 @@ public class Facade implements IFacade {
     @Override
     public Unit createUnit(String name, int[] initialPosition, int weight, int agility, int strength, int toughness, boolean enableDefaultBehavior) throws ModelException {
         try {
-            return new Unit(null, name, initialPosition[0], initialPosition[1], initialPosition[2],
+            return new Unit(name, initialPosition[0], initialPosition[1], initialPosition[2],
                     weight, strength, agility, toughness);
         } catch (IllegalArgumentException err) {
             throw new ModelException(err.getMessage(), err);

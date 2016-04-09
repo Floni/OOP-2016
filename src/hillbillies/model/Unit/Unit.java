@@ -100,8 +100,6 @@ public class Unit {
     /**
      * Creates a new unit with the given position and attributes.
      *
-     * @param   world
-     *          The world to which the unit belongs.
      * @param   name
      *          The name of the new unit.
      * @param   x
@@ -165,9 +163,8 @@ public class Unit {
      *          | setOrientation(Math.PI/2)
      */
     @Raw
-    public Unit(World world, String name, int x, int y, int z, int weight, int strength, int agility, int toughness)
+    public Unit(String name, int x, int y, int z, int weight, int strength, int agility, int toughness)
             throws IllegalArgumentException {
-        setWorld(world);
         setName(name);
         Vector position = new Vector(x, y, z).add(World.Lc/2);
         setPosition(position);
@@ -241,12 +238,15 @@ public class Unit {
      * @post    The unit's world will be set to null
      *          | new.getWorld() == null
      */
-    private void terminate() {
+    public void terminate() {
         currentActivity = NONE_ACTIVITY;
         lastActivity = NONE_ACTIVITY;
         pendingActivity = NONE_ACTIVITY;
         this.setHitPoints(0);
-        world.removeUnit(this);
+
+        if (world != null)
+            world.removeUnit(this);
+
         setWorld(null);
     }
 
@@ -593,7 +593,7 @@ public class Unit {
      * Returns the weight of the unit without any carry weight.
      */
     @Basic
-    public int getBasicWeight() {
+    private int getBasicWeight() {
         return this.weight;
     }
 

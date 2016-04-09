@@ -20,7 +20,7 @@ public class FactionTest {
     }
 
     private Unit addUnit() {
-        Unit unit = new Unit(null, "Spawn", 0, 0, 0, 50, 50, 50, 50);
+        Unit unit = new Unit("Spawn", 0, 0, 0, 50, 50, 50, 50);
         this.faction.addUnit(unit);
         return unit;
     }
@@ -30,7 +30,9 @@ public class FactionTest {
         Unit test1 = addUnit();
         Unit test2 = addUnit();
         assertTrue(this.faction.getUnits().contains(test1));
+        assertEquals(faction, test1.getFaction());
         assertTrue(this.faction.getUnits().contains(test2));
+        assertEquals(faction, test2.getFaction());
         for (int i = 0; i < 50; i++) {
             addUnit();
         }
@@ -66,6 +68,7 @@ public class FactionTest {
         this.faction.removeUnit(unit);
         assertFalse(this.faction.getUnits().contains(unit));
         assertEquals(0, this.faction.getFactionSize());
+        assertNull(unit.getFaction());
 
     }
 }
