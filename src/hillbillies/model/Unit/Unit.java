@@ -1500,7 +1500,7 @@ public class Unit {
     public int getXp() {
         return this.xp;
     }
-    
+
     /**
      * Levels the unit.
      *
