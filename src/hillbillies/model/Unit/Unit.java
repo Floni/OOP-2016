@@ -279,13 +279,14 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="advanceTime">
-    /** TODO: this comment block
+    /**
      * Updates the units state.
      *
      * @param   dt
      *          The time step taken between frames.
      *
      * @post    If the unit is moving then:
+     *          0: If default behaviour is enabled, the unit has a small chance to start sprinting.
      *          1: If the unit is sprinting the unit's stamina is decreased with one:
      *              1.1: if the stamina timer is smaller than 0, the unit's stamina is decreased with 1.
      *              1.2: if the unit's stamina is zero, the unit stops sprinting.
@@ -298,21 +299,41 @@ public class Unit {
      *                  3.2: If the unit is at the target or the unit has no other target, the unit stops moving.
      *                  3.3: Otherwise the unit moves to the next neighbour.
      *          5: Otherwise we set the position to the next position.
-     * @post    If the unit is working then the workTimer is decreased. If the work timer has run the unit stops working.
-     * @post    If the unit is attacking another unit the attackTimer is decreased,
-     *              if it runs out the other unit has to defend and the unit stops attacking.
+     *          6: The unit gains 1 xp for each cube he moved.
+     * @post    If the unit is working then the workTimer is decreased.
+     *          If the work is finished then the unit does the following:
+     *              If the unit carries a boulder or log, the boulder or log is dropped at the centre
+     *              of the cube targeted by the labour action.
+     *              Else if the target cube is a workshop and one boulder and one log are available on
+     *              that cube, the unit will improve their equipment, consuming one boulder and one log
+     *              (from the workshop cube), and increasing the unit's weight and toughness.
+     *              Else if a boulder is present on the target cube, the unit shall pick up the boulder.
+     *              Else if a log is present on the target cube, the unit shall pick up the log.
+     *              Else if the target cube is wood, the cube collapses leaving a log.
+     *              Else if the target cube is rock, the cube collapses leaving a boulder.
+     * @post    The attack timer decreases and if the timer is 0 then the unit can attack again.
      * @post    If the unit is resting, the restTimer is decreased. If the timer runs out the timer is first reset.
      *              If the unit can heal HP, we heal HP otherwise the unit heals stamina,
      *              if neither can be increased the unit stops resting.
      * @post    If the unit is currently not conducting an activity,
      *              the unit continues an interrupted activity if it exists.
-     *              If it doesn't exist and the default behaviour is enabled, we choose an activity at random.
+     *              If it doesn't exist and the default behaviour is enabled, the unit will conduct a random activity.
+     * @post    If the unit is not standing on a passable position, the unit falls.
+     *          Falling moves the unit down with the falling speed, if the new position is above a solid cube or the world ground,
+     *          the unit will take damage equal to 10 times the amount off cubes he has traveled.
+     *          Else the unit will keep falling and his position will be set to the new position.
      * @post    We also check if three minutes have past, if so we start resting and reset this timer.
      *
      * @effect  Stops sprinting if the unit's stamina is depleted or if the unit arrived at the target.
-     *          Also starts sprinting randomly when default behavior is enabled. setSprint()
+     *          Also starts sprinting randomly when default behavior is enabled.
+     *          | setSprint()
      * @effect  If the unit passes the centre of the target neighbouring cube this dt, the position of the unit
-     *          is set to the centre of this neighbouring cube. setPosition()
+     *          is set to the centre of this neighbouring cube.
+     *          | setPosition()
+     * @effect  If work is done, the unit receives 10 xp.
+     *          | addXp()
+     * @effect  A unit will take falling damage.
+     *          | deduceHitPoints()
      *
      * @throws  IllegalArgumentException
      *          The given time step was to big or negative.
@@ -1335,7 +1356,7 @@ public class Unit {
      *          The unit that attacks this unit.
      *
      * @post    If the unit dodges the attack he jumps in the x and y direction
-     *          both with a distance in range of -1 to 1
+     *          both with a distance in range of -1 to 1 to a valid position.
      *          and the new position can not be equal to the original.
      *          The unit does not take any damage.
      *          The unit receives xp and the units look at each other.
@@ -1343,12 +1364,12 @@ public class Unit {
      *          |   then (new.getPosition()[0] == old.getPosition[0] + 2 * Math.random -1 &&
      *          |       new.getPosition()[1] == old.getPosition[1] + 2 * Math.random -1) &&
      *          |       (new.getHitPoints == old.getHitPoints) &&
-     *          |         *          Else if the attack is blocked, the unit will not take any damage and will get xp.
+     *          Else if the attack is blocked, the unit will not take any damage and will get xp.
      *          | else if ( random < (0.25 * (this.getStrength + this.getAgility)/(other.getStrength + other.getAgility)))
-     *          |   then ( new.getHitPoints == old.getHitPoints) && this.addXp(20)
+     *          |   then ( new.getHitPoints == old.getHitPoints)
      *          Else if the attack hit the unit, it will take damage equal to the attacker's strength/10 and the attackers receives xp.
      *          | Else
-     *          |   ( deduceHitPoints (attacker.getStrength() / 10) ) && attacker.addXp(20)
+     *          |   ( deduceHitPoints (attacker.getStrength() / 10) )
      *
      * @effect  Finishes the current activity.
      *          | finishCurrentActivity()
@@ -1356,7 +1377,7 @@ public class Unit {
      *          | setPosition()
      * @effect  Deduces the given amount of hit points from the unit's hp.
      *          | deduceHitPoints()
-     * @effect  Adds xp for dodge, block and attack.
+     * @effect  Adds xp for dodge, block and successful attack.
      *          | addXp()
      * @effect  Turns the units towards each other.
      *          | setOrientation()
@@ -1479,21 +1500,27 @@ public class Unit {
     public int getXp() {
         return this.xp;
     }
-
-    //TODO : fix comments levelup
+    
     /**
      * Levels the unit.
      *
-     * @post    While the xpDiff is larger than or equal to 10, increase a random attribute by 1.
-     *          |while (this.xpDiff  >= 10)
-     *          |   int rand = (int) Math.floor(Math.random()*3)
-     *          |   new.xpDiff == old.xpDiff - 10
-     *          |   if (rand == 0)
-     *          |       then new.getStrength == old.getStrength() + 1
-     *          |   else if (rand == 1)
-     *          |       then new.getAgility == old.getAgility() + 1
-     *          |   else
-     *          |       new.getToughness == old.getToughness() + 1
+     * @post    While the xpDiff is larger than or equal to 10, increase a random attribute that is not yet the maximum by 1.
+     *          | while xpDiff >= 10
+     *          | if (this.getStrength() < 200)
+     *          |   attributes.add(0)
+     *          | if (this.getAgility() < 200)
+     *          |   attributes.add(1)
+     *          | if (this.getStrength() < 200)
+     *          |   attributes.add(2)
+     *          | if (attributes.get(random) == 0)
+     *          |   new.getStrength == old.getStrength + 1
+     *          | if (attributes.get(random) == 1)
+     *          |   new.getAgility == old.getAgility + 1
+     *          | if (attributes.get(random) == 2)
+     *          |   new.getToughness = old.getToughness + 1
+     *
+     * @effect  Update the weight of the unit if necessary.
+     *          | setWeight(old.getWeight)
      */
     @Model
     private void levelUp() {
