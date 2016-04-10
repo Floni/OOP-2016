@@ -157,11 +157,11 @@ public class Unit {
      *          | new.getXp == 0
      *
      * @effect  Set the name to the given name.
-     *          | setName(name)
+     *          | new.setName(name)
      * @effect  Set the position to the middle of the given block.
-     *          | setPosition(x + Lc/2, y + Lc/2, z + Lc/2)
+     *          | new..setPosition(x + Lc/2, y + Lc/2, z + Lc/2)
      * @effect  Sets the orientation to 90 degrees.
-     *          | setOrientation(Math.PI/2)
+     *          | new..setOrientation(Math.PI/2)
      */
     @Raw
     public Unit(String name, int x, int y, int z, int weight, int strength, int agility, int toughness)
@@ -324,14 +324,14 @@ public class Unit {
      *
      * @effect  Stops sprinting if the unit's stamina is depleted or if the unit arrived at the target.
      *          Also starts sprinting randomly when default behavior is enabled.
-     *          | setSprint()
+     *          | this.setSprint(false)
      * @effect  If the unit passes the centre of the target neighbouring cube this dt, the position of the unit
      *          is set to the centre of this neighbouring cube.
-     *          | setPosition()
+     *          | this.setPosition()
      * @effect  If work is done, the unit receives 10 xp.
-     *          | addXp()
+     *          | this.addXp()
      * @effect  A unit will take falling damage.
-     *          | deduceHitPoints()
+     *          | this.deduceHitPoints()
      *
      * @throws  IllegalArgumentException
      *          The given time step was to big or negative.
@@ -1311,8 +1311,6 @@ public class Unit {
      * @param   other
      *          The unit that is attacked by this unit.
      *
-     * @post    Makes the other unit defend.
-     *          | (new other).isDefending == True
      * @post    Makes the units look at each other.
      *          | new.getOrientation() == atan2((other.getPosition[1] - this.getPosition[1]),
      *          |       (other.getPosition[0] - this.getPosition[0]))
@@ -1345,8 +1343,6 @@ public class Unit {
         setCurrentActivity(new AttackActivity(this, other));
     }
 
-    //TODO: fix comments DEFEND
-
     /**
      * Defends against another unit's attack.
      *
@@ -1369,16 +1365,14 @@ public class Unit {
      *          | Else
      *          |   ( deduceHitPoints (attacker.getStrength() / 10) )
      *
-     * @effect  Finishes the current activity.
-     *          | finishCurrentActivity()
      * @effect  Sets the position to the random position after dodging.
-     *          | setPosition()
+     *          | this.setPosition()
      * @effect  Deduces the given amount of hit points from the unit's hp.
-     *          | deduceHitPoints()
+     *          | this.deduceHitPoints()
      * @effect  Adds xp for dodge, block and successful attack.
-     *          | addXp()
+     *          | this.addXp()
      * @effect  Turns the units towards each other.
-     *          | setOrientation()
+     *          | this.setOrientation()
      */
     void defend(Unit attacker) {
         double probabilityDodge = 0.20 * (this.getAgility() / attacker.getAgility());
@@ -1483,7 +1477,7 @@ public class Unit {
      *          | new.getXp() == this.getXp() + xp
      *
      * @effect  The unit will level up
-     *          | levelUp()
+     *          | this.levelUp()
      */
     void addXp(int xp) {
         this.xp += xp;
@@ -1518,7 +1512,7 @@ public class Unit {
      *          |   new.getToughness = old.getToughness + 1
      *
      * @effect  Update the weight of the unit if necessary.
-     *          | setWeight(old.getWeight)
+     *          | this.setWeight(old.getWeight)
      */
     @Model
     private void levelUp() {
