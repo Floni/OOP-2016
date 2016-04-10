@@ -6,6 +6,17 @@ import be.kuleuven.cs.som.annotate.Immutable;
 import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
 
+/**
+ * Class for general GameObject (Boulder or Log).
+ *
+ * @invar   The world must be effective
+ *          | this.world != null.
+ * @invar   The position must be valid
+ *          | this.world.isValidPosition(this.getPosition())
+ * @invar   The weight must be between 10 and 50 inclusive.
+ *          | this.getWeight() >= 10 && this.getWeight() <= 50
+ *
+ */
 public abstract class GameObject {
     private static final double FALL_SPEED = -3.0;
 
@@ -15,7 +26,7 @@ public abstract class GameObject {
     private boolean falling;
 
     /**
-     * Creates a new gameobject in a given world an at a given location.
+     * Creates a new gameObject in a given world an at a given location.
      *
      * @param   world
      *          The world in which the gameobject needs to be created.
@@ -34,7 +45,7 @@ public abstract class GameObject {
     }
 
     /**
-     * Returns the position of the gameobject.
+     * Returns the position of the gameObject.
      */
     @Basic
     public Vector getPosition() {

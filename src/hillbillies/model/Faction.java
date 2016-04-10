@@ -12,9 +12,16 @@ import java.util.Set;
  */
 public class Faction {
 
-    private static final int MAX_UNITS = 50;
+    public static final int MAX_UNITS = 50;
 
-    private Set<Unit> units;
+    /**
+     * The set of units of this faction
+     *
+     * @invar   each unit in the faction must be effective.
+     * @invar   the set units must be effective.
+     * @invar   The size of the set must be less than MAX_UNITS.
+     */
+    private final Set<Unit> units;
 
     /**
      * Create a new faction which contains no units.

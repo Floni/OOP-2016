@@ -3,10 +3,8 @@ package hillbillies.model;
 import hillbillies.model.Vector.IntVector;
 
 /**
- * Created by timo on 3/14/16.
- *
+ * Class for boulder, there is no difference between a boulder and a log.
  */
-
 public class Boulder extends GameObject {
 
     /**

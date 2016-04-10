@@ -8,8 +8,7 @@ import hillbillies.model.World;
 import java.util.List;
 
 /**
- * Created by timo on 3/17/16.
- *
+ * The activity for moving to either a distant cube or a neighbour.
  */
 class MoveActivity extends Activity {
     static final double SPRINT_DELAY = 0.1;
@@ -32,7 +31,7 @@ class MoveActivity extends Activity {
      * @effect  Initialize the Activity with the given unit
      *          | super(unit);
      */
-    MoveActivity(Unit unit) {
+    MoveActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
         // (used for FallActivity)
     }
@@ -51,7 +50,7 @@ class MoveActivity extends Activity {
      * @effect  Updates the target of the unit.
      *          | updateTarget(target)
      */
-    MoveActivity(Unit unit, Vector target) {
+    MoveActivity(Unit unit, Vector target) throws IllegalArgumentException {
         super(unit);
         updateTarget(target);
 
@@ -91,9 +90,12 @@ class MoveActivity extends Activity {
      * @post    If the unit arrives at the centre of a new cube he will receive 1 xp.
      * @post    The new position is equal to the old position + the speed multiplied by the time step.
      * @post    If the new new position is equal to the target the unit stops moving, otherwise he will continue moving.
+     *
+     * @effect  Sets the units new position
+     *          | unit.setPosition(newPosition)
      */
     @Override
-    void advanceTime(double dt) {
+    void advanceTime(double dt) throws IllegalArgumentException {
         double mod = 1;
         if (this.sprinting) {
             sprintStaminaTimer -= dt;

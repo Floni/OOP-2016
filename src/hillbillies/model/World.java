@@ -13,19 +13,32 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Created by timo on 3/14/16.
+ * Class representing a world.
+ *
+ * @invar The TerrainChangeListener must be effective.
+ * @invar The number of units must be less than MAX_UNITS.
+ * @invar The number o factions must be less than MAX_FACTIONS
  *
  */
 public class World {
 
+    /**
+     * Class representing a cube in the world.
+     */
     private static class Cube {
         Cube(int type) {
             this.type = type;
             this.gameObjects = new HashSet<>();
         }
         public int type;
-        Set<GameObject> gameObjects;
 
+        /**
+         * Set of all GameObject laying on this cube.
+         * @invar The set must be effective.
+         * @invar Each GameObject must be effective.
+         * @invar Each GameObjects position must be this cube.
+         */
+        final Set<GameObject> gameObjects;
     }
 
 
@@ -37,7 +50,6 @@ public class World {
 
     public static final double Lc = 1.0;
     private static final int MAX_UNITS = 100;
-    private static final int MAX_FACTION_SIZE = 50;
     private static final int MAX_FACTIONS = 5;
     //</editor-fold>
 
@@ -48,19 +60,39 @@ public class World {
 
     private final TerrainChangeListener updateListener;
 
-    private Cube[][][] cubes;
+    /**
+     * A 3 dimensional array of all cubes in the world.
+     *
+     * @invar   The array must be effective.
+     * @invar   Each cube must be effective.
+     */
+    private final Cube[][][] cubes;
 
     private int totalUnits;
-    private Set<Faction> factions;
-    private Set<GameObject> gameObjects;
+    /**
+     * The set of factions of this world.
+     * @invar   The set must be effective.
+     * @invar   Each faction in the set must be effective.
+     * @invar   The size of the set must be less than MAX_FACTIONS.
+     * @invar   Each factions size must be less than Faction.MAX_UNITS.
+     * @invar   The sum of the size of all factions must be less than MAX_UNITS.
+     */
+    private final Set<Faction> factions;
+    /**
+     * The set of all GameObjects (Log & Boulder) in the world.
+     *
+     * @invar   The set must be effective.
+     * @invar   Each GameObject must be effective.
+     */
+    private final Set<GameObject> gameObjects;
 
-    private ConnectedToBorder connectedToBorder;
+    private final ConnectedToBorder connectedToBorder;
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
 
     /**
-     * Creates a new world
+     * Creates a new world.
      *
      * @post    The X_MAX, Y_MAX and Z_MAX variables are set to the size of the terrain.
      * @post    The cube types are set for each cube and checked if they are connected to the border,
@@ -487,7 +519,7 @@ public class World {
             Faction newFaction = addFaction();
             newFaction.addUnit(unit);
         } else {
-            Faction minFaction = factions.stream().filter(f -> f.getFactionSize() < MAX_FACTION_SIZE)
+            Faction minFaction = factions.stream().filter(f -> f.getFactionSize() < Faction.MAX_UNITS)
                     .min((f1, f2) -> Integer.compare(f1.getFactionSize(), f2.getFactionSize())).orElse(null);
             if (minFaction != null) {
                 minFaction.addUnit(unit);

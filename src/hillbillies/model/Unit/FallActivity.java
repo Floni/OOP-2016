@@ -6,8 +6,7 @@ import hillbillies.model.Vector.Vector;
 import hillbillies.model.World;
 
 /**
- * Created by timo on 3/17/16.
- *
+ * The activity for falling, is a subclass of MoveActivity.
  */
 class FallActivity extends MoveActivity {
 

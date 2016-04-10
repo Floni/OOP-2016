@@ -9,8 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Created by timo on 3/17/16.
- *
+ * The default activity for when an unit isn't doing anything, also manages default behaviour.
  */
 class NoneActivity extends Activity {
 
