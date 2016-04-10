@@ -222,18 +222,33 @@ public class Vector {
     }
 
     /**
-     * Prints the given vector
+     * Returns a string representation of the vector.
      */
     @Override
     public String toString() {
         return String.format("Vector(%f, %f, %f)", getX(), getY(), getZ());
     }
 
+
+    /**
+     * Returns a hashcode of the vector.
+     */
     @Override
     public int hashCode() {
         return (int)(8017*getX() + 104831 * getY() + 1301077 * getZ()) + 17;
     }
 
+    /**
+     * Checks whether the vector is equal to the given object.
+     * Values are compared with a precision of 1e-6, for different precisions use isEqualTo(other).
+     * @param   obj
+     *          The object to compare to.
+     *
+     * @return  True if the object is a effective vector and the values are equal.
+     *          | result == obj != null &&
+     *          |   obj.getClass().equals(Vector.class) &&
+     *          |   this.isEqualTo((Vector)obj, 1e-6);
+     */
     @Override
     public boolean equals(Object obj) {
         return obj != null && obj.getClass().equals(Vector.class) && this.isEqualTo((Vector)obj, 1e-6);

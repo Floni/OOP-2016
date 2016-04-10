@@ -7,7 +7,7 @@ import be.kuleuven.cs.som.annotate.Basic;
  *
  */
 class RestActivity extends Activity {
-    public static final double REST_DELAY = 0.2;
+    private static final double REST_DELAY = 0.2;
 
     private double restTimer;
     private double restDiff;
@@ -20,9 +20,12 @@ class RestActivity extends Activity {
      * @param   unit
      *          The unit who is conducting the activity.
      *
-     * @post    The unit can not switch activities for the first hitpoint he recovers.
+     * @post    The unit can not switch activities until he recovers one hitPoint.
+     *
+     * @effect  Initialize the Activity with the given unit
+     *          | super(unit);
      */
-    public RestActivity(Unit unit) {
+    RestActivity(Unit unit) {
         super(unit);
         this.restTimer = REST_DELAY;
         this.restDiff = 0;

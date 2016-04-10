@@ -1,7 +1,6 @@
 package hillbillies.model.Unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
-import be.kuleuven.cs.som.annotate.Model;
 import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
 import hillbillies.model.World;
@@ -13,7 +12,7 @@ import java.util.List;
  *
  */
 class MoveActivity extends Activity {
-    public static final double SPRINT_DELAY = 0.1;
+    static final double SPRINT_DELAY = 0.1;
 
     protected Vector target;
     private Vector targetNeighbour;
@@ -30,9 +29,12 @@ class MoveActivity extends Activity {
      *
      * @param   unit
      *          The unit that starts moving.
+     * @effect  Initialize the Activity with the given unit
+     *          | super(unit);
      */
-    protected MoveActivity(Unit unit) {
+    MoveActivity(Unit unit) {
         super(unit);
+        // (used for FallActivity)
     }
 
     /**
@@ -43,10 +45,13 @@ class MoveActivity extends Activity {
      * @param   target
      *          The location that the unit moves to.
      *
+     * @effect  Initialize the Activity with the given unit
+     *          | super(unit);
+     *
      * @effect  Updates the target of the unit.
      *          | updateTarget(target)
      */
-    public MoveActivity(Unit unit, Vector target) {
+    MoveActivity(Unit unit, Vector target) {
         super(unit);
         updateTarget(target);
 
@@ -64,10 +69,12 @@ class MoveActivity extends Activity {
      * @param   dz
      *          The z component of the target direction.
      *
+     * @effect  Initialize the Activity with the given unit
+     *          | super(unit);
      * @effect  Moves the unit to the neighbouring cube.
      *          | moveToNeighbour(dx, dy, dz)
      */
-    public MoveActivity(Unit unit, int dx, int dy, int dz) throws IllegalArgumentException {
+    MoveActivity(Unit unit, int dx, int dy, int dz) throws IllegalArgumentException {
         super(unit);
         moveToNeighbour(dx, dy, dz);
     }

@@ -22,6 +22,8 @@ import java.util.stream.Stream;
  *
  */
 
+// TODO: all class invariants & representation invariants
+
 /**
  * The unit class, this class keeps tracks of the unit's position, speed and other attributes.
  * It provides methods to move, to attack or to rest.
@@ -206,6 +208,7 @@ public class Unit {
 
         this.restMinuteTimer = REST_MINUTE;
 
+        // TODO: factor in going up and down for cost and heuristic.
         pathFinder = new PathFinder<>(new PathFinder.PathGlue<IntVector>() {
             @Override
             public Stream<IntVector> getNeighbours(IntVector pos) {
@@ -345,6 +348,10 @@ public class Unit {
         return this.currentActivity;
     }
 
+    /**
+     * Returns whether or not the unit can do the given Activity.
+     */
+    @Basic
     public boolean canHaveAsActivity(Class<? extends Activity> newActivity) {
         return getCurrentActivity().canSwitch(newActivity);
     }
@@ -1127,6 +1134,7 @@ public class Unit {
         }
 
         MoveActivity current = (MoveActivity)getCurrentActivity();
+        // reset sprint timer
         if (!current.sprinting && sprint)
             current.sprintStaminaTimer = MoveActivity.SPRINT_DELAY;
         current.sprinting = sprint;
@@ -1490,7 +1498,7 @@ public class Unit {
     @Model
     private void levelUp() {
         while (this.xpDiff >= 10) {
-            ArrayList<Integer> attributes = new ArrayList();
+            ArrayList<Integer> attributes = new ArrayList<>();
             if (this.getStrength() < 200)
                 attributes.add(0);
             if (this.getAgility() < 200)

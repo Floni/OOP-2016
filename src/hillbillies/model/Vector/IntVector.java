@@ -6,7 +6,6 @@ import be.kuleuven.cs.som.annotate.Value;
 
 /**
  * Java doesn't allow math on general number type -> we can't use generics.
- * (Java sucks)
  *
  */
 @Value
@@ -232,19 +231,30 @@ public class IntVector {
     }
 
     /**
-     * Prints the given vector
+     * Returns a string representation of the given vector.
      */
     @Override
     public String toString() {
         return String.format("Vector(%d, %d, %d)", getX(), getY(), getZ());
     }
 
-    //TODO: Finish commenting
+    /**
+     * Returns a hashcode of the vector.
+     */
     @Override
     public int hashCode() {
         return (8017*getX() + 104831 * getY() + 1301077 * getZ()) + 17;
     }
 
+    /**
+     * Check whether this vector is equal to the given object.
+     * @param   obj
+     *          The object with which to compare the vector.
+     * @return  True if the vectors have the same values.
+     *          | result == obj != null &&
+     *          |   obj.getClass().equals(IntVector.class) &&
+     *          |   this.isEqualTo((IntVector)obj)
+     */
     @Override
     public boolean equals(Object obj) {
         return obj != null && obj.getClass().equals(IntVector.class) && this.isEqualTo((IntVector)obj);

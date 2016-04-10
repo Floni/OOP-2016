@@ -17,8 +17,14 @@ class FallActivity extends MoveActivity {
      * @param   unit
      *          The unit who is falling.
      *
+     * @post    The units speed will be 3.
+     *          | (new unit).getSpeedScalar() == 3
+     *
+     * @effect  Initialize the Activity with the given unit
+     *          | super(unit);
+     *
      */
-    public FallActivity(Unit unit) {
+    FallActivity(Unit unit) {
         super(unit);
 
         speed = new Vector(0, 0, -3.0);

@@ -8,7 +8,7 @@ import hillbillies.model.Vector.Vector;
  *
  */
 class AttackActivity extends Activity {
-    public static final double ATTACK_DELAY = 1;
+    private static final double ATTACK_DELAY = 1;
 
     private double attackTimer;
 
@@ -20,12 +20,14 @@ class AttackActivity extends Activity {
      * @param   other
      *          The unit that is attacked.
      *
-     *  @effect The unit's will face each other.
+     * @effect  Initialize the Activity with the given unit
+     *          | super(unit);
+     * @effect  The unit's will face each other.
      *          | setOrientation()
-     *  @effect The defender will defend against the attack
+     * @effect  The defender will defend against the attack
      *          | other.defend(unit)
      */
-    public AttackActivity(Unit unit, Unit other) {
+    AttackActivity(Unit unit, Unit other) {
         super(unit);
         attackTimer = ATTACK_DELAY;
 

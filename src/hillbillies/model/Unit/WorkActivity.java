@@ -22,6 +22,8 @@ class WorkActivity extends Activity {
      * @param   location
      *          The location at which the unit starts working.
      *
+     * @effect  Initialize the Activity with the given unit
+     *          | super(unit);
      * @effect  Makes the unit face in the direction of the working location
      *          | setOrientation()
      */

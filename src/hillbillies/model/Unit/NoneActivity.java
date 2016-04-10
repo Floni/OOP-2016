@@ -20,8 +20,10 @@ class NoneActivity extends Activity {
      *
      * @param   unit
      *          The unit who starts default behavior.
+     * @effect  Initialize the Activity with the given unit
+     *          | super(unit);
      */
-    public NoneActivity(Unit unit) {
+    NoneActivity(Unit unit) {
         super(unit);
     }
 

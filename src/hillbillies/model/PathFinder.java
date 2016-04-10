@@ -4,11 +4,16 @@ import java.util.*;
 import java.util.stream.Stream;
 
 /**
- * Created by timo on 3/17/16.
+ * Simple generic A* pathfinder.
  *
+ * @param   T
+ *          The type representing positions.
  */
 public class PathFinder<T> {
-    class PriorityData implements Comparable<PriorityData> {
+    /**
+     * Class used for Priority queue.
+     */
+    private class PriorityData implements Comparable<PriorityData> {
 
         private int priority;
         private T vector;
@@ -40,13 +45,23 @@ public class PathFinder<T> {
     private PathGlue<T> glue;
 
     /**
-     *
-     * @param glue
+     *  Create a new pathfinder with the given glue.
+     * @param   glue
+     *          An interface providing methods to get the needed information.
      */
     public PathFinder(PathGlue<T> glue) {
         this.glue = glue;
     }
 
+    /**
+     * Calculate a path from start to target.
+     * @param   start
+     *          The start position.
+     * @param   target
+     *          The end position.
+     * @return  Returns a list of position from start to target.
+     *          The list is in reverse order, the first element will be target and the last will be start.
+     */
     public List<T> getPath(T start, T target) {
         PriorityQueue<PriorityData> frontier = new PriorityQueue<>();
         frontier.add(new PriorityData(0, start));
