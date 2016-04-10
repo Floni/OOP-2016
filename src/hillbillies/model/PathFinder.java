@@ -8,6 +8,9 @@ import java.util.stream.Stream;
  *
  * @param   T
  *          The type representing positions.
+ *
+ * @invar   The glue must be effective.
+ *
  */
 public class PathFinder<T> {
     /**
@@ -42,14 +45,16 @@ public class PathFinder<T> {
         }
     }
 
-    private PathGlue<T> glue;
+    private final PathGlue<T> glue;
 
     /**
      *  Create a new pathfinder with the given glue.
      * @param   glue
      *          An interface providing methods to get the needed information.
      */
-    public PathFinder(PathGlue<T> glue) {
+    public PathFinder(PathGlue<T> glue) throws IllegalArgumentException {
+        if (glue == null)
+            throw new IllegalArgumentException("glue isn't effective");
         this.glue = glue;
     }
 
@@ -61,6 +66,7 @@ public class PathFinder<T> {
      *          The end position.
      * @return  Returns a list of position from start to target.
      *          The list is in reverse order, the first element will be target and the last will be start.
+     *          If no path can be found getPath returns null.
      */
     public List<T> getPath(T start, T target) {
         PriorityQueue<PriorityData> frontier = new PriorityQueue<>();

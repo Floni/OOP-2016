@@ -6,8 +6,10 @@ import hillbillies.model.Vector.Vector;
 import hillbillies.model.World;
 
 /**
- * Created by timo on 3/17/16.
+ * The activity for working.
  *
+ * @invar   location must be valid & effective
+ *          | this.getUnit().getWorld().isValidPosition(location)
  */
 class WorkActivity extends Activity {
 
@@ -29,6 +31,9 @@ class WorkActivity extends Activity {
      */
     WorkActivity(Unit unit, IntVector location) {
         super(unit);
+        if (!unit.getWorld().isValidPosition(location))
+            throw new IllegalArgumentException("invalid work location");
+
         this.workTimer  = 500.0 / unit.getStrength();
         this.location = location;
         Vector diff = location.toVector().add(World.Lc/2).subtract(unit.getPosition());

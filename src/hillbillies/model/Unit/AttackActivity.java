@@ -4,8 +4,7 @@ import be.kuleuven.cs.som.annotate.Basic;
 import hillbillies.model.Vector.Vector;
 
 /**
- * Created by timo on 3/17/16.
- *
+ * The activity for attacking another unit.
  */
 class AttackActivity extends Activity {
     private static final double ATTACK_DELAY = 1;
@@ -25,9 +24,9 @@ class AttackActivity extends Activity {
      * @effect  The unit's will face each other.
      *          | setOrientation()
      * @effect  The defender will defend against the attack
-     *          | other.defend(unit)
+     *          | other.defend(unit)<
      */
-    AttackActivity(Unit unit, Unit other) {
+    AttackActivity(Unit unit, Unit other) throws IllegalArgumentException {
         super(unit);
         attackTimer = ATTACK_DELAY;
 

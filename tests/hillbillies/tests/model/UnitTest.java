@@ -7,7 +7,6 @@ import hillbillies.model.Unit.Unit;
 import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
 import hillbillies.model.World;
-import hillbillies.part2.listener.TerrainChangeListener;
 import ogp.framework.util.ModelException;
 import ogp.framework.util.Util;
 import org.junit.After;
@@ -247,10 +246,10 @@ public class UnitTest {
     @Test
     public void testAttack() throws Exception {
         Unit other = world.spawnUnit(false);
-        other.setPosition(unit.getPosition().add(0, 1, 0));
+        other.setPosition(unit.getPosition().add(1, 1, 0));
         unit.attack(other);
         assertTrue(unit.isAttacking());
-        assertEquals(Math.PI/2, unit.getOrientation(), 1e-6);
+        assertEquals(Math.PI/4.0, unit.getOrientation(), 1e-6);
     }
 
     @Test (expected = IllegalArgumentException.class)
@@ -373,6 +372,7 @@ public class UnitTest {
         unit.setPosition(new Vector(2.5, 2.5, 2.5));
         advanceTimeFor(unit, 0.2, 0.1);
         assertTrue(unit.isMoving()); // we are falling
+        assertEquals(3.0, unit.getSpeedScalar(), 1e-6);
         advanceTimeFor(unit, 10, 0.1);
         assertEquals(new Vector(2.5, 2.5, 0.5), unit.getPosition());
     }

@@ -3,8 +3,7 @@ package hillbillies.model.Unit;
 import be.kuleuven.cs.som.annotate.Basic;
 
 /**
- * Created by timo on 3/17/16.
- *
+ * The activity for resting.
  */
 class RestActivity extends Activity {
     private static final double REST_DELAY = 0.2;

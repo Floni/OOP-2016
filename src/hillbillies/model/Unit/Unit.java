@@ -22,8 +22,6 @@ import java.util.stream.Stream;
  *
  */
 
-// TODO: all class invariants & representation invariants
-
 /**
  * The unit class, this class keeps tracks of the unit's position, speed and other attributes.
  * It provides methods to move, to attack or to rest.
@@ -268,7 +266,7 @@ public class Unit {
         this.world = world;
     }
 
-    @Basic
+    @Basic @Model
     World getWorld() {
         return this.world;
     }
@@ -1025,8 +1023,8 @@ public class Unit {
      *          | new.getPosition[1] == old.getPosition[1] + dy &&
      *          | new.getPosition[2] == old.getPosition[2] + dz
      *
-     * @effect  Set the unit's orientation
-     *          | setOrientation(Math.atan2(getSpeed().getY(), getSpeed().getX()));
+     * @effect  The unit will point to the target cube.
+     *          | new.getOrientation() == Math.atan2(...)
      *
      * @throws  IllegalArgumentException
      *          If the target cube is not within the world bounds
@@ -1099,12 +1097,12 @@ public class Unit {
      * @return  Returns the base speed if the unit is moving and not sprinting.
      *          Returns 0 if the unit is not moving.
      *          Returns twice the base speed if the unit is sprinting.
-     *          | if (getSpeed() != null && !isSprinting())
-     *          |   then result == getSpeed
-     *          | if (getSpeed() == null)
+     *          | if (isMoving() && !isSprinting())
+     *          |   then result == speed.norm()
+     *          | if (!this.isMoving())
      *          |   then result == 0
-     *          | if (getSpeed() != null && isSprinting())
-     *          |   then result == 2 * getSpeed
+     *          | if (isMoving() && isSprinting())
+     *          |   then result == 2 * g
      */
     public double getSpeedScalar() {
         if (!isMoving())
@@ -1162,7 +1160,7 @@ public class Unit {
      * The unit starts working at the given location.
      *
      * @post    Makes the unit start working
-     *          | new.isWorking == True
+     *          | new.isWorking() == True
      *
      * @throws  IllegalArgumentException
      *          Throws if the unit can't work.
