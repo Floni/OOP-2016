@@ -121,7 +121,7 @@ class WorkActivity extends Activity {
      * Resumes the work activity.
      */
     @Override
-    public void resume() {
+    void resume() {
         unit.finishCurrentActivity();
     }
 }

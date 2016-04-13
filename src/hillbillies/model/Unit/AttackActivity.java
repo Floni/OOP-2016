@@ -76,7 +76,7 @@ class AttackActivity extends Activity {
      *          Always throws
      */
     @Override
-    public void resume()  throws IllegalStateException {
+    void resume()  throws IllegalStateException {
         // can't happen
         throw new IllegalStateException("can't resume an attack");
     }

@@ -24,7 +24,7 @@ abstract class Activity {
      *          If the unit isn't effective.
      *          | unit == null
      */
-    protected Activity(Unit unit) throws IllegalArgumentException {
+    Activity(Unit unit) throws IllegalArgumentException {
         if (unit == null)
             throw new IllegalArgumentException("unit isn't effective");
 
@@ -35,7 +35,7 @@ abstract class Activity {
      * Returns the unit which will conduct the activity.
      */
     @Basic
-    protected Unit getUnit() {
+    Unit getUnit() {
         return this.unit;
     }
 
@@ -76,5 +76,5 @@ abstract class Activity {
     /**
      * Resumes the activity when it was interrupted.
      */
-    public abstract void resume();
+    abstract void resume();
 }

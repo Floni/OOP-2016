@@ -83,7 +83,7 @@ class RestActivity extends Activity {
      * Resumes the rest activity.
      */
     @Override
-    public void resume() {
+    void resume() {
         this.restTimer = REST_DELAY;
         this.initialRest = true;
         this.restDiff = 0;

@@ -77,7 +77,7 @@ class FallActivity extends MoveActivity {
      *          Always throws.
      */
     @Override
-    public void resume() throws IllegalStateException {
+    void resume() throws IllegalStateException {
         throw new IllegalStateException("can't resume falling because can't interrupt falling");
     }
 }

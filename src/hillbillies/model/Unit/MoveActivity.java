@@ -163,7 +163,7 @@ class MoveActivity extends Activity {
      * Resumes the moving activity, which does nothing since the target would only be updated.
      */
     @Override
-    public void resume() {
+    void resume() {
 
     }
 

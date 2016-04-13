@@ -97,7 +97,6 @@ class NoneActivity extends Activity {
      * Resumes the activity, which does nothing.
      */
     @Override
-    public void resume() {
-
+    void resume() {
     }
 }
