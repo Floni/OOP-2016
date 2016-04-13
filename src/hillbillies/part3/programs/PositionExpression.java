@@ -1,7 +1,7 @@
 package hillbillies.part3.programs;
 
 import be.kuleuven.cs.som.annotate.Basic;
-import hillbillies.model.Vector.IntVector;
+import hillbillies.model.vector.IntVector;
 
 /**
  * Created by timo on 4/13/16.

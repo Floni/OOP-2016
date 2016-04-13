@@ -1,4 +1,4 @@
-package hillbillies.model.Vector;
+package hillbillies.model.vector;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;

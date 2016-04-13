@@ -1,6 +1,6 @@
 package hillbillies.part3.programs;
 
-import hillbillies.model.Vector.IntVector;
+import hillbillies.model.vector.IntVector;
 
 /**
  * Created by timo on 4/13/16.

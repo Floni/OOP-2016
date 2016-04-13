@@ -2,7 +2,7 @@ package hillbillies.tests.model;
 
 import hillbillies.model.*;
 import hillbillies.model.unit.Unit;
-import hillbillies.model.Vector.IntVector;
+import hillbillies.model.vector.IntVector;
 import org.junit.Before;
 import org.junit.Test;
 

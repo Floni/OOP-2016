@@ -1,7 +1,7 @@
 package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
-import hillbillies.model.Vector.Vector;
+import hillbillies.model.vector.Vector;
 
 /**
  * The activity for attacking another unit.

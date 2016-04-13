@@ -4,8 +4,8 @@ import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 import hillbillies.model.*;
-import hillbillies.model.Vector.IntVector;
-import hillbillies.model.Vector.Vector;
+import hillbillies.model.vector.IntVector;
+import hillbillies.model.vector.Vector;
 
 import java.util.ArrayList;
 import java.util.stream.Stream;

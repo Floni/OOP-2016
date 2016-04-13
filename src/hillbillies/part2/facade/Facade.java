@@ -3,7 +3,7 @@ package hillbillies.part2.facade;
 import hillbillies.model.*;
 // import hillbillies.part1.facade.Facade;
 import hillbillies.model.unit.Unit;
-import hillbillies.model.Vector.IntVector;
+import hillbillies.model.vector.IntVector;
 import hillbillies.part2.listener.TerrainChangeListener;
 import ogp.framework.util.ModelException;
 
