@@ -3,7 +3,7 @@ package hillbillies.part2.internal.controller;
 import java.util.function.Consumer;
 
 import hillbillies.common.internal.controller.UnitSelectionMode;
-import hillbillies.model.Unit.Unit;
+import hillbillies.model.unit.Unit;
 import hillbillies.part1.internal.controller.ActionExecutorPart1;
 import hillbillies.part2.facade.IFacade;
 import ogp.framework.util.ModelException;

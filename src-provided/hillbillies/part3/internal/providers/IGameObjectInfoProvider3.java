@@ -5,7 +5,7 @@ import java.util.Set;
 
 import hillbillies.model.Faction;
 import hillbillies.model.Task;
-import hillbillies.model.Unit.Unit;
+import hillbillies.model.unit.Unit;
 import hillbillies.part2.internal.providers.IGameObjectInfoProvider;
 
 public interface IGameObjectInfoProvider3 extends IGameObjectInfoProvider {

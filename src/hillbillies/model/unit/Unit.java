@@ -1,4 +1,4 @@
-package hillbillies.model.Unit;
+package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;

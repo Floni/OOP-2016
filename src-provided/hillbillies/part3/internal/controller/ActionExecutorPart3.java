@@ -14,7 +14,7 @@ import hillbillies.common.internal.inputmodes.InputMode;
 import hillbillies.model.Faction;
 import hillbillies.model.Scheduler;
 import hillbillies.model.Task;
-import hillbillies.model.Unit.Unit;
+import hillbillies.model.unit.Unit;
 import hillbillies.part2.internal.controller.ActionExecutorPart2;
 import hillbillies.part3.facade.IFacade;
 import hillbillies.part3.programs.TaskParser;

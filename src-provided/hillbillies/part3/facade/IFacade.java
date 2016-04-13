@@ -9,7 +9,7 @@ import hillbillies.model.Faction;
 import hillbillies.model.Log;
 import hillbillies.model.Scheduler;
 import hillbillies.model.Task;
-import hillbillies.model.Unit.Unit;
+import hillbillies.model.unit.Unit;
 import hillbillies.model.World;
 import hillbillies.part2.facade.Facade;
 import hillbillies.part3.programs.ITaskFactory;

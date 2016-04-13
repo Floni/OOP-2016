@@ -3,7 +3,7 @@ package hillbillies.tests.model;
 import hillbillies.model.Boulder;
 import hillbillies.model.Faction;
 import hillbillies.model.Log;
-import hillbillies.model.Unit.Unit;
+import hillbillies.model.unit.Unit;
 import hillbillies.model.Vector.IntVector;
 import hillbillies.model.Vector.Vector;
 import hillbillies.model.World;

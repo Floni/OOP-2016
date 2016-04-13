@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 import hillbillies.common.internal.providers.UnitInfoProvider;
 import hillbillies.common.internal.selection.Selection;
-import hillbillies.model.Unit.Unit;
+import hillbillies.model.unit.Unit;
 import hillbillies.part1.facade.IFacade;
 import ogp.framework.util.ModelException;
 

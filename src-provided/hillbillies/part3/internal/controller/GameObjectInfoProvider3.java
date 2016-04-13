@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 import hillbillies.model.Faction;
 import hillbillies.model.Scheduler;
 import hillbillies.model.Task;
-import hillbillies.model.Unit.Unit;
+import hillbillies.model.unit.Unit;
 import hillbillies.part2.internal.controller.GameObjectInfoProvider;
 import hillbillies.part3.facade.IFacade;
 import hillbillies.part3.internal.providers.IGameObjectInfoProvider3;

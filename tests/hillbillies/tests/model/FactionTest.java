@@ -1,7 +1,7 @@
 package hillbillies.tests.model;
 
 import hillbillies.model.Faction;
-import hillbillies.model.Unit.Unit;
+import hillbillies.model.unit.Unit;
 import org.junit.Before;
 import org.junit.Test;
 

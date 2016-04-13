@@ -7,7 +7,7 @@ import hillbillies.common.internal.providers.UnitInfoProvider;
 import hillbillies.common.internal.providers.WorldInfoProvider;
 import hillbillies.common.internal.ui.sprites.SpriteFactory;
 import hillbillies.common.internal.ui.viewmodel.ViewModel;
-import hillbillies.model.Unit.Unit;
+import hillbillies.model.unit.Unit;
 import hillbillies.part1.internal.map.EmptyMap;
 import hillbillies.part1.internal.ui.sprites.UnitSprite;
 import hillbillies.part1.internal.ui.viewmodel.IViewModel1;

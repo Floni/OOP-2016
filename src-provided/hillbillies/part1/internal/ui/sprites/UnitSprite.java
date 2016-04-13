@@ -3,7 +3,7 @@ package hillbillies.part1.internal.ui.sprites;
 import hillbillies.common.internal.providers.UnitInfoProvider;
 import hillbillies.common.internal.ui.sprites.AbstractSprite;
 import hillbillies.common.internal.ui.sprites.SpriteOrientation;
-import hillbillies.model.Unit.Unit;
+import hillbillies.model.unit.Unit;
 import javafx.animation.Interpolator;
 import javafx.animation.Timeline;
 import javafx.beans.binding.Bindings;

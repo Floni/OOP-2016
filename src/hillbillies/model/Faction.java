@@ -1,7 +1,7 @@
 package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
-import hillbillies.model.Unit.Unit;
+import hillbillies.model.unit.Unit;
 
 import java.util.HashSet;
 import java.util.Set;

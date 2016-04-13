@@ -8,7 +8,7 @@ import hillbillies.common.internal.ui.sprites.SpriteFactory;
 import hillbillies.common.internal.ui.viewmodel.ViewModel;
 import hillbillies.model.Boulder;
 import hillbillies.model.Log;
-import hillbillies.model.Unit.Unit;
+import hillbillies.model.unit.Unit;
 import hillbillies.part2.internal.map.ByteMap3D;
 import hillbillies.part2.internal.map.CubeType;
 import hillbillies.part2.internal.providers.IGameObjectInfoProvider;

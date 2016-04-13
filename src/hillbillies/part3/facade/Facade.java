@@ -3,7 +3,7 @@ package hillbillies.part3.facade;
 import hillbillies.model.Faction;
 import hillbillies.model.Scheduler;
 import hillbillies.model.Task;
-import hillbillies.model.Unit.Unit;
+import hillbillies.model.unit.Unit;
 import hillbillies.part3.programs.ITaskFactory;
 import ogp.framework.util.ModelException;
 

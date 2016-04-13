@@ -6,7 +6,7 @@ import hillbillies.common.internal.ui.viewmodel.ViewModel;
 import hillbillies.common.internal.ui.viewparts.InfoArea;
 import hillbillies.common.internal.ui.viewparts.MiniMap;
 import hillbillies.common.internal.ui.viewparts.WorldView;
-import hillbillies.model.Unit.Unit;
+import hillbillies.model.unit.Unit;
 import hillbillies.part2.internal.Part2Options;
 import hillbillies.part2.internal.controller.ActionExecutorPart2;
 import hillbillies.part2.internal.providers.IGameObjectInfoProvider;

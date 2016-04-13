@@ -5,7 +5,7 @@ import hillbillies.common.internal.ui.HillbilliesView;
 import hillbillies.common.internal.ui.ViewProviders;
 import hillbillies.common.internal.ui.viewmodel.ViewModel;
 import hillbillies.common.internal.ui.viewparts.InfoArea;
-import hillbillies.model.Unit.Unit;
+import hillbillies.model.unit.Unit;
 import hillbillies.part1.internal.Part1Options;
 import hillbillies.part1.internal.controller.IHillbilliesView1;
 import hillbillies.part1.internal.ui.viewmodel.IViewModel1;
