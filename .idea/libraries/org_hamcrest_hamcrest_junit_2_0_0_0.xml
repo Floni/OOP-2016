@@ -6,6 +6,7 @@
       <root url="jar://$PROJECT_DIR$/lib/junit-4.12.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/hamcrest-core-1.3.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/java-hamcrest-2.0.0.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/antlr-4.5.3-complete.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
