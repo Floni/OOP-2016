@@ -267,7 +267,7 @@ public class Unit {
     }
 
     @Basic @Model
-    World getWorld() {
+    public World getWorld() {
         return this.world;
     }
 
