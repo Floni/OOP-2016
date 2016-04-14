@@ -1,6 +1,6 @@
 package hillbillies.model;
 
-import hillbillies.model.Vector.IntVector;
+import hillbillies.model.vector.IntVector;
 import hillbillies.model.unit.Unit;
 import hillbillies.part3.programs.statement.Statement;
 

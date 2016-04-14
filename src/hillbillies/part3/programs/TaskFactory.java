@@ -1,12 +1,11 @@
 package hillbillies.part3.programs;
 
 import hillbillies.model.Task;
-import hillbillies.model.Vector.IntVector;
+import hillbillies.model.vector.IntVector;
 import hillbillies.part3.programs.expression.*;
 import hillbillies.part3.programs.statement.MoveToStatement;
 import hillbillies.part3.programs.statement.Statement;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -131,17 +130,17 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public Expression<?> createLogPosition(SourceLocation sourceLocation) {
-        return null;
+        return new LogPositionExpression();
     }
 
     @Override
     public Expression<?> createBoulderPosition(SourceLocation sourceLocation) {
-        return null;
+        return new BoulderPositionExpression();
     }
 
     @Override
     public Expression<?> createWorkshopPosition(SourceLocation sourceLocation) {
-        return null;
+        return new WorkshopPositionExpression();
     }
 
     @Override
@@ -151,7 +150,7 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public Expression<?> createNextToPosition(Expression<?> position, SourceLocation sourceLocation) {
-        return null;
+        return new NextToPositionExpression((PositionExpression)position);
     }
 
     @Override

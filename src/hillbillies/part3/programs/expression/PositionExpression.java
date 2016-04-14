@@ -1,8 +1,6 @@
 package hillbillies.part3.programs.expression;
 
-import be.kuleuven.cs.som.annotate.Basic;
-import hillbillies.model.Vector.IntVector;
-import hillbillies.part3.programs.expression.Expression;
+import hillbillies.model.vector.IntVector;
 
 /**
  * Created by timo on 4/13/16.
