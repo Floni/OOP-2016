@@ -161,22 +161,22 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public Expression<?> createThis(SourceLocation sourceLocation) {
-        return null;
+        return new ThisUnitExpression();
     }
 
     @Override
     public Expression<?> createFriend(SourceLocation sourceLocation) {
-        return null;
+        return new FriendUnitExpression();
     }
 
     @Override
     public Expression<?> createEnemy(SourceLocation sourceLocation) {
-        return null;
+        return new EnemyUnitExpression();
     }
 
     @Override
     public Expression<?> createAny(SourceLocation sourceLocation) {
-        return null;
+        return new AnyUnitExpression();
     }
 
     @Override
