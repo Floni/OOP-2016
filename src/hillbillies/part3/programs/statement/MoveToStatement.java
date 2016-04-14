@@ -1,6 +1,6 @@
 package hillbillies.part3.programs.statement;
 
-import hillbillies.model.Vector.IntVector;
+import hillbillies.model.vector.IntVector;
 import hillbillies.part3.programs.expression.PositionExpression;
 
 /**

@@ -1,7 +1,7 @@
 package hillbillies.part3.programs.expression;
 
 import hillbillies.model.Task;
-import hillbillies.model.Vector.IntVector;
+import hillbillies.model.vector.IntVector;
 
 /**
  * Created by florian on 14/04/2016.
