@@ -2,6 +2,7 @@ package hillbillies.part3.programs;
 
 import hillbillies.model.Task;
 import hillbillies.model.vector.IntVector;
+import hillbillies.model.unit.Unit;
 import hillbillies.part3.programs.expression.*;
 import hillbillies.part3.programs.statement.MoveToStatement;
 import hillbillies.part3.programs.statement.Statement;
@@ -80,47 +81,47 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public Expression<?> createIsSolid(Expression<?> position, SourceLocation sourceLocation) {
-        return null;
+        return new IsSolidBooleanExpression((PositionExpression) position);
     }
 
     @Override
     public Expression<?> createIsPassable(Expression<?> position, SourceLocation sourceLocation) {
-        return null;
+        return new IsPassableBooleanExpression((PositionExpression) position);
     }
 
     @Override
     public Expression<?> createIsFriend(Expression<?> unit, SourceLocation sourceLocation) {
-        return null;
+        return new IsFriendBooleanExpression((UnitExpression) unit);
     }
 
     @Override
     public Expression<?> createIsEnemy(Expression<?> unit, SourceLocation sourceLocation) {
-        return null;
+        return new IsEnemyBooleanExpression((UnitExpression) unit);
     }
 
     @Override
     public Expression<?> createIsAlive(Expression<?> unit, SourceLocation sourceLocation) {
-        return null;
+        return new IsAliveBooleanExpression((UnitExpression) unit);
     }
 
     @Override
     public Expression<?> createCarriesItem(Expression<?> unit, SourceLocation sourceLocation) {
-        return null;
+        return new CarriesItemExpression((UnitExpression) unit);
     }
 
     @Override
     public Expression<?> createNot(Expression<?> expression, SourceLocation sourceLocation) {
-        return null;
+        return new NotBooleanExpression((BooleanExpression) expression);
     }
 
     @Override
     public Expression<?> createAnd(Expression<?> left, Expression<?> right, SourceLocation sourceLocation) {
-        return null;
+        return new AndBooleanExpression((BooleanExpression) left, (BooleanExpression) right);
     }
 
     @Override
     public Expression<?> createOr(Expression<?> left, Expression<?> right, SourceLocation sourceLocation) {
-        return null;
+        return new OrBooleanExpression((BooleanExpression) left, (BooleanExpression) right);
     }
 
     @Override
@@ -180,7 +181,7 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public Expression<?> createTrue(SourceLocation sourceLocation) {
-        return new TrueBooleanExpression();
+        return ((BooleanExpression)task -> true);
     }
 
     @Override
