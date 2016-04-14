@@ -3,8 +3,8 @@ package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
-import hillbillies.model.Vector.IntVector;
-import hillbillies.model.Vector.Vector;
+import hillbillies.model.vector.IntVector;
+import hillbillies.model.vector.Vector;
 
 /**
  * Class for general GameObject (Boulder or Log).

@@ -1,6 +1,6 @@
 package hillbillies.tests.model.Vector;
 
-import hillbillies.model.Vector.Vector;
+import hillbillies.model.vector.Vector;
 import org.junit.Test;
 
 import java.util.HashMap;

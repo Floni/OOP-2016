@@ -1,6 +1,6 @@
 package hillbillies.model;
 
-import hillbillies.model.Vector.IntVector;
+import hillbillies.model.vector.IntVector;
 
 /**
  * Class for boulder, there is no difference between a boulder and a log.

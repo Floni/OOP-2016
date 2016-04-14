@@ -1,8 +1,8 @@
 package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
-import hillbillies.model.Vector.IntVector;
-import hillbillies.model.Vector.Vector;
+import hillbillies.model.vector.IntVector;
+import hillbillies.model.vector.Vector;
 import hillbillies.model.World;
 
 import java.util.List;

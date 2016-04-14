@@ -1,7 +1,7 @@
 package hillbillies.part1.facade;
 
 import hillbillies.model.unit.Unit;
-import hillbillies.model.Vector.IntVector;
+import hillbillies.model.vector.IntVector;
 import ogp.framework.util.ModelException;
 
 /**
