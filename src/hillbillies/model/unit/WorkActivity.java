@@ -29,10 +29,14 @@ class WorkActivity extends Activity {
      * @effect  Makes the unit face in the direction of the working location
      *          | setOrientation()
      */
-    WorkActivity(Unit unit, IntVector location) {
+    WorkActivity(Unit unit, IntVector location) throws IllegalArgumentException {
         super(unit);
         if (!unit.getWorld().isValidPosition(location))
             throw new IllegalArgumentException("invalid work location");
+        IntVector intDiff = getUnit().getPosition().toIntVector().substract(location);
+        if (Math.abs(intDiff.getX()) > 1 || Math.abs(intDiff.getY()) > 1 || Math.abs(intDiff.getZ()) > 1 ) {
+            throw new IllegalArgumentException("Work location out of range");
+        }
 
         this.workTimer  = 500.0 / unit.getStrength();
         this.location = location;
@@ -122,6 +126,7 @@ class WorkActivity extends Activity {
      */
     @Override
     void resume() {
-        unit.finishCurrentActivity();
+        System.out.println(this.location);
+
     }
 }

@@ -1,8 +1,8 @@
 package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
-import hillbillies.model.vector.IntVector;
 import hillbillies.model.World;
+import hillbillies.model.vector.IntVector;
 
 import java.util.List;
 import java.util.Set;
@@ -41,45 +41,51 @@ class NoneActivity extends Activity {
      */
     @Override
     void advanceTime(double dt) {
-        if (!unit.getLastActivity().equalsClass(NoneActivity.class)) {
-            unit.finishCurrentActivity(); // we still have an interrupted activity
-        } else if (unit.isDefaultEnabled()) {
-            int random = (int)Math.floor(Math.random()*4);
-            switch (random) {
-                case 3: // move
+        if (!getUnit().getLastActivity().equalsClass(NoneActivity.class)) {
+            getUnit().finishCurrentActivity(); // we still have an interrupted activity
+        } else if (getUnit().isDefaultEnabled()) {
+            if (getUnit().hasAssignedTask()) {
+                getUnit().getAssignedTask().runFor(dt);
+            } else if (getUnit().getFaction().getScheduler().isTaskAvailable()) {
+                getUnit().assignTask(getUnit().getFaction().getScheduler().getTask(getUnit()));
+            } else  {
+                int random = (int)Math.floor(Math.random()*4);
+                switch (random) {
+                    case 3: // move
                         IntVector randPos;
                         do {
-                            randPos = new IntVector(Math.random()*unit.getWorld().X_MAX,
-                                    Math.random()*unit.getWorld().Y_MAX,
-                                    Math.random()*unit.getWorld().Z_MAX);
-                            if (unit.isValidPosition(randPos)) {
+                            randPos = new IntVector(Math.random()*getUnit().getWorld().X_MAX,
+                                    Math.random()*getUnit().getWorld().Y_MAX,
+                                    Math.random()*getUnit().getWorld().Z_MAX);
+                            if (getUnit().isValidPosition(randPos)) {
                                 try {
-                                    unit.moveTo(randPos);
+                                    getUnit().moveTo(randPos);
                                     break;
                                 } catch (IllegalArgumentException ignored) {}
                             }
                         } while (true);
                         break;
-                case 0: // work
-                    List<IntVector> neighbours = World.getNeighbours(unit.getPosition().toIntVector())
-                            .filter(v -> unit.getWorld().isValidPosition(v)).collect(Collectors.toList());
-                    unit.workAt(neighbours.get((int)(Math.random() * neighbours.size())));
-                    break;
-                case 1: // rest
-                    unit.rest();
-                    break;
-                case 2: //attack
-                    Set<Unit> units = unit.getWorld().getUnits();
-                    for (Unit other : units) {
-                        if (other.getFaction() != unit.getFaction()) {
-                            if (unit.canAttack(other) && !other.getCurrentActivity().equalsClass(FallActivity.class)) {
-                                unit.attack(other);
-                                break;
+                    case 0: // work
+                        List<IntVector> neighbours = World.getNeighbours(getUnit().getPosition().toIntVector())
+                                .filter(v -> getUnit().getWorld().isValidPosition(v)).collect(Collectors.toList());
+                        getUnit().workAt(neighbours.get((int)(Math.random() * neighbours.size())));
+                        break;
+                    case 1: // rest
+                        getUnit().rest();
+                        break;
+                    case 2: //attack
+                        Set<Unit> units = getUnit().getWorld().getUnits();
+                        for (Unit other : units) {
+                            if (other.getFaction() != getUnit().getFaction()) {
+                                if (getUnit().canAttack(other) && !other.getCurrentActivity().equalsClass(FallActivity.class)) {
+                                    getUnit().attack(other);
+                                    break;
+                                }
                             }
                         }
-                    }
-                    break;
+                        break;
 
+                }
             }
         }
     }
@@ -89,7 +95,7 @@ class NoneActivity extends Activity {
      */
     @Override @Basic
     boolean canSwitch(Class<? extends Activity> newActivity) {
-        return unit.isAlive();
+        return getUnit().isAlive();
     }
 
 

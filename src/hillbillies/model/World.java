@@ -197,7 +197,7 @@ public class World {
      */
     private Cube getCube(IntVector cubeLoc) throws IllegalArgumentException {
         if (!isValidPosition(cubeLoc))
-            throw new IllegalArgumentException("invalid position");
+            throw new IllegalArgumentException("invalid position: " + cubeLoc.toString());
         return cubes[cubeLoc.getX()][cubeLoc.getY()][cubeLoc.getZ()];
     }
 

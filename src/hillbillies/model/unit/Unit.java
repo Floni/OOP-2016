@@ -95,6 +95,8 @@ public class Unit {
 
     private Log carryLog;
     private Boulder carryBoulder;
+
+    private Task task;
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
@@ -210,7 +212,7 @@ public class Unit {
         pathFinder = new PathFinder<>(new PathFinder.PathGlue<IntVector>() {
             @Override
             public Stream<IntVector> getNeighbours(IntVector pos) {
-                return World.getNeighbours(pos).filter(n -> isValidPosition(n) && isStablePosition(n));
+                return World.getNeighbours(pos).filter(n -> Unit.this.isValidPosition(n) && Unit.this.isStablePosition(n));
             }
 
             @Override
@@ -244,6 +246,9 @@ public class Unit {
         currentActivity = NONE_ACTIVITY;
         lastActivity = NONE_ACTIVITY;
         pendingActivity = NONE_ACTIVITY;
+        if (getFaction() != null)
+            this.stopTask();
+
         this.setHitPoints(0);
 
         if (world != null)
@@ -339,6 +344,9 @@ public class Unit {
     public void advanceTime(double dt) throws  IllegalArgumentException {
         if (dt < 0 || dt >= 0.2)
             throw new IllegalArgumentException("Invalid dt");
+        // to fix iterator invalidation in world advanceTime:
+        if (!this.isAlive())
+            return;
 
         getCurrentActivity().advanceTime(dt);
 
@@ -1194,10 +1202,6 @@ public class Unit {
         if (!getCurrentActivity().canSwitch(WorkActivity.class)) {
             throw new IllegalArgumentException("Can't work right now");
         }
-        IntVector diff = getPosition().toIntVector().substract(location);
-        if (Math.abs(diff.getX()) > 1 || Math.abs(diff.getY()) > 1 || Math.abs(diff.getZ()) > 1 ) {
-            throw new IllegalArgumentException("Work location out of range");
-        }
 
         if (!isWorking())
             setCurrentActivity(new WorkActivity(this, location));
@@ -1386,9 +1390,11 @@ public class Unit {
             setPosition(randPos);
             if (isMoving()) {
                 MoveActivity ca = ((MoveActivity)getCurrentActivity());
-                if (ca.target != null)
-                    ca.updateTarget(ca.target);
+                if (ca.target != null) {
+                        ca.updateTarget(ca.target);
+                }
             }
+            // update orientation:
             Vector diff = attacker.getPosition().subtract(this.position);
             this.setOrientation(Math.atan2(diff.getY(), diff.getX()));
             attacker.setOrientation(Math.atan2(-diff.getY(), -diff.getX()));
@@ -1561,4 +1567,28 @@ public class Unit {
         this.faction = faction;
     }
     //</editor-fold>
+
+
+    public boolean hasAssignedTask() {
+        return this.task != null;
+    }
+
+    public Task getAssignedTask() {
+        return this.task;
+    }
+
+    public void assignTask(Task task) {
+        this.task = task;
+    }
+
+    public void finishTask() {
+        if (hasAssignedTask())
+            getFaction().getScheduler().finishTask(getAssignedTask());
+    }
+
+    public void stopTask() {
+        if (hasAssignedTask())
+            getFaction().getScheduler().interruptTask(getAssignedTask());
+
+    }
 }

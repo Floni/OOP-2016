@@ -4,6 +4,7 @@ import be.kuleuven.cs.som.annotate.Basic;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
 import hillbillies.model.World;
+import sun.plugin.dom.exception.InvalidStateException;
 
 import java.util.List;
 
@@ -274,6 +275,13 @@ class MoveActivity extends Activity {
         if (!unit.getPosition().subtract(unit.getPosition().toIntVector().toVector()).isEqualTo(new Vector(0.5, 0.5, 0.5), Unit.POS_EPS))
             this.path.add(unit.getPosition().toIntVector());
         idx = path.size() - 1;
+
+        // TEST:
+        IntVector next = path.get(idx);
+        if (!unit.isStablePosition(next) || !unit.isValidPosition(next)) {
+            throw new InvalidStateException("????");
+        }
+
         goToNextNeighbour();
     }
 

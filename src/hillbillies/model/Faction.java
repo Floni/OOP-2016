@@ -23,6 +23,8 @@ public class Faction {
      */
     private final Set<Unit> units;
 
+    private final Scheduler scheduler;
+
     /**
      * Create a new faction which contains no units.
      *
@@ -30,6 +32,7 @@ public class Faction {
      */
     public Faction() {
         this.units = new HashSet<>();
+        this.scheduler = new Scheduler();
     }
 
     /**
@@ -79,4 +82,7 @@ public class Faction {
         }
     }
 
+    public Scheduler getScheduler() {
+        return scheduler;
+    }
 }

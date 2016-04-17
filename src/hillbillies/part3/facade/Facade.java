@@ -5,6 +5,7 @@ import hillbillies.model.Scheduler;
 import hillbillies.model.Task;
 import hillbillies.model.unit.Unit;
 import hillbillies.part3.programs.ITaskFactory;
+import hillbillies.part3.programs.TaskFactory;
 import ogp.framework.util.ModelException;
 
 import java.util.Collection;
@@ -17,61 +18,61 @@ import java.util.Set;
 public class Facade extends hillbillies.part2.facade.Facade implements IFacade {
     @Override
     public ITaskFactory<?, ?, Task> createTaskFactory() {
-        return null;
+        return new TaskFactory();
     }
 
     @Override
     public boolean isWellFormed(Task task) throws ModelException {
-        return false;
+        return true; // TODO
     }
 
     @Override
     public Scheduler getScheduler(Faction faction) throws ModelException {
-        return null;
+        return faction.getScheduler();
     }
 
     @Override
     public void schedule(Scheduler scheduler, Task task) throws ModelException {
-
+        scheduler.schedule(task);
     }
 
     @Override
     public void replace(Scheduler scheduler, Task original, Task replacement) throws ModelException {
-
+        scheduler.replace(original, replacement);
     }
 
     @Override
     public boolean areTasksPartOf(Scheduler scheduler, Collection<Task> tasks) throws ModelException {
-        return false;
+        return  scheduler.containsAllTasks(tasks);
     }
 
     @Override
     public Iterator<Task> getAllTasksIterator(Scheduler scheduler) throws ModelException {
-        return null;
+        return scheduler.getAllTasksIterator();
     }
 
     @Override
     public Set<Scheduler> getSchedulersForTask(Task task) throws ModelException {
-        return null;
+        return null; // TODO
     }
 
     @Override
     public Unit getAssignedUnit(Task task) throws ModelException {
-        return null;
+        return task.getAssignedUnit();
     }
 
     @Override
     public Task getAssignedTask(Unit unit) throws ModelException {
-        return null;
+        return unit.getAssignedTask();
     }
 
     @Override
     public String getName(Task task) throws ModelException {
-        return null;
+        return task.getName();
     }
 
     @Override
     public int getPriority(Task task) throws ModelException {
-        return 0;
+        return task.getPriority();
     }
 }

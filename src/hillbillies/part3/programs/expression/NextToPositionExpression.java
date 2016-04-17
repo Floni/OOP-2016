@@ -6,6 +6,9 @@ import hillbillies.model.unit.Unit;
 import hillbillies.model.vector.IntVector;
 import javafx.geometry.Pos;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Created by timo on 4/14/16.
  */
@@ -21,7 +24,12 @@ public class NextToPositionExpression implements PositionExpression {
     public IntVector getValue(Task task) {
         Unit unit = task.getAssignedUnit();
         // TODO: check
-        return World.getNeighbours(pos.getValue(task)).filter(p -> unit.isValidPosition(p)
-                && unit.isStablePosition(p)).findAny().orElse(IntVector.ZERO);
+        List<IntVector> possible = World.getNeighbours(pos.getValue(task)).filter(p -> unit.isValidPosition(p)
+                && unit.isStablePosition(p)).collect(Collectors.toList());
+        if (possible.isEmpty()) {
+            task.getAssignedUnit().stopTask();
+            return null;
+        }
+        return possible.get((int)(Math.random()*possible.size()));
     }
 }
