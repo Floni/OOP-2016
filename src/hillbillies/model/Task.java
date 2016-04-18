@@ -3,7 +3,7 @@ package hillbillies.model;
 import be.kuleuven.cs.som.annotate.Basic;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.unit.Unit;
-import hillbillies.part3.programs.statement.Statement;
+import hillbillies.model.programs.statement.Statement;
 
 /**
  * Created by timo on 4/13/16.

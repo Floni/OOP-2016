@@ -5,7 +5,7 @@ import hillbillies.model.Scheduler;
 import hillbillies.model.Task;
 import hillbillies.model.unit.Unit;
 import hillbillies.part3.programs.ITaskFactory;
-import hillbillies.part3.programs.TaskFactory;
+import hillbillies.model.programs.TaskFactory;
 import ogp.framework.util.ModelException;
 
 import java.util.Collection;
