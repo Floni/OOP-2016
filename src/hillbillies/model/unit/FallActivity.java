@@ -45,20 +45,20 @@ class FallActivity extends MoveActivity {
      */
     @Override
     void advanceTime(double dt) {
-        Vector newPosition = unit.getPosition().add(this.speed.multiply(dt));
+        Vector newPosition = getUnit().getPosition().add(this.speed.multiply(dt));
 
         IntVector newCube = newPosition.toIntVector();
         //if (newCube.getZ() == 0 || World.isSolid(unit.getWorld().getCubeType(newCube.add(0, 0, -1)))) {
-        if ((newCube.getZ() == 0 || World.isSolid(unit.getWorld().getCubeType(newCube.add(0, 0, -1))))
+        if ((newCube.getZ() == 0 || World.isSolid(getUnit().getWorld().getCubeType(newCube.add(0, 0, -1))))
                 && (newPosition.getZ() - Math.floor(newPosition.getZ())) <= World.Lc/2.0) {
 
             int diffZ = target.toIntVector().substract(newCube).getZ();
-            unit.setPosition(new Vector(unit.getPosition().getX(), unit.getPosition().getY(),
-                    Math.floor(unit.getPosition().getZ()) + World.Lc / 2.0));
-            unit.deduceHitPoints(10*diffZ);
-            unit.finishCurrentActivity();
+            getUnit().setPosition(new Vector(getUnit().getPosition().getX(), getUnit().getPosition().getY(),
+                    Math.floor(getUnit().getPosition().getZ()) + World.Lc / 2.0));
+            getUnit().deduceHitPoints(10*diffZ);
+            getUnit().finishCurrentActivity();
         } else {
-            unit.setPosition(newPosition);
+            getUnit().setPosition(newPosition);
         }
     }
 

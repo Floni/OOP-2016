@@ -68,7 +68,7 @@ class AttackActivity extends Activity {
         if (this.attackTimer <= 0) {
             this.attackTimer = 0;
 
-            unit.finishCurrentActivity();
+            getUnit().finishCurrentActivity();
         }
     }
 

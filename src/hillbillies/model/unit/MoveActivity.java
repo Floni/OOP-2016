@@ -168,7 +168,7 @@ class MoveActivity extends Activity {
      */
     @Override
     void resume() {
-        // TODO: recalc path?
+        this.updateTarget(this.target);
     }
 
     /**
@@ -309,19 +309,14 @@ class MoveActivity extends Activity {
      *          | / getSpeedScalar())).isEqualTo(target)
      */
     private Vector calculateSpeed(Vector target) {
-        // TODO: simplify
-        double vb = 1.5*(unit.getStrength()+unit.getAgility())/(2*(unit.getWeight()));
         Vector diff = target.subtract(unit.getPosition());
-        double d = diff.norm();
-        diff = diff.divide(d);
+        diff = diff.divide(diff.norm());
 
-        double vw = vb;
-        if (diff.getZ() > Unit.POS_EPS) {
-            vw = 0.5*vb;
-        }
-        else if (diff.getZ() < -Unit.POS_EPS) {
-            vw = 1.2*vb;
-        }
+        double vw = 1.5*(unit.getStrength()+unit.getAgility())/(2*(unit.getWeight()));
+        if (diff.getZ() > Unit.POS_EPS)
+            vw *= 0.5;
+        else if (diff.getZ() < -Unit.POS_EPS)
+            vw *= 1.2;
         return diff.multiply(vw);
     }
 }

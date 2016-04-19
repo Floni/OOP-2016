@@ -125,8 +125,7 @@ public class Scheduler {
      */
     public void replace(Task original, Task replacement) {
         if (original.isAssigned())
-            throw new NotImplementedException(); // TODO: stop running task
-
+            original.interrupt();
         this.allTasks.remove(original);
 
         this.allTasks.add(replacement);

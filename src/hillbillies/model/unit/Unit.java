@@ -275,11 +275,18 @@ public class Unit {
         this.world = world;
     }
 
+    /**
+     * Returns the world this unit belongs to.
+     */
     @Basic @Model
     public World getWorld() {
         return this.world;
     }
 
+    /**
+     * Returns the pathfinder of the unit
+     */
+    @Model @Basic
     PathFinder<IntVector> getPathFinder() {
         return pathFinder;
     }
@@ -342,15 +349,14 @@ public class Unit {
      * @effect  A unit will take falling damage.
      *          | this.deduceHitPoints()
      *
+     *
+     * // TODO: isAlive()?
      * @throws  IllegalArgumentException
      *          The given time step was to big or negative.
      */
     public void advanceTime(double dt) throws IllegalArgumentException {
         if (dt < 0 || dt >= 0.2)
             throw new IllegalArgumentException("Invalid dt");
-        // to fix iterator invalidation in world advanceTime: TODO: 4/18/16 move to world?
-        if (!this.isAlive())
-            return;
 
         getCurrentActivity().advanceTime(dt);
 
@@ -1104,7 +1110,7 @@ public class Unit {
      *          | !this.canHaveAsActivity(MOVE_ACTIVITY_CLASS)
      * @throws  UnreachableTargetException
      *          If the unit can't reach the target.
-     *          | TODO
+     *          | this.getPathFinder(this.getPosition().toIntVector(), target.toIntVector()) == null
      */
     public void moveTo(IntVector target)
             throws InvalidPositionException, InvalidActionException, UnreachableTargetException {
@@ -1138,7 +1144,7 @@ public class Unit {
     public double getSpeedScalar() {
         if (!isMoving())
             return 0;
-        // TODO: why doesn't sprinting auto work?
+
         MoveActivity current = (MoveActivity)getCurrentActivity();
         double speedScalar = current.speed == null ? 0 : current.speed.norm();
         return isSprinting() ? 2*speedScalar : speedScalar;

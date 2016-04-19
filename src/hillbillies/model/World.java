@@ -159,13 +159,9 @@ public class World {
             throw new IllegalArgumentException("invalid dt");
 
         // call advanceTime on all units
-        for (Unit unit : getUnits()) {
-            unit.advanceTime(dt);
-        }
+        getUnits().stream().filter(Unit::isAlive).forEach(unit -> unit.advanceTime(dt));
 
-        for (GameObject object : this.gameObjects) {
-            object.advanceTime(dt);
-        }
+        this.gameObjects.forEach(o -> o.advanceTime(dt));
     }
     //</editor-fold>
 
@@ -483,9 +479,8 @@ public class World {
      *          The new unit will have its default behaviour activated depending on the defaultBehaviour argument.
      * @effect  The unit is added to the world
      *          | this.addUnit(result)
-     * TODO: throws
      */
-    public Unit spawnUnit(boolean defaultBehaviour) throws IllegalArgumentException, InvalidPositionException {
+    public Unit spawnUnit(boolean defaultBehaviour) {
         IntVector randPos;
         do {
             randPos = new IntVector(Math.random()*X_MAX,
@@ -493,6 +488,7 @@ public class World {
                     Math.random()*Z_MAX);
         } while (!isValidPosition(randPos) || isSolid(getCubeType(randPos)) || (randPos.getZ() != 0 && !isSolid(getCubeType(randPos.add(0, 0, -1)))));
 
+        // shouldn't throw because name is valid & position is valid.
         Unit unit = new Unit("Spawn", randPos.getX(), randPos.getY(), randPos.getZ(), getRandomAttribute(), getRandomAttribute(),
                 getRandomAttribute(), getRandomAttribute());
         if (defaultBehaviour)
