@@ -3,6 +3,7 @@ package hillbillies.model.programs;
 import hillbillies.model.Faction;
 import hillbillies.model.Task;
 import hillbillies.model.World;
+import hillbillies.model.programs.exceptions.TaskInterruptException;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.vector.IntVector;
 import hillbillies.part3.programs.ITaskFactory;
@@ -12,6 +13,7 @@ import hillbillies.model.programs.statement.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -155,12 +157,13 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public Expression<?> createLogPosition(SourceLocation sourceLocation) {
-        //TODO return null & boulder
+        //TODO return null & boulder (hasNext)
         return (PositionExpression) task -> task.getAssignedUnit().getWorld().getLogs().iterator().next().getPosition().toIntVector();
     }
 
     @Override
     public Expression<?> createBoulderPosition(SourceLocation sourceLocation) {
+        // TODO: see Log
         return (PositionExpression) task -> task.getAssignedUnit().getWorld().getBoulders().iterator().next().getPosition().toIntVector();
     }
 
@@ -171,7 +174,7 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public Expression<?> createSelectedPosition(SourceLocation sourceLocation) {
-        return (PositionExpression) Task::getSelectedPosition;
+        return (PositionExpression) Task::getSelectedPosition; // TODO: throw if no selected?
     }
 
     @Override
@@ -193,7 +196,8 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
     public Expression<?> createFriend(SourceLocation sourceLocation) {
         return (UnitExpression) task -> {
             Faction fac = task.getAssignedUnit().getFaction();
-            return fac.getUnits().stream().filter( u -> u != task.getAssignedUnit()).findAny().orElse(null);
+            return fac.getUnits().stream().filter( u -> u != task.getAssignedUnit())
+                    .findAny().orElseThrow(() -> new TaskInterruptException("Unit has no friends"));
         };
     }
 
@@ -202,7 +206,8 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
         return (UnitExpression) task -> {
             Faction fac = task.getAssignedUnit().getFaction();
             World world = task.getAssignedUnit().getWorld();
-            return world.getUnits().stream().filter(u -> u.getFaction() != fac).findAny().orElse(null);
+            return world.getUnits().stream().filter(u -> u.getFaction() != fac)
+                    .findAny().orElseThrow(() -> new TaskInterruptException("unit has no enemies"));
         };
     }
 
@@ -210,7 +215,8 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
     public Expression<?> createAny(SourceLocation sourceLocation) {
         return (UnitExpression) task -> {
             World world = task.getAssignedUnit().getWorld();
-            return world.getUnits().stream().filter(u -> u != task.getAssignedUnit()).findAny().orElse(null);
+            return world.getUnits().stream().filter(u -> u != task.getAssignedUnit())
+                    .findAny().orElseThrow(() -> new TaskInterruptException("no other units available"));
         };
     }
 

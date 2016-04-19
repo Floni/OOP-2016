@@ -1,7 +1,10 @@
 package hillbillies.model.programs.exceptions;
 
 /**
- * Created by timo on 4/19/16.
+ * Thrown when a task has a fatal error. (invalid position).
  */
-public class TaskErrorException {
+public class TaskErrorException extends RuntimeException {
+    public TaskErrorException(String message) {
+        super(message);
+    }
 }

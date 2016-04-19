@@ -1,10 +1,25 @@
 package hillbillies.model.programs.expression;
 
 import hillbillies.model.Task;
+import hillbillies.model.programs.exceptions.TaskErrorException;
+import hillbillies.model.programs.exceptions.TaskInterruptException;
 
 /**
- * Created by timo on 4/13/16.
+ * Interface providing Expression.
  */
 public interface Expression<T> {
-    T getValue(Task task);
+
+    /**
+     * Calculate the value of this expression.
+     *
+     * @param   task
+     *          The task executing the expression.
+     * @return  The value of the expression.
+     *
+     * @throws  TaskInterruptException
+     *          When the task needs to be interrupted, the unit will stop executing the task.
+     * @throws  TaskErrorException
+     *          When the task has a fatal error and can't be executed.
+     */
+    T getValue(Task task) throws TaskInterruptException, TaskErrorException;
 }
