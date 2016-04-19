@@ -1,7 +1,10 @@
 package hillbillies.part2.facade;
 
+import com.sun.javafx.sg.prism.NGShape;
 import hillbillies.model.*;
 // import hillbillies.part1.facade.Facade;
+import hillbillies.model.exceptions.InvalidActionException;
+import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.vector.IntVector;
 import hillbillies.part2.listener.TerrainChangeListener;
@@ -38,28 +41,44 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
         try {
             world.advanceTime(dt);
         } catch (IllegalArgumentException ex) {
-            throw new ModelException(ex.getMessage(), ex);
+            throw new ModelException(ex);
         }
     }
 
     @Override
     public int getCubeType(World world, int x, int y, int z) throws ModelException {
-        return world.getCubeType(new IntVector(x, y, z));
+        try {
+            return world.getCubeType(new IntVector(x, y, z));
+        } catch (InvalidPositionException err) {
+            throw new ModelException(err);
+        }
     }
 
     @Override
     public void setCubeType(World world, int x, int y, int z, int value) throws ModelException {
-        world.setCubeType(new IntVector(x, y, z), value);
+        try {
+            world.setCubeType(new IntVector(x, y, z), value);
+        } catch (InvalidPositionException err) {
+            throw new ModelException(err);
+        }
     }
 
     @Override
     public boolean isSolidConnectedToBorder(World world, int x, int y, int z) throws ModelException {
-        return world.isCubeConnected(new IntVector(x, y, z));
+        try {
+            return world.isCubeConnected(new IntVector(x, y, z));
+        } catch (InvalidPositionException err) {
+            throw new ModelException(err);
+        }
     }
 
     @Override
     public Unit spawnUnit(World world, boolean enableDefaultBehavior) throws ModelException {
-        return world.spawnUnit(enableDefaultBehavior);
+        try {
+            return world.spawnUnit(enableDefaultBehavior);
+        } catch(Exception err) {
+            throw new ModelException(err);
+        }
     }
 
     @Override
@@ -94,7 +113,11 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public void workAt(Unit unit, int x, int y, int z) throws ModelException {
-        unit.workAt(new IntVector(x, y, z));
+        try {
+            unit.workAt(new IntVector(x, y, z));
+        } catch (InvalidActionException | InvalidPositionException err) {
+            throw new ModelException(err);
+        }
     }
 
     @Override

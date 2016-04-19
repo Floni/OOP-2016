@@ -1,6 +1,7 @@
 package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
 import hillbillies.model.World;
@@ -28,18 +29,24 @@ class WorkActivity extends Activity {
      *          | super(unit);
      * @effect  Makes the unit face in the direction of the working location
      *          | setOrientation()
+     *
+     * @throws  InvalidPositionException
+     *          Thrown if the location is invalid or the location isn't next to the unit.
+     *          | !unit.isValidPosition(location) || dist(unit.getPosition(), location) > 1
      */
-    WorkActivity(Unit unit, IntVector location) throws IllegalArgumentException {
+    WorkActivity(Unit unit, IntVector location) throws IllegalArgumentException, InvalidPositionException {
         super(unit);
+
         if (!unit.getWorld().isValidPosition(location))
-            throw new IllegalArgumentException("invalid work location");
+            throw new InvalidPositionException(location);
+
         IntVector intDiff = getUnit().getPosition().toIntVector().substract(location);
-        if (Math.abs(intDiff.getX()) > 1 || Math.abs(intDiff.getY()) > 1 || Math.abs(intDiff.getZ()) > 1 ) {
-            throw new IllegalArgumentException("Work location out of range");
-        }
+        if (Math.abs(intDiff.getX()) > 1 || Math.abs(intDiff.getY()) > 1 || Math.abs(intDiff.getZ()) > 1 )
+            throw new InvalidPositionException("Work location too far: ", location);
 
         this.workTimer  = 500.0 / unit.getStrength();
         this.location = location;
+
         Vector diff = location.toVector().add(World.Lc/2).subtract(unit.getPosition());
         unit.setOrientation(Math.atan2(diff.getY(), diff.getX()));
     }
@@ -83,6 +90,7 @@ class WorkActivity extends Activity {
      *          | addXp()
      */
     private void finishWork() {
+        // TODO: simplify!
         if (unit.isCarryingLog() || unit.isCarryingBoulder()){ //BOULDER OR LOG
             if (!World.isSolid(unit.getWorld().getCubeType(location))) {
                 unit.dropCarry(location);

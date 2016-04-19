@@ -1,6 +1,7 @@
 package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Model;
 
 /**
  * The abstract base class for all activities, providing shared methods.
@@ -70,6 +71,7 @@ abstract class Activity {
      *
      * @return  Returns True if the activities are the same.
      */
+    @Model
     boolean equalsClass(Class<? extends Activity> other) {
         return other.isAssignableFrom(this.getClass());
     }

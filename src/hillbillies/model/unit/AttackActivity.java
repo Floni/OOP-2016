@@ -1,6 +1,7 @@
 package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.vector.Vector;
 
 /**
@@ -24,16 +25,26 @@ class AttackActivity extends Activity {
      * @effect  The unit's will face each other.
      *          | setOrientation()
      * @effect  The defender will defend against the attack
-     *          | other.defend(unit)<
+     *          | other.defend(unit)
+     *
+     * @throws  InvalidUnitException
+     *          The other unit is too far away to attack.
+     * @throws  InvalidUnitException
+     *          The other unit is of the same faction.
      */
-    AttackActivity(Unit unit, Unit other) throws IllegalArgumentException {
+    AttackActivity(Unit unit, Unit other) throws IllegalArgumentException, InvalidUnitException {
         super(unit);
         attackTimer = ATTACK_DELAY;
 
+        if (other == null || other == getUnit() || other.getCurrentActivity().equalsClass(FallActivity.class))
+            throw new InvalidUnitException("The other unit is invalid");
+
+        if (getUnit().getFaction() == other.getFaction())
+            throw new InvalidUnitException("Can't attack units of the same faction");
+
         Vector otherPos = other.getPosition();
-        if (!unit.canAttack(other)) {
-            throw new IllegalArgumentException("Other unit is to far away");
-        }
+        if (!unit.canAttack(other))
+            throw new InvalidUnitException("Other unit is to far away");
 
         Vector diff = otherPos.subtract(unit.getPosition());
         unit.setOrientation(Math.atan2(diff.getY(), diff.getX()));
@@ -72,12 +83,12 @@ class AttackActivity extends Activity {
     /**
      * Resumes the attack activity, which is not possible.
      *
-     * @throws  IllegalStateException
-     *          Always throws
+     * @pre The method shouldn't be called
+     *      | false
      */
     @Override
     void resume()  throws IllegalStateException {
         // can't happen
-        throw new IllegalStateException("can't resume an attack");
+        assert false;
     }
 }

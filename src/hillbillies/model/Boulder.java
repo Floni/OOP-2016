@@ -1,5 +1,6 @@
 package hillbillies.model;
 
+import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.vector.IntVector;
 
 /**
@@ -17,7 +18,7 @@ public class Boulder extends GameObject {
      * @effect  Init the GameObject
      *          | super(world, vector)
      */
-    public Boulder(World world, IntVector vector) {
+    public Boulder(World world, IntVector vector) throws InvalidPositionException {
         super(world, vector);
     }
 }

@@ -1,6 +1,8 @@
 package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import hillbillies.model.exceptions.InvalidPositionException;
+import hillbillies.model.exceptions.UnreachableTargetException;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
 import hillbillies.model.World;
@@ -51,10 +53,10 @@ class MoveActivity extends Activity {
      * @effect  Updates the target of the unit.
      *          | updateTarget(target)
      */
-    MoveActivity(Unit unit, Vector target) throws IllegalArgumentException {
+    MoveActivity(Unit unit, Vector target)
+            throws IllegalArgumentException, InvalidPositionException, UnreachableTargetException {
         super(unit);
         updateTarget(target);
-
     }
 
     /**
@@ -74,7 +76,7 @@ class MoveActivity extends Activity {
      * @effect  Moves the unit to the neighbouring cube.
      *          | moveToNeighbour(dx, dy, dz)
      */
-    MoveActivity(Unit unit, int dx, int dy, int dz) throws IllegalArgumentException {
+    MoveActivity(Unit unit, int dx, int dy, int dz) throws IllegalArgumentException, InvalidPositionException {
         super(unit);
         moveToNeighbour(dx, dy, dz);
     }
@@ -96,7 +98,8 @@ class MoveActivity extends Activity {
      *          | unit.setPosition(newPosition)
      */
     @Override
-    void advanceTime(double dt) throws IllegalArgumentException {
+    void advanceTime(double dt) {
+        // TODO: simplify
         double mod = 1;
         if (this.sprinting) {
             sprintStaminaTimer -= dt;
@@ -165,7 +168,7 @@ class MoveActivity extends Activity {
      */
     @Override
     void resume() {
-
+        // TODO: recalc path?
     }
 
     /**
@@ -205,16 +208,14 @@ class MoveActivity extends Activity {
      * @effect  Sets the orientation of the unit in the direction of the next cube.
      *          | setOrientation()
      *
-     * @throws  IllegalArgumentException
+     * @throws  InvalidPositionException
      *          Throws when the neighbour position is not a valid position.
      */
-    private void moveToNeighbour(IntVector neighbour) throws IllegalArgumentException {
+    private void moveToNeighbour(IntVector neighbour) throws InvalidPositionException {
+        if (!unit.isStablePosition(neighbour) || !unit.isValidPosition(neighbour))
+            throw new InvalidPositionException("Invalid neighbour: ", neighbour);
+
         this.targetNeighbour = neighbour.toVector().add(World.Lc/2);
-
-        if (!unit.isStablePosition(this.targetNeighbour.toIntVector()) ||
-                !unit.isValidPosition(this.targetNeighbour.toIntVector()))
-            throw new IllegalArgumentException("Illegal neighbour");
-
         this.speed = calculateSpeed(this.targetNeighbour);
         unit.setOrientation(Math.atan2(this.speed.getY(), this.speed.getX()));
     }
@@ -225,14 +226,14 @@ class MoveActivity extends Activity {
      * @effect  Move to the next neighbour.
      *          | moveToNeighbour(curPos.add(dx, dy, dz))
      */
-    private void moveToNeighbour(int dx, int dy, int dz) throws IllegalArgumentException {
+    private void moveToNeighbour(int dx, int dy, int dz) throws InvalidPositionException {
         IntVector curPos = unit.getPosition().toIntVector();
         moveToNeighbour(curPos.add(dx, dy, dz));
     }
 
 
     /**
-     * Moves to the given adjacent cube.
+     * Moves to the given adjacent cube and stop pathing.
      *
      * @param   dx
      *          The x direction to move to.
@@ -244,7 +245,7 @@ class MoveActivity extends Activity {
      * @effect  Move the unit to the given neighbour cube.
      *          | moveToNeighbour(dx, dy, dz)
      */
-    void updateAdjacent(int dx, int dy, int dz) throws IllegalArgumentException {
+    void updateAdjacent(int dx, int dy, int dz) throws InvalidPositionException {
         moveToNeighbour(dx, dy, dz);
         this.path = null;
     }
@@ -261,26 +262,38 @@ class MoveActivity extends Activity {
      * @effect  Move to the new next neighbour.
      *          | goToNextNeighbour().
      *
-     * @throws  IllegalArgumentException
-     *          Throws if the path is null or is empty.
+     * @throws  InvalidPositionException
+     *          The given target is invalid.
+     *
+     * @throws  UnreachableTargetException
+     *          Throws if the target can't be reached.
      */
-    void updateTarget(Vector newTarget) throws IllegalArgumentException {
+    void updateTarget(Vector newTarget) throws InvalidPositionException, UnreachableTargetException {
+        if (!getUnit().isValidPosition(newTarget.toIntVector()))
+            throw new InvalidPositionException(newTarget);
+
         this.target = newTarget;
 
+        // get path:
         this.path = unit.getPathFinder().getPath(unit.getPosition().toIntVector(), newTarget.toIntVector());
         if (path == null || path.size() == 0) {
             unit.finishCurrentActivity();
-            throw new IllegalArgumentException("Impossible to path!!");
+            throw new UnreachableTargetException();
         }
-        if (!unit.getPosition().subtract(unit.getPosition().toIntVector().toVector()).isEqualTo(new Vector(0.5, 0.5, 0.5), Unit.POS_EPS))
+
+        // check if we first need to center the unit:
+        if (!unit.getPosition().subtract(
+                unit.getPosition().toIntVector().toVector()).isEqualTo(new Vector(0.5, 0.5, 0.5), Unit.POS_EPS))
             this.path.add(unit.getPosition().toIntVector());
+
         idx = path.size() - 1;
 
         // TEST:
         IntVector next = path.get(idx);
         if (!unit.isStablePosition(next) || !unit.isValidPosition(next)) {
-            throw new InvalidStateException("????");
+            throw new InvalidStateException("????"); //TODO: test & fix
         }
+        // END TEST;
 
         goToNextNeighbour();
     }
@@ -295,7 +308,8 @@ class MoveActivity extends Activity {
      *          | this.getPosition().add(result.multiply(getPosition().subtract(target).norm()
      *          | / getSpeedScalar())).isEqualTo(target)
      */
-    private Vector calculateSpeed(Vector target){
+    private Vector calculateSpeed(Vector target) {
+        // TODO: simplify
         double vb = 1.5*(unit.getStrength()+unit.getAgility())/(2*(unit.getWeight()));
         Vector diff = target.subtract(unit.getPosition());
         double d = diff.norm();

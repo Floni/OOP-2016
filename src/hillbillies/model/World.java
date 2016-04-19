@@ -2,13 +2,16 @@ package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
+import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.vector.IntVector;
 import hillbillies.part2.listener.TerrainChangeListener;
 import hillbillies.util.ConnectedToBorder;
-import ogp.framework.util.ModelException;
 
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -94,18 +97,23 @@ public class World {
     /**
      * Creates a new world.
      *
-     * @post    The X_MAX, Y_MAX and Z_MAX variables are set to the size of the terrain.
-     * @post    The cube types are set for each cube and checked if they are connected to the border,
-     *          if not they cave in.
-     *
-     * @post    The factions, units, logs and boulders are empty.
-     *
      * @param   terrainTypes
      *          An array of integers specifying the terrain types.
      * @param   modelListener
      *          A listener for terrain changes.
+     *
+     * @post    The X_MAX, Y_MAX and Z_MAX variables are set to the size of the terrain.
+     * @post    The cube types are set for each cube and checked if they are connected to the border,
+     *          if not they cave in.
+     * @post    The factions, units, logs and boulders are empty.
+     *
+     * @throws  IllegalArgumentException
+     *          Thrown if terrainTypes or modelListener was null.
      */
-    public World(int[][][] terrainTypes, TerrainChangeListener modelListener) {
+    public World(int[][][] terrainTypes, TerrainChangeListener modelListener) throws IllegalArgumentException {
+        if (terrainTypes == null|| modelListener == null)
+            throw new IllegalArgumentException("no terrain types given");
+
         this.updateListener = modelListener;
 
         this.X_MAX = terrainTypes.length;
@@ -143,10 +151,10 @@ public class World {
      *
      * @param   dt
      *          The passed time between the last call to advanceTime
-     * @throws  ModelException
+     * @throws  IllegalArgumentException
      *          If the dt is less than 0.2 or smaller than 0.
      */
-    public void advanceTime(double dt) throws ModelException {
+    public void advanceTime(double dt) throws IllegalArgumentException {
         if (dt >= 0.2 || dt < 0)
             throw new IllegalArgumentException("invalid dt");
 
@@ -192,12 +200,12 @@ public class World {
      * @param   cubeLoc
      *          The location
      * @return  The cube at the given location
-     * @throws  IllegalArgumentException
+     * @throws  InvalidPositionException
      *          If the given position is invalid.
      */
-    private Cube getCube(IntVector cubeLoc) throws IllegalArgumentException {
+    private Cube getCube(IntVector cubeLoc) throws InvalidPositionException {
         if (!isValidPosition(cubeLoc))
-            throw new IllegalArgumentException("invalid position: " + cubeLoc.toString());
+            throw new InvalidPositionException(cubeLoc);
         return cubes[cubeLoc.getX()][cubeLoc.getY()][cubeLoc.getZ()];
     }
 
@@ -207,12 +215,12 @@ public class World {
      * @param   pos
      *          The position of the cube to be checked.
      * @return  true of the cube is connected to the border.
-     * @throws  IllegalArgumentException
+     * @throws  InvalidPositionException
      *          If the given position is invalid.
      */
-    public boolean isCubeConnected(IntVector pos) throws IllegalArgumentException {
+    public boolean isCubeConnected(IntVector pos) throws InvalidPositionException {
         if (!isValidPosition(pos))
-            throw new IllegalArgumentException("invalid position");
+            throw new InvalidPositionException(pos);
         return connectedToBorder.isSolidConnectedToBorder(pos.getX(), pos.getY(), pos.getZ());
     }
 
@@ -222,10 +230,10 @@ public class World {
      * @param   cube
      *          The location of the cube.
      * @return  An integer representing the type of the cube.
-     * @throws  IllegalArgumentException
+     * @throws  InvalidPositionException
      *          If the given position is invalid
      */
-    public int getCubeType(IntVector cube) throws IllegalArgumentException {
+    public int getCubeType(IntVector cube) throws InvalidPositionException {
          return getCube(cube).type;
     }
 
@@ -241,12 +249,12 @@ public class World {
      *          any cubes that aren't connected to the border anymore will cave in (include the given cube).
      *          When cubes cave in they may drop a boulder or a log.
      *
-     * @throws  IllegalArgumentException
+     * @throws  InvalidPositionException
      *          If the given position is invalid.
      */
-    public void setCubeType(IntVector pos, int type) throws IllegalArgumentException {
+    public void setCubeType(IntVector pos, int type) throws InvalidPositionException {
         if (!isValidPosition(pos))
-            throw new IllegalArgumentException("invalid position");
+            throw new InvalidPositionException(pos);
 
         if (isSolid(getCubeType(pos)) && !isSolid(type)) {
             for (int[] coord : connectedToBorder.changeSolidToPassable(pos.getX(), pos.getY(), pos.getZ())) {
@@ -320,11 +328,11 @@ public class World {
      * Returns all the logs at the given location.
      * @param   cubeLoc
      *          The location of the cube.
-     * @throws  IllegalArgumentException
+     * @throws  InvalidPositionException
      *          If the given position is not valid.
      */
     @Basic
-    public Set<Log> getLogs(IntVector cubeLoc) throws IllegalArgumentException {
+    public Set<Log> getLogs(IntVector cubeLoc) throws InvalidPositionException {
         Cube cube = getCube(cubeLoc);
         return cube.gameObjects.stream().filter(o -> o instanceof Log)
                 .map(Log.class::cast).collect(Collectors.toSet());
@@ -334,11 +342,11 @@ public class World {
      * Returns all the boulders at the given location.
      * @param   cubeLoc
      *          The location of the cube.
-     * @throws  IllegalArgumentException
+     * @throws  InvalidPositionException
      *          If the given position is not valid.
      */
     @Basic
-    public Set<Boulder> getBoulders(IntVector cubeLoc) throws IllegalArgumentException {
+    public Set<Boulder> getBoulders(IntVector cubeLoc) throws InvalidPositionException {
         Cube cube = getCube(cubeLoc);
         return cube.gameObjects.stream().filter(o -> o instanceof Boulder)
                 .map(Boulder.class::cast).collect(Collectors.toSet());
@@ -355,7 +363,7 @@ public class World {
      * @post    The position of the gameObject is set to the given cube.
      * @post    The world contains the gameObject and the cube at the given locations will contain the gameObject.
      */
-    public void addGameObject(IntVector cubeLoc, GameObject gameObject) throws IllegalArgumentException {
+    public void addGameObject(IntVector cubeLoc, GameObject gameObject) throws InvalidPositionException {
         gameObject.setPosition(cubeLoc.toVector().add(Lc/2));
         Cube cube = getCube(cubeLoc);
         gameObjects.add(gameObject);
@@ -475,8 +483,9 @@ public class World {
      *          The new unit will have its default behaviour activated depending on the defaultBehaviour argument.
      * @effect  The unit is added to the world
      *          | this.addUnit(result)
+     * TODO: throws
      */
-    public Unit spawnUnit(boolean defaultBehaviour) {
+    public Unit spawnUnit(boolean defaultBehaviour) throws IllegalArgumentException, InvalidPositionException {
         IntVector randPos;
         do {
             randPos = new IntVector(Math.random()*X_MAX,

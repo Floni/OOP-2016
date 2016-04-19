@@ -1,8 +1,14 @@
 package hillbillies.part1.facade;
 
+import com.sun.javafx.sg.prism.NGShape;
+import hillbillies.model.exceptions.InvalidActionException;
+import hillbillies.model.exceptions.InvalidPositionException;
+import hillbillies.model.exceptions.InvalidUnitException;
+import hillbillies.model.exceptions.UnreachableTargetException;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.vector.IntVector;
 import ogp.framework.util.ModelException;
+import org.omg.CORBA.DynAnyPackage.Invalid;
 
 /**
  *
@@ -18,7 +24,7 @@ public class Facade implements IFacade {
             if (enableDefaultBehavior)
                 ret.startDefaultBehaviour();
             return ret;
-        } catch (IllegalArgumentException err) {
+        } catch (IllegalArgumentException | InvalidPositionException err) {
             throw new ModelException(err.getMessage(), err);
         }
     }
@@ -43,7 +49,7 @@ public class Facade implements IFacade {
         try {
             unit.setName(newName);
         } catch(IllegalArgumentException err){
-            throw new ModelException("Invalid name", err);
+            throw new ModelException(err.getMessage(), err);
         }
     }
 
@@ -120,7 +126,7 @@ public class Facade implements IFacade {
     public void moveToAdjacent(Unit unit, int dx, int dy, int dz) throws ModelException {
         try {
             unit.moveToAdjacent(dx, dy, dz);
-        } catch (IllegalArgumentException err) {
+        } catch (IllegalArgumentException | InvalidActionException | InvalidPositionException err) {
             throw new ModelException(err.getMessage(), err);
         }
     }
@@ -137,12 +143,20 @@ public class Facade implements IFacade {
 
     @Override
     public void startSprinting(Unit unit) throws ModelException {
-        unit.setSprint(true);
+        try {
+            unit.setSprint(true);
+        } catch (InvalidActionException err) {
+            throw new ModelException(err.getMessage(), err);
+        }
     }
 
     @Override
     public void stopSprinting(Unit unit) throws ModelException {
-        unit.setSprint(false);
+        try {
+            unit.setSprint(true);
+        } catch (InvalidActionException err) {
+            throw new ModelException(err.getMessage(), err);
+        }
     }
 
     @Override
@@ -159,7 +173,7 @@ public class Facade implements IFacade {
     public void moveTo(Unit unit, int[] cube) throws ModelException {
         try {
             unit.moveTo(new IntVector(cube));
-        } catch (Exception err) {
+        } catch (InvalidActionException | InvalidPositionException | UnreachableTargetException err) {
             throw new ModelException(err.getMessage(), err);
         }
     }
@@ -183,7 +197,7 @@ public class Facade implements IFacade {
     public void fight(Unit attacker, Unit defender) throws ModelException {
         try {
             attacker.attack(defender);
-        } catch (IllegalArgumentException err) {
+        } catch (InvalidActionException | InvalidUnitException err) {
             throw new ModelException(err.getMessage(), err);
         }
     }
@@ -197,7 +211,7 @@ public class Facade implements IFacade {
     public void rest(Unit unit) throws ModelException {
         try {
             unit.rest();
-        } catch (IllegalStateException err) {
+        } catch (InvalidActionException err) {
             throw new ModelException(err.getMessage(), err);
         }
     }

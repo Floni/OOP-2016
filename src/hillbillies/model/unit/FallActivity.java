@@ -23,7 +23,7 @@ class FallActivity extends MoveActivity {
      *          | super(unit);
      *
      */
-    FallActivity(Unit unit) {
+    FallActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
 
         speed = new Vector(0, 0, -3.0);
@@ -44,7 +44,7 @@ class FallActivity extends MoveActivity {
      *          | unit.setPosition(newPosition)
      */
     @Override
-    void advanceTime(double dt) throws IllegalArgumentException {
+    void advanceTime(double dt) {
         Vector newPosition = unit.getPosition().add(this.speed.multiply(dt));
 
         IntVector newCube = newPosition.toIntVector();
@@ -73,11 +73,12 @@ class FallActivity extends MoveActivity {
     /**
      * Resumes the falling activity, which is impossible.
      *
-     * @throws  IllegalStateException
-     *          Always throws.
+     * @pre     This method shouldn't be called
+     *          | false
+     *
      */
     @Override
-    void resume() throws IllegalStateException {
-        throw new IllegalStateException("can't resume falling because can't interrupt falling");
+    void resume() {
+        assert false;
     }
 }

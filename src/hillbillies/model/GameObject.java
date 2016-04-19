@@ -3,6 +3,7 @@ package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
+import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
 
@@ -36,8 +37,11 @@ public abstract class GameObject {
      * @post    The position is set to the middle of the cube of the given position.
      * @post    The weight of the object is random between 10 and 50.
      *
+     * @effect  The position is set
+     *          | new.setPosition(location.toVector().add(World.Lc/2))
+     *
      */
-    protected GameObject(World world, IntVector location) {
+    protected GameObject(World world, IntVector location) throws InvalidPositionException {
         this.world = world;
         setPosition(location.toVector().add(World.Lc/2));
         this.weight = (int)Math.floor(Math.random()*41 + 10);
@@ -86,12 +90,12 @@ public abstract class GameObject {
      *
      * @post    The new position of the object will be the given position.
      *
-     * @throws  IllegalArgumentException
+     * @throws  InvalidPositionException
      *          The position is not valid or the position is a solid cube.
      */
-    public void setPosition(Vector pos) throws IllegalArgumentException {
+    public void setPosition(Vector pos) throws InvalidPositionException {
         if (!world.isValidPosition(pos.toIntVector()) || World.isSolid(world.getCubeType(pos.toIntVector())))
-            throw new IllegalArgumentException("invalid position");
+            throw new InvalidPositionException(pos);
         this.position = pos;
     }
 

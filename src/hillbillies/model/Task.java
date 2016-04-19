@@ -6,7 +6,7 @@ import hillbillies.model.unit.Unit;
 import hillbillies.model.programs.statement.Statement;
 
 /**
- * Created by timo on 4/13/16.
+ * Class implementing a task that a unit can execute.
  */
 public class Task implements Comparable<Task> {
 

@@ -1,6 +1,9 @@
 package hillbillies.model.programs;
 
+import hillbillies.model.Faction;
 import hillbillies.model.Task;
+import hillbillies.model.World;
+import hillbillies.model.unit.Unit;
 import hillbillies.model.vector.IntVector;
 import hillbillies.part3.programs.ITaskFactory;
 import hillbillies.part3.programs.SourceLocation;
@@ -12,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by timo on 4/13/16.
+ * TaskFactory for crating new tasks.
  */
 public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task> {
 
@@ -147,27 +150,28 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public Expression<?> createHerePosition(SourceLocation sourceLocation) {
-        return new HerePositionExpression();
+        return (PositionExpression) task -> task.getAssignedUnit().getPosition().toIntVector();
     }
 
     @Override
     public Expression<?> createLogPosition(SourceLocation sourceLocation) {
-        return new LogPositionExpression();
+        //TODO return null & boulder
+        return (PositionExpression) task -> task.getAssignedUnit().getWorld().getLogs().iterator().next().getPosition().toIntVector();
     }
 
     @Override
     public Expression<?> createBoulderPosition(SourceLocation sourceLocation) {
-        return new BoulderPositionExpression();
+        return (PositionExpression) task -> task.getAssignedUnit().getWorld().getBoulders().iterator().next().getPosition().toIntVector();
     }
 
     @Override
     public Expression<?> createWorkshopPosition(SourceLocation sourceLocation) {
-        return new WorkshopPositionExpression();
+        return null; //TODO
     }
 
     @Override
     public Expression<?> createSelectedPosition(SourceLocation sourceLocation) {
-        return new SelectedPositionExpression();
+        return (PositionExpression) Task::getSelectedPosition;
     }
 
     @Override
@@ -177,27 +181,37 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public Expression<?> createLiteralPosition(int x, int y, int z, SourceLocation sourceLocation) {
-        return new LiteralPositionExpression(x, y, z);
+        return (PositionExpression) task -> new IntVector(x, y, z);
     }
 
     @Override
     public Expression<?> createThis(SourceLocation sourceLocation) {
-        return new ThisUnitExpression();
+        return (UnitExpression) Task::getAssignedUnit;
     }
 
     @Override
     public Expression<?> createFriend(SourceLocation sourceLocation) {
-        return new FriendUnitExpression();
+        return (UnitExpression) task -> {
+            Faction fac = task.getAssignedUnit().getFaction();
+            return fac.getUnits().stream().filter( u -> u != task.getAssignedUnit()).findAny().orElse(null);
+        };
     }
 
     @Override
     public Expression<?> createEnemy(SourceLocation sourceLocation) {
-        return new EnemyUnitExpression();
+        return (UnitExpression) task -> {
+            Faction fac = task.getAssignedUnit().getFaction();
+            World world = task.getAssignedUnit().getWorld();
+            return world.getUnits().stream().filter(u -> u.getFaction() != fac).findAny().orElse(null);
+        };
     }
 
     @Override
     public Expression<?> createAny(SourceLocation sourceLocation) {
-        return new AnyUnitExpression();
+        return (UnitExpression) task -> {
+            World world = task.getAssignedUnit().getWorld();
+            return world.getUnits().stream().filter(u -> u != task.getAssignedUnit()).findAny().orElse(null);
+        };
     }
 
     @Override
@@ -207,7 +221,7 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public Expression<?> createFalse(SourceLocation sourceLocation) {
-        return new FalseBooleanExpression();
+        return (BooleanExpression) task -> false;
     }
     //</editor-fold>
 }

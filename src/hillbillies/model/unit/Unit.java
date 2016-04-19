@@ -4,6 +4,10 @@ import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 import hillbillies.model.*;
+import hillbillies.model.exceptions.InvalidActionException;
+import hillbillies.model.exceptions.InvalidPositionException;
+import hillbillies.model.exceptions.InvalidUnitException;
+import hillbillies.model.exceptions.UnreachableTargetException;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
 
@@ -161,13 +165,13 @@ public class Unit {
      * @effect  Set the name to the given name.
      *          | new.setName(name)
      * @effect  Set the position to the middle of the given block.
-     *          | new..setPosition(x + Lc/2, y + Lc/2, z + Lc/2)
+     *          | new.setPosition(x + Lc/2, y + Lc/2, z + Lc/2)
      * @effect  Sets the orientation to 90 degrees.
-     *          | new..setOrientation(Math.PI/2)
+     *          | new.setOrientation(Math.PI/2)
      */
     @Raw
     public Unit(String name, int x, int y, int z, int weight, int strength, int agility, int toughness)
-            throws IllegalArgumentException {
+            throws IllegalArgumentException, InvalidPositionException {
         setName(name);
         Vector position = new Vector(x, y, z).add(World.Lc/2);
         setPosition(position);
@@ -341,10 +345,10 @@ public class Unit {
      * @throws  IllegalArgumentException
      *          The given time step was to big or negative.
      */
-    public void advanceTime(double dt) throws  IllegalArgumentException {
+    public void advanceTime(double dt) throws IllegalArgumentException {
         if (dt < 0 || dt >= 0.2)
             throw new IllegalArgumentException("Invalid dt");
-        // to fix iterator invalidation in world advanceTime:
+        // to fix iterator invalidation in world advanceTime: TODO: 4/18/16 move to world?
         if (!this.isAlive())
             return;
 
@@ -358,7 +362,7 @@ public class Unit {
 
         if (!isStablePosition(getPosition().toIntVector()) && !getCurrentActivity().equalsClass(FallActivity.class)) {
             this.currentActivity = new FallActivity(this);
-            this.lastActivity = NONE_ACTIVITY;
+            this.lastActivity = NONE_ACTIVITY; // TODO: 4/18/16 Use function or something?
         }
 
 
@@ -532,13 +536,13 @@ public class Unit {
      * @post    The new position is equal to the given position.
      *          | new.getPosition() == position
      *
-     * @throws  IllegalArgumentException
+     * @throws  InvalidPositionException
      *          When the given position is not valid or not effective
      *          | !isValidPosition(position) || !isEffectivePosition(position)
      */
-    public void setPosition(Vector position) throws IllegalArgumentException {
+    public void setPosition(Vector position) throws InvalidPositionException {
         if (!isEffectivePosition(position) || !isValidPosition(position.toIntVector()))
-            throw new IllegalArgumentException("The given position is not valid");
+            throw new InvalidPositionException(position);
         this.position = position;
     }
 
@@ -1055,24 +1059,24 @@ public class Unit {
      * @effect  The unit will point to the target cube.
      *          | new.getOrientation() == Math.atan2(...)
      *
-     * @throws  IllegalArgumentException
+     * @throws  InvalidPositionException
      *          If the target cube is not within the world bounds
      *          | !isValidPosition(this.getPosition()[0] + dx,this.getPosition()[1] + dy,this.getPosition()[2] + dz)
      * @throws  IllegalArgumentException
      *          If the dx, dy or dz values aren't -1, 0 or +1
      *          | Math.abs(dx) > 1 || Math.abs(dy) > 1 || Math.abs(dz) > 1
-     * @throws  IllegalStateException
+     * @throws  InvalidActionException
      *          If the unit can't move right now
      *          | !canHaveAsActivity(MOVE_ACTIVITY_CLASS)
      */
-    public void moveToAdjacent(int dx, int dy, int dz) throws IllegalArgumentException, IllegalStateException {
-        if (!currentActivity.canSwitch(MoveActivity.class)) {
-            throw new IllegalStateException("Can't move right now");
-        }
+    public void moveToAdjacent(int dx, int dy, int dz)
+            throws IllegalArgumentException, InvalidActionException, InvalidPositionException {
 
-        if (Math.abs(dx) > 1 || Math.abs(dy) > 1 || Math.abs(dz) > 1) {
+        if (!currentActivity.canSwitch(MoveActivity.class))
+            throw new InvalidActionException("Can't move right now");
+
+        if (Math.abs(dx) > 1 || Math.abs(dy) > 1 || Math.abs(dz) > 1)
             throw new IllegalArgumentException("Illegal dx, dy and/or dz");
-        }
 
         if (isMoving())
             ((MoveActivity)getCurrentActivity()).updateAdjacent(dx, dy, dz);
@@ -1092,24 +1096,22 @@ public class Unit {
      * @post    The unit will move to the target when calling advanceTime().
      *          | new.getPosition == target.add(Lc/2)
      *
-     * @throws  IllegalArgumentException
+     * @throws  InvalidPositionException
      *          If the given target is not valid.
      *          | !isValidPosition(target[0], target[1], target[2])
-     * @throws  IllegalStateException
+     * @throws  InvalidActionException
      *          If the unit can't move.
      *          | !this.canHaveAsActivity(MOVE_ACTIVITY_CLASS)
-     *
+     * @throws  UnreachableTargetException
+     *          If the unit can't reach the target.
+     *          | TODO
      */
-    public void moveTo(IntVector target) throws IllegalArgumentException, IllegalStateException {
-        if (!currentActivity.canSwitch(MoveActivity.class)) {
-            throw new IllegalStateException("can't path right now");
-        }
+    public void moveTo(IntVector target)
+            throws InvalidPositionException, InvalidActionException, UnreachableTargetException {
+        if (!currentActivity.canSwitch(MoveActivity.class))
+            throw new InvalidActionException("can't path right now");
 
         Vector newTarget =  target.toVector().add(World.Lc /2);
-
-        if (!isValidPosition(newTarget.toIntVector())) {
-            throw new IllegalArgumentException("invalid target");
-        }
 
         if (isMoving())
             ((MoveActivity)getCurrentActivity()).updateTarget(newTarget);
@@ -1136,6 +1138,7 @@ public class Unit {
     public double getSpeedScalar() {
         if (!isMoving())
             return 0;
+        // TODO: why doesn't sprinting auto work?
         MoveActivity current = (MoveActivity)getCurrentActivity();
         double speedScalar = current.speed == null ? 0 : current.speed.norm();
         return isSprinting() ? 2*speedScalar : speedScalar;
@@ -1150,15 +1153,14 @@ public class Unit {
      * @post    Sets whether the unit is sprinting or not.
      *          | new.isSprinting == sprint
      *
-     * @throws  IllegalStateException
+     * @throws  InvalidActionException
      *          Throws if the unit wants to sprint and the unit has no stamina
      *          or the unit is not moving.
      *          | sprint && (getStamina() == 0 || !isMoving())
      */
-    public void setSprint(boolean sprint) throws IllegalStateException {
-        if (sprint && (getStamina() == 0 || !isMoving())) {
-            throw new IllegalStateException("Can't sprint right now");
-        }
+    public void setSprint(boolean sprint) throws InvalidActionException {
+        if (sprint && (getStamina() == 0 || !isMoving()))
+            throw new InvalidActionException("Can't sprint right now");
 
         MoveActivity current = (MoveActivity)getCurrentActivity();
         // reset sprint timer
@@ -1191,17 +1193,19 @@ public class Unit {
      * @post    Makes the unit start working
      *          | new.isWorking() == True
      *
-     * @throws  IllegalArgumentException
+     * @throws  InvalidActionException
      *          Throws if the unit can't work.
      *          | (!canHaveAsActivity(WORK_ACTIVITY_CLASS)
-     * @throws  IllegalArgumentException
+     * @throws  InvalidPositionException
      *          Throws if the location is out of range
      *          | (Math.abs(diff.getX()) > 1 || Math.abs(diff.getY()) > 1 || Math.abs(diff.getZ()) > 1)
+     * @throws  InvalidPositionException
+     *          Throws if the location isn't valid.
+     *          | !this.getWorld().isValidPosition(location)
      */
-    public void workAt(IntVector location) throws IllegalArgumentException {
-        if (!getCurrentActivity().canSwitch(WorkActivity.class)) {
-            throw new IllegalArgumentException("Can't work right now");
-        }
+    public void workAt(IntVector location) throws InvalidActionException, InvalidPositionException {
+        if (!getCurrentActivity().canSwitch(WorkActivity.class))
+            throw new InvalidActionException("Can't work right now");
 
         if (!isWorking())
             setCurrentActivity(new WorkActivity(this, location));
@@ -1289,7 +1293,7 @@ public class Unit {
 
 
     /**
-     * Returns wheter the unit can attack the other unit.
+     * Returns whether the unit can attack the other unit.
      *
      * @param   other
      *          The unit to attack.
@@ -1323,26 +1327,22 @@ public class Unit {
      * @post    Makes the unit attack.
      *          | new.isAttacking == True
      *
-     * @throws  IllegalArgumentException
+     * @throws  InvalidUnitException
      *          Throws if the other unit is null or if the unit tries to attack itself or if the other unit is falling
      *          | (other == null || other == this || other.getCurrentActivity.equalsClass(FALL_ACTIVITY_CLASS))
-     * @throws  IllegalArgumentException
+     * @throws  InvalidActionException
      *          Throws if the unit can't attack.
      *          | !canHaveAsActivity(ATTACK_ACTIVITY_CLASS)
-     * @throws  IllegalArgumentException
+     * @throws  InvalidUnitException
      *          Throws if the other unit is not in attack range.
      *          | (!this.canAttack(other))
-     * @throws  IllegalArgumentException
+     * @throws  InvalidUnitException
      *          Throws if the other unit is in the same faction.
      *          | (this.getFaction() == other.getFaction())
      */
-    public void attack(Unit other) throws IllegalArgumentException {
-        if (other == null || other == this || other.getCurrentActivity().equalsClass(FallActivity.class))
-            throw new IllegalArgumentException("The other unit is invalid");
+    public void attack(Unit other) throws InvalidActionException, InvalidUnitException {
         if (!currentActivity.canSwitch(AttackActivity.class))
-            throw new IllegalArgumentException("Can't attack right now");
-        if (this.getFaction() == other.getFaction())
-            throw new IllegalArgumentException("Can't attack units of the same faction");
+            throw new InvalidActionException("Can't attack right now");
 
         setCurrentActivity(new AttackActivity(this, other));
     }
@@ -1428,13 +1428,13 @@ public class Unit {
      * @post    The unit is resting.
      *          | new.isResting() == true
      *
-     * @throws  IllegalStateException
-     *          Throws if the unit is moving.
+     * @throws  InvalidActionException
+     *          Throws if the unit is moving or attacking TODOs.
      *          | !this.canHaveAsActivity(REST_ACTIVITY_CLASS)
      */
-    public void rest() throws IllegalStateException {
+    public void rest() throws InvalidActionException {
         if (!currentActivity.canSwitch(RestActivity.class))
-            throw new IllegalStateException("Can't rest right now");
+            throw new InvalidActionException("Can't rest right now");
 
         if (!isResting())
             setCurrentActivity(new RestActivity(this));
@@ -1568,7 +1568,7 @@ public class Unit {
     }
     //</editor-fold>
 
-
+    //<editor-fold desc="Tasks">
     public boolean hasAssignedTask() {
         return this.task != null;
     }
@@ -1591,4 +1591,5 @@ public class Unit {
             getFaction().getScheduler().interruptTask(getAssignedTask());
 
     }
+    //</editor-fold>
 }

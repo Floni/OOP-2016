@@ -24,7 +24,7 @@ class RestActivity extends Activity {
      * @effect  Initialize the Activity with the given unit
      *          | super(unit);
      */
-    RestActivity(Unit unit) {
+    RestActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
         this.restTimer = REST_DELAY;
         this.restDiff = 0;

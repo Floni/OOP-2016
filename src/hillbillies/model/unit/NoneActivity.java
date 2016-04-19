@@ -22,7 +22,7 @@ class NoneActivity extends Activity {
      * @effect  Initialize the Activity with the given unit
      *          | super(unit);
      */
-    NoneActivity(Unit unit) {
+    NoneActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
     }
 
