@@ -53,7 +53,7 @@ public class Facade extends hillbillies.part2.facade.Facade implements IFacade {
 
     @Override
     public Set<Scheduler> getSchedulersForTask(Task task) throws ModelException {
-        return null; // TODO
+        return task.getSchedulers();
     }
 
     @Override

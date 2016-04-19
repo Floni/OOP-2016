@@ -1583,12 +1583,12 @@ public class Unit {
 
     public void finishTask() {
         if (hasAssignedTask())
-            getFaction().getScheduler().finishTask(getAssignedTask());
+            getAssignedTask().finish();
     }
 
     public void stopTask() {
         if (hasAssignedTask())
-            getFaction().getScheduler().interruptTask(getAssignedTask());
+            getAssignedTask().interrupt();
 
     }
     //</editor-fold>

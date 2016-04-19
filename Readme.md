@@ -9,8 +9,6 @@ extra cmd javadoc:
                 Arrays.fill(yr, false);
             }
         }
-
-        // TODO: for each wall/direction, recursive
         Queue<int[]> toCheckCubes = new ArrayDeque<>();
 
         for (int z : new int[]{0, Z_MAX-1}) {

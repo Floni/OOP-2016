@@ -5,6 +5,9 @@ import hillbillies.model.vector.IntVector;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.programs.statement.Statement;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Class implementing a task that a unit can execute.
  */
@@ -16,6 +19,8 @@ public class Task implements Comparable<Task> {
     private final String name;
     private final Statement mainStatement;
     private final IntVector selected;
+
+    private final Set<Scheduler> schedulers;
 
     private boolean running;
     /**
@@ -35,6 +40,21 @@ public class Task implements Comparable<Task> {
         this.selected = selected;
         this.setPriority(priority);
         this.running = false;
+        this.schedulers = new HashSet<>();
+    }
+
+    /**
+     * Adds a scheduler to the list of schedulers that can assign this task.
+     *
+     * @param   scheduler
+     *          The scheduler.
+     */
+    public void addScheduler(Scheduler scheduler) {
+        this.schedulers.add(scheduler);
+    }
+
+    public Set<Scheduler> getSchedulers() {
+        return new HashSet<>(schedulers);
     }
 
     /**
@@ -130,7 +150,7 @@ public class Task implements Comparable<Task> {
 
         if (mainStatement.isDone(this)) {
             this.mainStatement.reset();
-            this.getAssignedUnit().finishTask();
+            this.finish();
         }
 
         this.running = false;
@@ -153,5 +173,27 @@ public class Task implements Comparable<Task> {
 
     public void reset() {
         this.mainStatement.reset();
+    }
+
+
+    public void finish() {
+        if (this.isAssigned())
+            this.getAssignedUnit().assignTask(null);
+        this.setAssignedUnit(null);
+
+        schedulers.forEach(s -> s.finishTask(this));
+        this.schedulers.clear();
+    }
+
+    public void interrupt() {
+        if (isAssigned()) {
+            await();
+            reset();
+            getAssignedUnit().assignTask(null);
+        }
+
+        setAssignedUnit(null);
+        this.setPriority(this.getPriority() - 1);
+        schedulers.forEach(s -> s.rebuildTask(this));
     }
 }

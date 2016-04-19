@@ -35,6 +35,7 @@ public class Scheduler {
      */
     public void schedule(Task task) {
         this.allTasks.add(task);
+        task.addScheduler(this);
     }
 
     /**
@@ -76,9 +77,6 @@ public class Scheduler {
      *
      */
     public void finishTask(Task task) {
-        if (task.isAssigned())
-            task.getAssignedUnit().assignTask(null);
-        task.setAssignedUnit(null);
         allTasks.remove(task);
     }
 
@@ -90,17 +88,8 @@ public class Scheduler {
      * @post    The task will be available for execution again.
      *          | ...
      */
-    public void interruptTask(Task task) {
-        if (task.isAssigned()) {
-            task.await();
-            task.reset();
-            task.getAssignedUnit().assignTask(null);
-        }
-
-        task.setAssignedUnit(null);
-
+    public void rebuildTask(Task task) {
         allTasks.remove(task);
-        task.setPriority(task.getPriority() - 1);
         allTasks.add(task);
     }
 

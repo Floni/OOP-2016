@@ -1,9 +1,11 @@
 package hillbillies.model.programs.statement;
 
 import hillbillies.model.Task;
+import hillbillies.model.programs.exceptions.TaskErrorException;
+import hillbillies.model.programs.exceptions.TaskInterruptException;
 
 /**
- * Created by timo on 4/13/16.
+ * Interface for statements.
  */
 public interface Statement {
 
@@ -16,8 +18,13 @@ public interface Statement {
 
     /**
      * execute one step of the statement.
+     *
+     * @throws  TaskErrorException
+     *          ...
+     * @throws  TaskInterruptException
+     *          ....
      */
-    void execute(Task task);
+    void execute(Task task) throws TaskErrorException, TaskInterruptException;
 }
 
 
