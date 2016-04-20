@@ -14,14 +14,17 @@ import hillbillies.model.World;
  */
 class WorkActivity extends Activity {
 
-    private double workTimer = 0;
+    private double workTimer;
     private IntVector location;
+
+    WorkActivity(Unit unit) {
+        super(unit);
+        this.reset();
+    }
 
     /**
      * Initialises the work activity for the given unit at the given position.
      *
-     * @param   unit
-     *          The unit which starts working.
      * @param   location
      *          The location at which the unit starts working.
      *
@@ -34,21 +37,18 @@ class WorkActivity extends Activity {
      *          Thrown if the location is invalid or the location isn't next to the unit.
      *          | !unit.isValidPosition(location) || dist(unit.getPosition(), location) > 1
      */
-    WorkActivity(Unit unit, IntVector location) throws IllegalArgumentException, InvalidPositionException {
-        super(unit);
-
-        if (!unit.getWorld().isValidPosition(location))
+    void workAt(IntVector location) throws IllegalArgumentException, InvalidPositionException {
+        if (!getUnit().getWorld().isValidPosition(location))
             throw new InvalidPositionException(location);
 
-        IntVector intDiff = getUnit().getPosition().toIntVector().substract(location);
-        if (Math.abs(intDiff.getX()) > 1 || Math.abs(intDiff.getY()) > 1 || Math.abs(intDiff.getZ()) > 1 )
+        if (!location.isNextTo(getUnit().getPosition().toIntVector()))
             throw new InvalidPositionException("Work location too far: ", location);
 
-        this.workTimer  = 500.0 / unit.getStrength();
+        this.workTimer  = 500.0 / getUnit().getStrength();
         this.location = location;
 
-        Vector diff = location.toVector().add(World.Lc/2).subtract(unit.getPosition());
-        unit.setOrientation(Math.atan2(diff.getY(), diff.getX()));
+        Vector diff = location.toVector().add(World.Lc/2).subtract(getUnit().getPosition());
+        getUnit().setOrientation(Math.atan2(diff.getY(), diff.getX()));
     }
 
 
@@ -68,7 +68,7 @@ class WorkActivity extends Activity {
         if (workTimer <= 0) {
             workTimer = 0;
             finishWork();
-            unit.finishCurrentActivity();
+            getUnit().finishCurrentActivity();
         }
     }
 
@@ -92,39 +92,35 @@ class WorkActivity extends Activity {
     private void finishWork() {
         // TODO: simplify!
         if (unit.isCarryingLog() || unit.isCarryingBoulder()){ //BOULDER OR LOG
-            if (!World.isSolid(unit.getWorld().getCubeType(location))) {
+            if (!World.isSolid(unit.getWorld().getCubeType(location)))
                 unit.dropCarry(location);
-                unit.addXp(10);
-            }
-        } else if (unit.getWorld().getCubeType(location) == World.WORKSHOP && unit.getWorld().getLogs(location).size() >= 1 &&
-                unit.getWorld().getBoulders(location).size() >= 1) {
+            else
+                return; // don't add xp
+        } else if (unit.getWorld().getCubeType(location) == World.WORKSHOP &&
+                unit.getWorld().getLogs(location).size() >= 1 && unit.getWorld().getBoulders(location).size() >= 1) {
 
             unit.getWorld().consumeBoulder(location);
             unit.getWorld().consumeLog(location);
 
             unit.setWeight(unit.getWeight() + 1);
             unit.setToughness(unit.getToughness() + 1);
-            unit.addXp(10);
         } else if (unit.getWorld().getBoulders(location).size() >= 1) {
             unit.pickUpBoulder(unit.getWorld().getBoulders(location).iterator().next());
-            unit.addXp(10);
         } else if (unit.getWorld().getLogs(location).size() >= 1) {
             unit.pickUpLog(unit.getWorld().getLogs(location).iterator().next());
-            unit.addXp(10);
         } else if (unit.getWorld().getCubeType(location) == World.TREE) {
             unit.getWorld().breakCube(location);
-            unit.addXp(10);
         } else if (unit.getWorld().getCubeType(location) == World.ROCK) {
             unit.getWorld().breakCube(location);
-            unit.addXp(10);
         }
+        unit.addXp(10);
     }
 
     /**
      * Returns whether the unit can switch activities.
      */
     @Override @Basic
-    boolean canSwitch(Class<? extends Activity> newActivity) {
+    boolean canSwitch() {
         return true;
     }
 
@@ -133,8 +129,9 @@ class WorkActivity extends Activity {
      * Resumes the work activity.
      */
     @Override
-    void resume() {
-        System.out.println(this.location);
+    void reset() {
+        this.location = null;
+        this.workTimer = 0;
 
     }
 }

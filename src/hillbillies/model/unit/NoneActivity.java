@@ -2,6 +2,7 @@ package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import hillbillies.model.World;
+import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.exceptions.UnreachableTargetException;
 import hillbillies.model.vector.IntVector;
 
@@ -33,7 +34,7 @@ class NoneActivity extends Activity {
      * @param   dt
      *          The time step to update the activity with.
      *
-     * @post    If the unit still has an unfinished activity, he will resume this activity.
+     * @post    If the unit still has an unfinished activity, he will reset this activity.
      * @post    Else if default behavior is enabled the unit does with an equal chance one of the following things.
      *          - The unit moves to a random valid position in the world which the unit can reach.
      *          - The unit works on a neighbouring cube.
@@ -42,7 +43,7 @@ class NoneActivity extends Activity {
      */
     @Override
     void advanceTime(double dt) {
-        if (!getUnit().getLastActivity().equalsClass(NoneActivity.class)) {
+        if (getUnit().getLastActivity() != getUnit().noneActivity) {
             getUnit().finishCurrentActivity(); // we still have an interrupted activity
         } else if (getUnit().isDefaultEnabled()) {
             if (getUnit().hasAssignedTask()) {
@@ -78,10 +79,10 @@ class NoneActivity extends Activity {
                         Set<Unit> units = getUnit().getWorld().getUnits();
                         for (Unit other : units) {
                             if (other.getFaction() != getUnit().getFaction()) {
-                                if (getUnit().canAttack(other) && !other.getCurrentActivity().equalsClass(FallActivity.class)) {
+                                try {
                                     getUnit().attack(other);
                                     break;
-                                }
+                                } catch (InvalidUnitException ignored) {}
                             }
                         }
                         break;
@@ -95,15 +96,15 @@ class NoneActivity extends Activity {
      * Returns whether the unit can switch activities which is true when the unit is alive.
      */
     @Override @Basic
-    boolean canSwitch(Class<? extends Activity> newActivity) {
-        return getUnit().isAlive();
+    boolean canSwitch() {
+        return true;
     }
 
 
     /**
-     * Resumes the activity, which does nothing.
+     * Resets the activity, which does nothing.
      */
     @Override
-    void resume() {
+    void reset() {
     }
 }

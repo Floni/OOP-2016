@@ -8,7 +8,10 @@ import hillbillies.model.World;
 /**
  * The activity for falling, is a subclass of MoveActivity.
  */
-class FallActivity extends MoveActivity {
+class FallActivity extends Activity {
+    static final Vector FALL_SPEED = new Vector(0, 0, -3.0);
+
+    private Vector startPosition;
 
     /**
      * Initializes the fall activity.
@@ -25,9 +28,10 @@ class FallActivity extends MoveActivity {
      */
     FallActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
+    }
 
-        speed = new Vector(0, 0, -3.0);
-        target = unit.getPosition(); // we use target as the starting position
+    void startFalling() {
+        this.startPosition = getUnit().getPosition(); // we use target as the starting position
     }
 
     /**
@@ -45,17 +49,19 @@ class FallActivity extends MoveActivity {
      */
     @Override
     void advanceTime(double dt) {
-        Vector newPosition = getUnit().getPosition().add(this.speed.multiply(dt));
+        Vector newPosition = getUnit().getPosition().add(FALL_SPEED.multiply(dt));
 
         IntVector newCube = newPosition.toIntVector();
         //if (newCube.getZ() == 0 || World.isSolid(unit.getWorld().getCubeType(newCube.add(0, 0, -1)))) {
         if ((newCube.getZ() == 0 || World.isSolid(getUnit().getWorld().getCubeType(newCube.add(0, 0, -1))))
                 && (newPosition.getZ() - Math.floor(newPosition.getZ())) <= World.Lc/2.0) {
 
-            int diffZ = target.toIntVector().substract(newCube).getZ();
-            getUnit().setPosition(new Vector(getUnit().getPosition().getX(), getUnit().getPosition().getY(),
-                    Math.floor(getUnit().getPosition().getZ()) + World.Lc / 2.0));
+            getUnit().setPosition(new Vector(getUnit().getPosition().getX(),
+                    getUnit().getPosition().getY(), Math.floor(getUnit().getPosition().getZ()) + World.Lc / 2.0));
+
+            int diffZ = this.startPosition.toIntVector().substract(newCube).getZ();
             getUnit().deduceHitPoints(10*diffZ);
+
             getUnit().finishCurrentActivity();
         } else {
             getUnit().setPosition(newPosition);
@@ -66,19 +72,15 @@ class FallActivity extends MoveActivity {
      * Returns whether the unit can switch activities, which always returns false.
      */
     @Override @Basic
-    boolean canSwitch(Class<? extends Activity> newActivity) {
+    boolean canSwitch() {
         return false;
     }
 
     /**
-     * Resumes the falling activity, which is impossible.
-     *
-     * @pre     This method shouldn't be called
-     *          | false
      *
      */
     @Override
-    void resume() {
-        assert false;
+    void reset() {
+        this.startPosition = null;
     }
 }

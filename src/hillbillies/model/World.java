@@ -294,7 +294,7 @@ public class World {
      * @post    If a drop occurs a boulder or log will be added at the given position.
      */
     private void dropChance(IntVector location, int type) {
-        if (Math.random() < 0.25) {
+        if (Math.random() < 0.99) { // TODO
             if (type == World.ROCK) {
                 addGameObject(location, new Boulder(this, location));
             } else if (type == World.TREE) {

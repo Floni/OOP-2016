@@ -12,11 +12,13 @@ class AttackActivity extends Activity {
 
     private double attackTimer;
 
+    AttackActivity(Unit unit) {
+        super(unit);
+    }
+
     /**
      * Initialises the attack activity with the given attacker and defender.
      *
-     * @param   unit
-     *          The unit who conducts the attack.
      * @param   other
      *          The unit that is attacked.
      *
@@ -32,25 +34,24 @@ class AttackActivity extends Activity {
      * @throws  InvalidUnitException
      *          The other unit is of the same faction.
      */
-    AttackActivity(Unit unit, Unit other) throws IllegalArgumentException, InvalidUnitException {
-        super(unit);
-        attackTimer = ATTACK_DELAY;
-
-        if (other == null || other == getUnit() || other.getCurrentActivity().equalsClass(FallActivity.class))
+    void setTarget(Unit other) throws InvalidUnitException {
+        if (other == null || other == getUnit() || other.isFalling())
             throw new InvalidUnitException("The other unit is invalid");
 
         if (getUnit().getFaction() == other.getFaction())
             throw new InvalidUnitException("Can't attack units of the same faction");
 
         Vector otherPos = other.getPosition();
-        if (!unit.canAttack(other))
+        if (!this.canAttack(other))
             throw new InvalidUnitException("Other unit is to far away");
 
-        Vector diff = otherPos.subtract(unit.getPosition());
-        unit.setOrientation(Math.atan2(diff.getY(), diff.getX()));
+        attackTimer = ATTACK_DELAY;
+
+        Vector diff = otherPos.subtract(getUnit().getPosition());
+        getUnit().setOrientation(Math.atan2(diff.getY(), diff.getX()));
         other.setOrientation(Math.atan2(-diff.getY(), -diff.getX()));
 
-        other.defend(unit);
+        other.defend(getUnit());
     }
 
     /**
@@ -76,19 +77,28 @@ class AttackActivity extends Activity {
      * Returns whether the unit can switch activities, which is always false.
      */
     @Override @Basic
-    boolean canSwitch(Class<? extends Activity> newActivity) {
+    boolean canSwitch() {
         return false;
     }
 
     /**
      * Resumes the attack activity, which is not possible.
-     *
-     * @pre The method shouldn't be called
-     *      | false
      */
     @Override
-    void resume()  throws IllegalStateException {
-        // can't happen
-        assert false;
+    void reset() {
+        this.attackTimer = 0; // reset attack timer
+    }
+
+    /**
+     * Returns whether the unit can attack the other unit.
+     *
+     * @param   other
+     *          The unit to attack.
+     *
+     * @return  Returns True if the unit's are in adjacent cubes.
+     *          | result == this.getPosition().isNextTo(other.getPosition())
+     */
+    boolean canAttack(Unit other) {
+        return getUnit().getPosition().isNextTo(other.getPosition());
     }
 }

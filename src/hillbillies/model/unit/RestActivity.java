@@ -1,6 +1,7 @@
 package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Raw;
 
 /**
  * The activity for resting.
@@ -26,9 +27,7 @@ class RestActivity extends Activity {
      */
     RestActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
-        this.restTimer = REST_DELAY;
-        this.restDiff = 0;
-        this.initialRest = true;
+        this.reset();
     }
 
 
@@ -44,6 +43,7 @@ class RestActivity extends Activity {
      */
     @Override
     void advanceTime(double dt) {
+        // TODO: simplify
         this.restTimer -= dt;
         if (this.restTimer <= 0) {
             this.restTimer += REST_DELAY;
@@ -74,7 +74,7 @@ class RestActivity extends Activity {
      * Returns true if the unit can switch activities.
      */
     @Override @Basic
-    boolean canSwitch(Class<? extends Activity> newActivity) {
+    boolean canSwitch() {
         return !initialRest;
     }
 
@@ -82,8 +82,8 @@ class RestActivity extends Activity {
     /**
      * Resumes the rest activity.
      */
-    @Override
-    void resume() {
+    @Override @Raw
+    void reset() {
         this.restTimer = REST_DELAY;
         this.initialRest = true;
         this.restDiff = 0;

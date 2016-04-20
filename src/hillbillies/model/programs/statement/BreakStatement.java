@@ -8,7 +8,7 @@ import hillbillies.model.programs.exceptions.TaskInterruptException;
 /**
  * Created by timo on 4/19/16.
  */
-public class BreakStatement extends RuntimeException implements Statement {
+public class BreakStatement implements Statement {
     @Override
     public void reset() {
 

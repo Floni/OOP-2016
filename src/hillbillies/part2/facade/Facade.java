@@ -116,7 +116,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
         try {
             unit.workAt(new IntVector(x, y, z));
         } catch (InvalidActionException | InvalidPositionException err) {
-            throw new ModelException(err);
+            throw new ModelException(err.getMessage(), err);
         }
     }
 

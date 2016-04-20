@@ -177,6 +177,8 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
         //return (PositionExpression) task -> task.getAssignedUnit().getWorld().getLogs().iterator().next().getPosition().toIntVector();
 
         return (PositionExpression) t -> t.getAssignedUnit().getWorld().getLogs().stream()
+                .filter(l -> t.getAssignedUnit().getWorld().getPathFinder()
+                        .isReachable(t.getAssignedUnit().getPosition().toIntVector(), l.getPosition().toIntVector()))
                 .min((Comparator<Log>) (o1, o2) ->
                         (int)(o1.getPosition().subtract(t.getAssignedUnit().getPosition()).norm()
                                 - o2.getPosition().subtract(t.getAssignedUnit().getPosition()).norm()))

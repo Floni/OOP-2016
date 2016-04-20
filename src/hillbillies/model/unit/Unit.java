@@ -12,7 +12,6 @@ import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
 
 import java.util.ArrayList;
-import java.util.stream.Stream;
 
 /**
  *
@@ -62,18 +61,9 @@ public class Unit {
 
     private static final double INIT_ORIENTATION = Math.PI / 2;
 
-    // for documentation:
-    public static final Class<? extends Activity> MOVE_ACTIVITY_CLASS = MoveActivity.class;
-    public static final Class<? extends Activity> WORK_ACTIVITY_CLASS = WorkActivity.class;
-    public static final Class<? extends Activity> ATTACK_ACTIVITY_CLASS = AttackActivity.class;
-    public static final Class<? extends Activity> FALL_ACTIVITY_CLASS = FallActivity.class;
-    public static final Class<? extends Activity> REST_ACTIVITY_CLASS = RestActivity.class;
-
     //</editor-fold>
 
     //<editor-fold desc="Variables">
-    // constant used for none, none has no state!
-    private final Activity NONE_ACTIVITY = new NoneActivity(this);
 
     private Vector position;
 
@@ -84,9 +74,16 @@ public class Unit {
     private int hitPoints, stamina;
     private int xp, xpDiff;
 
-    private Activity currentActivity = NONE_ACTIVITY;
-    private Activity lastActivity = NONE_ACTIVITY;
-    private Activity pendingActivity = NONE_ACTIVITY;
+
+    final Activity noneActivity = new NoneActivity(this);
+    private final MoveActivity moveActivity = new MoveActivity(this);
+    private final FallActivity fallActivity = new FallActivity(this);
+    private final RestActivity restActivity = new RestActivity(this);
+    private final WorkActivity workActivity = new WorkActivity(this);
+    private final AttackActivity attackActivity = new AttackActivity(this);
+
+    private Activity currentActivity = noneActivity;
+    private Activity lastActivity = noneActivity;
 
     private double restMinuteTimer;
 
@@ -208,7 +205,7 @@ public class Unit {
 
         setOrientation(INIT_ORIENTATION);
 
-        this.restMinuteTimer = REST_MINUTE;
+        this.restMinuteTimer = REST_MINUTE; // TODO: getter & setter
     }
 
 
@@ -227,9 +224,9 @@ public class Unit {
      *          | new.getWorld() == null
      */
     public void terminate() {
-        currentActivity = NONE_ACTIVITY;
-        lastActivity = NONE_ACTIVITY;
-        pendingActivity = NONE_ACTIVITY;
+        currentActivity = null;
+        lastActivity = null;
+
         if (getFaction() != null)
             this.stopTask();
 
@@ -237,7 +234,6 @@ public class Unit {
 
         if (world != null)
             world.removeUnit(this);
-
         setWorld(null);
     }
 
@@ -341,14 +337,19 @@ public class Unit {
         getCurrentActivity().advanceTime(dt);
 
         restMinuteTimer -= dt;
-        if (restMinuteTimer <= 0 && currentActivity.canSwitch(RestActivity.class)) {
+        if (restMinuteTimer <= 0 && this.canSwitchActivity()) {
             restMinuteTimer += REST_MINUTE;
             rest();
         }
 
-        if (!isStablePosition(getPosition().toIntVector()) && !getCurrentActivity().equalsClass(FallActivity.class)) {
-            this.currentActivity = new FallActivity(this);
-            this.lastActivity = NONE_ACTIVITY; // TODO: 4/18/16 Use function or something?
+        if (!isStablePosition(getPosition().toIntVector()) && !isFalling()) {
+            getCurrentActivity().reset();
+
+            fallActivity.startFalling();
+            setCurrentActivity(fallActivity);
+
+            getLastActivity().reset();
+            setLastActivity(noneActivity);
         }
 
 
@@ -366,11 +367,23 @@ public class Unit {
     }
 
     /**
+     * Set the current activity.
+     * @param   newActivity
+     *          The new Activity
+     *
+     * @post    The new Activity will be set
+     *          | new.getCurrentActivity() == newActivity
+     */
+    private void setCurrentActivity(Activity newActivity) {
+        this.currentActivity = newActivity;
+    }
+
+    /**
      * Returns whether or not the unit can do the given Activity.
      */
     @Basic
-    public boolean canHaveAsActivity(Class<? extends Activity> newActivity) {
-        return getCurrentActivity().canSwitch(newActivity);
+    public boolean canSwitchActivity() {
+        return getCurrentActivity().canSwitch();
     }
 
     /**
@@ -378,9 +391,6 @@ public class Unit {
      *
      * @param   newActivity
      *          The new activity.
-     *
-     * @pre     The unit must be able to switch to the new activity.
-     *          | canHaveAsActivity(newActivity)
      *
      * @post    If we are moving and the newActivity is not MOVE, we set the pendingActivity.
      *          Otherwise we set the currentActivity.
@@ -391,17 +401,24 @@ public class Unit {
      * @post    LastActivity is set to the current activity.
      *          | if this.getCurrentActivity() != newActivity
      *          |   then new.lastActivity == this.getCurrentActivity()
+     *
+     * @throws  InvalidActionException
+     *          If the unit can't switch activities
+     *          | !this.canSwitchActivity()
      */
-    private void setCurrentActivity(Activity newActivity) {
-        assert currentActivity.canSwitch(newActivity.getClass());
+    void switchActivity(Activity newActivity) throws InvalidActionException {
+        if (!canSwitchActivity())
+            throw new InvalidActionException("can't change activity");
         // don't do the same activity twice
-        if (!newActivity.equalsClass(currentActivity))
-            this.lastActivity = getCurrentActivity();
+        if (newActivity != this.getCurrentActivity()) {
+            getLastActivity().reset();
+            setLastActivity(getCurrentActivity());
+        }
 
-        if (isMoving() && !newActivity.equalsClass(MoveActivity.class))
-            this.pendingActivity = newActivity;
+        if (getCurrentActivity() == moveActivity)
+            moveActivity.setPendingActivity(newActivity);
         else
-            this.currentActivity = newActivity;
+            setCurrentActivity(newActivity);
     }
 
     /**
@@ -413,12 +430,12 @@ public class Unit {
      *          | new.lastActivity == Unit.NONE
      *
      * @effect  The last activity will be resumed.
-     *          | this.lastActivity.resume()
+     *          | this.lastActivity.reset()
      */
     void finishCurrentActivity() {
-        this.currentActivity = this.lastActivity;
-        this.lastActivity = NONE_ACTIVITY;
-        this.currentActivity.resume();
+        getCurrentActivity().reset();
+        setCurrentActivity(getLastActivity());
+        setLastActivity(noneActivity);
     }
 
 
@@ -435,28 +452,12 @@ public class Unit {
      *
      * @param   lastActivity
      *          The last activity to be set.
+     *
+     * @post    The lastActivity will be set.
+     *          | new.getLastActivity() == lastActivity
      */
-    void setLastActivity(Activity lastActivity) {
+    private void setLastActivity(Activity lastActivity) {
         this.lastActivity = lastActivity;
-    }
-
-    /**
-     * Returns the pending activity to be completed while moving.
-     */
-    @Basic
-    Activity getPendingActivity() {
-        return this.pendingActivity;
-    }
-
-    /**
-     * @post    The currentActivity becomes the pendingActivity
-     *          | new.getCurrentActivity() == this.getPendingActivity()
-     * @post    The pendingActivity is set to None
-     *          | new.getPendingActivity().equalsClass(NoneActivity.class)
-     */
-    void clearPendingActivity() {
-        this.currentActivity = this.pendingActivity;
-        this.pendingActivity = NONE_ACTIVITY;
     }
     //</editor-fold>
 
@@ -1029,7 +1030,7 @@ public class Unit {
      */
     @Basic
     public boolean isMoving() {
-        return currentActivity.equalsClass(MoveActivity.class);
+        return this.getCurrentActivity() == this.moveActivity || this.getCurrentActivity() == this.fallActivity;
     }
 
 
@@ -1066,16 +1067,11 @@ public class Unit {
     public void moveToAdjacent(int dx, int dy, int dz)
             throws IllegalArgumentException, InvalidActionException, InvalidPositionException {
 
-        if (!currentActivity.canSwitch(MoveActivity.class))
-            throw new InvalidActionException("Can't move right now");
-
         if (Math.abs(dx) > 1 || Math.abs(dy) > 1 || Math.abs(dz) > 1)
             throw new IllegalArgumentException("Illegal dx, dy and/or dz");
 
-        if (isMoving())
-            ((MoveActivity)getCurrentActivity()).updateAdjacent(dx, dy, dz);
-        else
-            setCurrentActivity(new MoveActivity(this, dx, dy, dz));
+        this.moveActivity.updateAdjacent(dx, dy, dz);
+        switchActivity(this.moveActivity);
     }
 
 
@@ -1102,15 +1098,10 @@ public class Unit {
      */
     public void moveTo(IntVector target)
             throws InvalidPositionException, InvalidActionException, UnreachableTargetException {
-        if (!currentActivity.canSwitch(MoveActivity.class))
-            throw new InvalidActionException("can't path right now");
 
         Vector newTarget =  target.toVector().add(World.Lc /2);
-
-        if (isMoving())
-            ((MoveActivity)getCurrentActivity()).updateTarget(newTarget);
-        else
-            setCurrentActivity(new MoveActivity(this, newTarget));
+        moveActivity.updateTarget(newTarget);
+        switchActivity(this.moveActivity);
     }
 
     //</editor-fold>
@@ -1132,9 +1123,9 @@ public class Unit {
     public double getSpeedScalar() {
         if (!isMoving())
             return 0;
-
-        MoveActivity current = (MoveActivity)getCurrentActivity();
-        double speedScalar = current.speed == null ? 0 : current.speed.norm();
+        if (isFalling())
+            return FallActivity.FALL_SPEED.norm();
+        double speedScalar = this.moveActivity.speed == null ? 0 : this.moveActivity.speed.norm();
         return isSprinting() ? 2*speedScalar : speedScalar;
     }
 
@@ -1153,14 +1144,13 @@ public class Unit {
      *          | sprint && (getStamina() == 0 || !isMoving())
      */
     public void setSprint(boolean sprint) throws InvalidActionException {
-        if (sprint && (getStamina() == 0 || !isMoving()))
+        if (sprint && (getStamina() == 0 || getCurrentActivity() != moveActivity))
             throw new InvalidActionException("Can't sprint right now");
 
-        MoveActivity current = (MoveActivity)getCurrentActivity();
         // reset sprint timer
-        if (!current.sprinting && sprint)
-            current.sprintStaminaTimer = MoveActivity.SPRINT_DELAY;
-        current.sprinting = sprint;
+        if (!moveActivity.sprinting && sprint)
+            moveActivity.sprintStaminaTimer = MoveActivity.SPRINT_DELAY;
+        moveActivity.sprinting = sprint;
     }
 
     /**
@@ -1168,7 +1158,7 @@ public class Unit {
      */
     @Basic
     public boolean isSprinting() {
-        return isMoving() && ((MoveActivity)getCurrentActivity()).sprinting;
+        return getCurrentActivity() == moveActivity && moveActivity.sprinting;
     }
     //</editor-fold>
 
@@ -1178,7 +1168,7 @@ public class Unit {
      */
     @Basic
     public boolean isWorking() {
-        return getCurrentActivity().equalsClass(WorkActivity.class);
+        return this.getCurrentActivity() == this.workActivity;
     }
 
     /**
@@ -1198,11 +1188,9 @@ public class Unit {
      *          | !this.getWorld().isValidPosition(location)
      */
     public void workAt(IntVector location) throws InvalidActionException, InvalidPositionException {
-        if (!getCurrentActivity().canSwitch(WorkActivity.class))
-            throw new InvalidActionException("Can't work right now");
-
+        this.workActivity.workAt(location);
         if (!isWorking())
-            setCurrentActivity(new WorkActivity(this, location));
+            switchActivity(this.workActivity);
     }
 
     /**
@@ -1282,21 +1270,7 @@ public class Unit {
      */
     @Basic
     public boolean isAttacking() {
-        return currentActivity.equalsClass(AttackActivity.class);
-    }
-
-
-    /**
-     * Returns whether the unit can attack the other unit.
-     *
-     * @param   other
-     *          The unit to attack.
-     *
-     * @return  Returns True if the unit's are in adjacent cubes.
-     *          | result == this.getPosition().isNextTo(other.getPosition())
-     */
-    boolean canAttack(Unit other) {
-        return this.getPosition().isNextTo(other.getPosition());
+        return this.getCurrentActivity() == this.attackActivity;
     }
 
     /**
@@ -1327,10 +1301,8 @@ public class Unit {
      *          | (this.getFaction() == other.getFaction())
      */
     public void attack(Unit other) throws InvalidActionException, InvalidUnitException {
-        if (!currentActivity.canSwitch(AttackActivity.class))
-            throw new InvalidActionException("Can't attack right now");
-
-        setCurrentActivity(new AttackActivity(this, other));
+        this.attackActivity.setTarget(other);
+        switchActivity(this.attackActivity);
     }
 
     /**
@@ -1395,7 +1367,6 @@ public class Unit {
                 this.addXp(20);
             }
         }
-
     }
     //</editor-fold>
 
@@ -1405,7 +1376,7 @@ public class Unit {
      */
     @Basic
     public boolean isResting() {
-        return currentActivity.equalsClass(RestActivity.class);
+        return this.getCurrentActivity() == this.restActivity;
     }
 
     /**
@@ -1419,11 +1390,9 @@ public class Unit {
      *          | !this.canHaveAsActivity(REST_ACTIVITY_CLASS)
      */
     public void rest() throws InvalidActionException {
-        if (!currentActivity.canSwitch(RestActivity.class))
-            throw new InvalidActionException("Can't rest right now");
-
+        restActivity.reset();
         if (!isResting())
-            setCurrentActivity(new RestActivity(this));
+            switchActivity(restActivity);
     }
     //</editor-fold>
 
@@ -1576,6 +1545,10 @@ public class Unit {
         if (hasAssignedTask())
             getAssignedTask().interrupt();
 
+    }
+
+    public boolean isFalling() {
+        return this.getCurrentActivity() == this.fallActivity;
     }
     //</editor-fold>
 }

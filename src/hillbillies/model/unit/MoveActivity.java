@@ -25,6 +25,7 @@ class MoveActivity extends Activity {
 
     private List<IntVector> path;
     private int idx;
+    private Activity pendingActivity;
 
     /**
      * Initializes the move activity for the given unit.
@@ -36,51 +37,7 @@ class MoveActivity extends Activity {
      */
     MoveActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
-        // (used for FallActivity)
     }
-
-    /**
-     * Makes the unit move to the given location.
-     *
-     * @param   unit
-     *          The unit that moves.
-     * @param   target
-     *          The location that the unit moves to.
-     *
-     * @effect  Initialize the Activity with the given unit
-     *          | super(unit);
-     *
-     * @effect  Updates the target of the unit.
-     *          | updateTarget(target)
-     */
-    MoveActivity(Unit unit, Vector target)
-            throws IllegalArgumentException, InvalidPositionException, UnreachableTargetException {
-        super(unit);
-        updateTarget(target);
-    }
-
-    /**
-     * Moves the unit to the given neighbouring position.
-     *
-     * @param   unit
-     *          The unit who moves.
-     * @param   dx
-     *          The x component of the target direction.
-     * @param   dy
-     *          The y component of the target direction.
-     * @param   dz
-     *          The z component of the target direction.
-     *
-     * @effect  Initialize the Activity with the given unit
-     *          | super(unit);
-     * @effect  Moves the unit to the neighbouring cube.
-     *          | moveToNeighbour(dx, dy, dz)
-     */
-    MoveActivity(Unit unit, int dx, int dy, int dz) throws IllegalArgumentException, InvalidPositionException {
-        super(unit);
-        moveToNeighbour(dx, dy, dz);
-    }
-
 
     /**
      * Updates the move activity for the given time step
@@ -119,9 +76,9 @@ class MoveActivity extends Activity {
         if (isAtNeighbour(newPosition)) {
             unit.addXp(1);
             unit.setPosition(this.targetNeighbour);
-            if (!unit.getPendingActivity().equalsClass(NoneActivity.class)) {
-                unit.clearPendingActivity();
-                unit.setLastActivity(this);
+            if (getPendingActivity() != null) { // TODO
+                unit.switchActivity(getPendingActivity());
+                setPendingActivity(null);
             } else if (this.target == null || isAtTarget()) {
                 unit.finishCurrentActivity();
             } else {
@@ -154,7 +111,7 @@ class MoveActivity extends Activity {
      * Returns whether the unit can switch activities, this is possible when the target is not null.
      */
     @Override @Basic
-    boolean canSwitch(Class<? extends Activity> newActivity) {
+    boolean canSwitch() {
         return this.target != null;
     }
 
@@ -162,8 +119,15 @@ class MoveActivity extends Activity {
      * Resumes the moving activity, which does nothing since the target would only be updated.
      */
     @Override
-    void resume() {
-        this.updateTarget(this.target);
+    void reset() {
+        this.target = null;
+        this.targetNeighbour = null;
+        this.speed = null;
+        sprintStaminaTimer = 0;
+        sprinting = false; // TODO: is sprinting reset between moves?
+        this.path = null;
+        this.idx = -1;
+        this.pendingActivity = null;
     }
 
     /**
@@ -313,5 +277,13 @@ class MoveActivity extends Activity {
         else if (diff.getZ() < -Unit.POS_EPS)
             vw *= 1.2;
         return diff.multiply(vw);
+    }
+
+    void setPendingActivity(Activity pendingActivity) {
+        this.pendingActivity = pendingActivity;
+    }
+
+    Activity getPendingActivity() {
+        return this.pendingActivity;
     }
 }
