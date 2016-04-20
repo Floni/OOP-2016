@@ -1,6 +1,7 @@
 package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Raw;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.UnreachableTargetException;
 import hillbillies.model.vector.IntVector;
@@ -16,16 +17,16 @@ import java.util.List;
 class MoveActivity extends Activity {
     static final double SPRINT_DELAY = 0.1;
 
-    protected Vector target;
-    private Vector targetNeighbour;
-    protected Vector speed;
+    protected Vector target; // the final target
+    private Vector targetNeighbour; // the next neighbour to reach
+    protected Vector speed; // the speed at which we're going, doesn't use sprinting
 
-    double sprintStaminaTimer;
-    boolean sprinting;
+    double sprintStaminaTimer; // timer for sprinting
+    boolean sprinting; // true if we are sprinting
 
-    private List<IntVector> path;
-    private int idx;
-    private Activity pendingActivity;
+    private List<IntVector> path; // the path, may be null
+    private int idx; // the index in the path we are currently at.
+    private Activity pendingActivity; // the activity that is pending to be executed when we reach the next centre.
 
     /**
      * Initializes the move activity for the given unit.
@@ -37,6 +38,7 @@ class MoveActivity extends Activity {
      */
     MoveActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
+        this.reset();
     }
 
     /**
@@ -56,7 +58,6 @@ class MoveActivity extends Activity {
      */
     @Override
     void advanceTime(double dt) {
-        // TODO: simplify
         if (this.sprinting) {
             sprintStaminaTimer -= dt;
             if(sprintStaminaTimer <= 0) {
@@ -74,12 +75,14 @@ class MoveActivity extends Activity {
         }
         Vector newPosition = unit.getPosition().add(this.speed.multiply(this.sprinting ? 2*dt : dt));
         if (isAtNeighbour(newPosition)) {
-            unit.addXp(1);
             unit.setPosition(this.targetNeighbour);
-            if (getPendingActivity() != null) { // TODO
+            unit.addXp(1);
+            if (getPendingActivity() != null) {
                 unit.switchActivity(getPendingActivity());
                 setPendingActivity(null);
             } else if (this.target == null || isAtTarget()) {
+                if (this.hasTracker())
+                    this.getTracker().setDone();
                 unit.finishCurrentActivity();
             } else {
                 if (path == null)
@@ -89,22 +92,6 @@ class MoveActivity extends Activity {
         } else {
             unit.setPosition(newPosition);
         }
-    }
-
-    /**
-     * Move to the next neighbour in the path and move the index of the path.
-     *
-     * @effect  Move to the next neighbour.
-     *          | moveToNeighbour(path.get(idx))
-     */
-    private void goToNextNeighbour() {
-        IntVector next = path.get(idx);
-        if (!unit.isStablePosition(next) || !unit.isValidPosition(next)) {
-            this.updateTarget(this.target); // recalc path
-            return;
-        }
-        moveToNeighbour(path.get(idx));
-        idx -= 1;
     }
 
     /**
@@ -118,7 +105,7 @@ class MoveActivity extends Activity {
     /**
      * Resumes the moving activity, which does nothing since the target would only be updated.
      */
-    @Override
+    @Override @Raw
     void reset() {
         this.target = null;
         this.targetNeighbour = null;
@@ -128,6 +115,10 @@ class MoveActivity extends Activity {
         this.path = null;
         this.idx = -1;
         this.pendingActivity = null;
+
+        if (this.hasTracker())
+            this.getTracker().setInterrupt();
+        this.resetTracker();
     }
 
     /**
@@ -155,6 +146,21 @@ class MoveActivity extends Activity {
         return dist_new > dist_cur;
     }
 
+    /**
+     * Move to the next neighbour in the path and move the index of the path.
+     *
+     * @effect  Move to the next neighbour.
+     *          | moveToNeighbour(path.get(idx))
+     */
+    private void goToNextNeighbour() {
+        IntVector next = path.get(idx);
+        if (!unit.isStablePosition(next) || !unit.isValidPosition(next)) {
+            this.updateTarget(this.target); // recalc path
+            return;
+        }
+        moveToNeighbour(path.get(idx));
+        idx -= 1;
+    }
 
     /**
      * Moves to specified neighbour cube (must be next to current position).
@@ -279,10 +285,24 @@ class MoveActivity extends Activity {
         return diff.multiply(vw);
     }
 
+
+    /**
+     * Sets the pending activity.
+     *
+     * @param   pendingActivity
+     *          The pending activity to be set.
+     *
+     * @post    The new pending activity will be set.
+     *          | new.getPendingActivity() == pendingActivity
+     */
     void setPendingActivity(Activity pendingActivity) {
         this.pendingActivity = pendingActivity;
     }
 
+    /**
+     * Returns the pending activity
+     */
+    @Basic
     Activity getPendingActivity() {
         return this.pendingActivity;
     }

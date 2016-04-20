@@ -13,9 +13,10 @@ import hillbillies.model.programs.expression.PositionExpression;
  * Created by timo on 4/13/16.
  *
  */
-public class MoveToStatement implements Statement {
+public class MoveToStatement implements Statement, ActivityTracker {
     private final PositionExpression expression;
-    private IntVector target;
+    private boolean done;
+    private boolean interrupted;
 
     public MoveToStatement(PositionExpression position) {
         this.expression = position;
@@ -23,26 +24,26 @@ public class MoveToStatement implements Statement {
 
     @Override
     public void reset() {
-        this.target = null;
+        this.done = false;
+        this.interrupted = false;
     }
 
     @Override
     public boolean isDone(Task task) {
-        return task.getAssignedUnit().getPosition().toIntVector().equals(this.target);
+        return this.done;
     }
 
     @Override
     public void execute(Task task) {
-        if (this.target == null) {
-            this.target = this.getExpression().getValue(task);
-            if (this.target == null)
-                return;
-        }
+        if (this.interrupted)
+            throw new TaskInterruptException("moveTo was interrupted");
 
+        IntVector target = getExpression().getValue(task);
         try {
-            task.getAssignedUnit().moveTo(this.target);
+            task.getAssignedUnit().moveTo(target);
+            task.getAssignedUnit().setActivityTracker(this);
         } catch (UnreachableTargetException | InvalidActionException | InvalidPositionException err) {
-            if (!task.getAssignedUnit().getWorld().isValidPosition(this.target))
+            if (!task.getAssignedUnit().getWorld().isValidPosition(target))
                 throw new TaskErrorException(err.getMessage());
             else
                 throw new TaskInterruptException(err.getMessage());
@@ -58,5 +59,15 @@ public class MoveToStatement implements Statement {
 
     private PositionExpression getExpression() {
         return expression;
+    }
+
+    @Override
+    public void setDone() {
+        this.done = true;
+    }
+
+    @Override
+    public void setInterrupt() {
+        this.interrupted = true;
     }
 }

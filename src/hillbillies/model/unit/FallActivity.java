@@ -28,6 +28,7 @@ class FallActivity extends Activity {
      */
     FallActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
+        this.reset();
     }
 
     void startFalling() {

@@ -69,6 +69,8 @@ class AttackActivity extends Activity {
         if (this.attackTimer <= 0) {
             this.attackTimer = 0;
 
+            if (this.hasTracker())
+                this.getTracker().setDone();
             getUnit().finishCurrentActivity();
         }
     }
@@ -87,6 +89,9 @@ class AttackActivity extends Activity {
     @Override
     void reset() {
         this.attackTimer = 0; // reset attack timer
+        if (this.hasTracker())
+            this.getTracker().setInterrupt();
+        this.resetTracker();
     }
 
     /**

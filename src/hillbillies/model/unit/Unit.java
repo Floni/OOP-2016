@@ -8,6 +8,7 @@ import hillbillies.model.exceptions.InvalidActionException;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.exceptions.UnreachableTargetException;
+import hillbillies.model.programs.statement.ActivityTracker;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
 
@@ -344,7 +345,6 @@ public class Unit {
 
         if (!isStablePosition(getPosition().toIntVector()) && !isFalling()) {
             getCurrentActivity().reset();
-
             fallActivity.startFalling();
             setCurrentActivity(fallActivity);
 
@@ -409,16 +409,17 @@ public class Unit {
     void switchActivity(Activity newActivity) throws InvalidActionException {
         if (!canSwitchActivity())
             throw new InvalidActionException("can't change activity");
-        // don't do the same activity twice
-        if (newActivity != this.getCurrentActivity()) {
-            getLastActivity().reset();
-            setLastActivity(getCurrentActivity());
-        }
 
-        if (getCurrentActivity() == moveActivity)
-            moveActivity.setPendingActivity(newActivity);
-        else
+        if (getCurrentActivity() == moveActivity && newActivity != moveActivity.getPendingActivity()) {
+            moveActivity.setPendingActivity(newActivity); // TODO: reset?
+        } else {
+            // don't do the same activity twice
+            if (newActivity != this.getCurrentActivity()) {
+                getLastActivity().reset();
+                setLastActivity(getCurrentActivity());
+            }
             setCurrentActivity(newActivity);
+        }
     }
 
     /**
@@ -1478,16 +1479,22 @@ public class Unit {
     @Model
     private void levelUp() {
         while (this.xpDiff >= 10) {
+            this.xpDiff -= 10;
+
             ArrayList<Integer> attributes = new ArrayList<>();
             if (this.getStrength() < 200)
                 attributes.add(0);
             if (this.getAgility() < 200)
                 attributes.add(1);
-            if (this.getStrength() < 200)
+            if (this.getToughness() < 200)
                 attributes.add(2);
+
+            if (attributes.isEmpty())
+                return;
+
             int rand = (int) Math.floor(Math.random()*attributes.size());
-            this.xpDiff -= 10;
             int attr = attributes.get(rand);
+
             if (attr == 0)
                 this.setStrength(this.getStrength() + 1);
             else if (attr == 1)
@@ -1549,6 +1556,10 @@ public class Unit {
 
     public boolean isFalling() {
         return this.getCurrentActivity() == this.fallActivity;
+    }
+
+    public void setActivityTracker(ActivityTracker tracker) {
+        getCurrentActivity().setTracker(tracker);
     }
     //</editor-fold>
 }

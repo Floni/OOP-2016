@@ -26,15 +26,17 @@ public class SequenceStatement implements Statement {
 
     @Override
     public boolean isDone(Task task) {
-        return (this.currentStmtIdx == this.statements.size() - 1) && getCurrentStatement().isDone(task);
+        // TODO
+        return currentStmtIdx >= statements.size() ||
+                (currentStmtIdx == statements.size() - 1 && getCurrentStatement().isDone(task));
     }
 
     @Override
     public void execute(Task task) {
-        if (getCurrentStatement().isDone(task))
+        while (currentStmtIdx < statements.size() && getCurrentStatement().isDone(task) )
             currentStmtIdx++;
-
-        getCurrentStatement().execute(task);
+        if (currentStmtIdx < statements.size())
+            getCurrentStatement().execute(task);
 
     }
 

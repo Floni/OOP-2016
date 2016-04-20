@@ -120,7 +120,7 @@ public class Facade implements IFacade {
         } catch (IllegalArgumentException err) {
             throw new ModelException(err.getMessage(), err);
         }
-            }
+    }
 
     @Override
     public void moveToAdjacent(Unit unit, int dx, int dy, int dz) throws ModelException {

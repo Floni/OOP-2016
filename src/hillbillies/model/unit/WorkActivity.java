@@ -114,6 +114,8 @@ class WorkActivity extends Activity {
             unit.getWorld().breakCube(location);
         }
         unit.addXp(10);
+        if (this.hasTracker())
+            this.getTracker().setDone();
     }
 
     /**
@@ -126,12 +128,15 @@ class WorkActivity extends Activity {
 
 
     /**
-     * Resumes the work activity.
+     * Resets
      */
     @Override
     void reset() {
         this.location = null;
         this.workTimer = 0;
 
+        if (this.hasTracker())
+            this.getTracker().setInterrupt();
+        this.resetTracker();
     }
 }

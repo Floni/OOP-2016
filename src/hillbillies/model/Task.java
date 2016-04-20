@@ -165,8 +165,10 @@ public class Task implements Comparable<Task> {
 
         } catch (TaskInterruptException err) {
             this.interrupt();
+            System.out.println(err.getMessage());
         } catch (TaskErrorException | BreakException err) {
             this.finish();
+            System.out.println(err.getMessage());
         }
         this.running = false;
 

@@ -2,6 +2,7 @@ package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
+import hillbillies.model.programs.statement.ActivityTracker;
 
 /**
  * The abstract base class for all activities, providing shared methods.
@@ -12,6 +13,7 @@ import be.kuleuven.cs.som.annotate.Model;
  */
 abstract class Activity {
     protected final Unit unit;
+    private ActivityTracker tracker;
 
     /**
      * Initialize a new Activity from the given unit.
@@ -57,4 +59,20 @@ abstract class Activity {
      * Resumes the activity when it was interrupted.
      */
     abstract void reset();
+
+    void setTracker(ActivityTracker tracker) {
+        this.tracker = tracker;
+    }
+
+    boolean hasTracker() {
+        return this.tracker != null;
+    }
+
+    ActivityTracker getTracker() {
+        return tracker;
+    }
+
+    void resetTracker() {
+        this.tracker = null;
+    }
 }
