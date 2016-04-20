@@ -253,4 +253,8 @@ public class Vector {
     public boolean equals(Object obj) {
         return obj != null && obj.getClass().equals(Vector.class) && this.isEqualTo((Vector)obj, 1e-6);
     }
+
+    public boolean isNextTo(Vector other) {
+        return this.toIntVector().isNextTo(other.toIntVector());
+    }
 }

@@ -2,6 +2,7 @@ package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import hillbillies.model.World;
+import hillbillies.model.exceptions.UnreachableTargetException;
 import hillbillies.model.vector.IntVector;
 
 import java.util.List;
@@ -61,7 +62,7 @@ class NoneActivity extends Activity {
                                 try {
                                     getUnit().moveTo(randPos);
                                     break;
-                                } catch (IllegalArgumentException ignored) {}
+                                } catch (UnreachableTargetException ignored) {}
                             }
                         } while (true);
                         break;

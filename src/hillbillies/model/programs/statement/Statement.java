@@ -25,6 +25,11 @@ public interface Statement {
      *          ....
      */
     void execute(Task task) throws TaskErrorException, TaskInterruptException;
+
+    /**
+     *
+     */
+    void isValid(BreakChecker breakChecker);
 }
 
 

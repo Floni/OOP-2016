@@ -259,4 +259,9 @@ public class IntVector {
     public boolean equals(Object obj) {
         return obj != null && obj.getClass().equals(IntVector.class) && this.isEqualTo((IntVector)obj);
     }
+
+    public boolean isNextTo(IntVector vector) {
+        IntVector diff = vector.substract(this);
+        return Math.abs(diff.getX()) <= 1 && Math.abs(diff.getY()) <= 1 && Math.abs(diff.getZ()) <= 1;
+    }
 }

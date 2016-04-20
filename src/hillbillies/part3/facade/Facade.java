@@ -23,7 +23,7 @@ public class Facade extends hillbillies.part2.facade.Facade implements IFacade {
 
     @Override
     public boolean isWellFormed(Task task) throws ModelException {
-        return true; // TODO
+        return task.isWellFormed();
     }
 
     @Override

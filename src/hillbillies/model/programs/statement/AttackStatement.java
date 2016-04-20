@@ -29,4 +29,9 @@ public class AttackStatement implements Statement {
         task.getAssignedUnit().attack(this.unitExpr.getValue(task));
         task.await();
     }
+
+    @Override
+    public void isValid(BreakChecker breakChecker) {
+        // NOP
+    }
 }

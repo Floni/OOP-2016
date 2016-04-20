@@ -22,4 +22,8 @@ public interface Expression<T> {
      *          When the task has a fatal error and can't be executed.
      */
     T getValue(Task task) throws TaskInterruptException, TaskErrorException;
+
+    default Expression<T> getRead(String variable) {
+        throw new IllegalStateException("invalid variable creation"); // TODO: better exception
+    }
 }

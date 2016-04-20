@@ -24,6 +24,7 @@ public class SortedLinkedList<T extends Comparable<? super T>> extends AbstractC
 
     @Override
     public boolean add(T n) {
+        // TODO: walk from back?
         int idx = 0;
         while (idx < size() && n.compareTo(backend.get(idx)) > 0) {
             idx++;

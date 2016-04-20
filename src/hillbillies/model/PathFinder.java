@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 /**
  * Simple generic A* pathfinder.
  *
- * @param   T
+ * @param   <T>
  *          The type representing positions.
  *
  * @invar   The glue must be effective.
@@ -39,10 +39,7 @@ public class PathFinder<T> {
     public interface PathGlue<T> {
         Stream<T> getNeighbours(T pos);
         double getCost(T a, T b);
-
-        default int getHeuristic(T a, T b) {
-            return (int)getCost(a, b);
-        }
+        int getHeuristic(T a, T b);
     }
 
     private final PathGlue<T> glue;
@@ -104,5 +101,28 @@ public class PathFinder<T> {
         }
         //Collections.reverse(path);
         return path;
+    }
+
+    public boolean isReachable(T start, T target) {
+        PriorityQueue<PriorityData> frontier = new PriorityQueue<>();
+        frontier.add(new PriorityData(0, start));
+        Map<T, Double> costSoFar = new HashMap<>();
+        costSoFar.put(start, 0.0);
+
+        while (!frontier.isEmpty()) {
+            T current = frontier.remove().getData();
+            if (current.equals(target))
+                return true;
+
+            glue.getNeighbours(current).forEach(next -> {
+                double newCost = costSoFar.get(current) + glue.getCost(current, next);
+                if (!costSoFar.containsKey(next) || newCost < costSoFar.get(next)) {
+                    costSoFar.put(next, newCost);
+                    int priority = (int)newCost + glue.getHeuristic(target, next);
+                    frontier.add(new PriorityData(priority, next));
+                }
+            });
+        }
+        return false;
     }
 }

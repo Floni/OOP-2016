@@ -95,8 +95,6 @@ public class Unit {
     private Faction faction;
     private World world;
 
-    private PathFinder<IntVector> pathFinder;
-
     private Log carryLog;
     private Boulder carryBoulder;
 
@@ -211,24 +209,6 @@ public class Unit {
         setOrientation(INIT_ORIENTATION);
 
         this.restMinuteTimer = REST_MINUTE;
-
-        // TODO: factor in going up and down for cost and heuristic.
-        pathFinder = new PathFinder<>(new PathFinder.PathGlue<IntVector>() {
-            @Override
-            public Stream<IntVector> getNeighbours(IntVector pos) {
-                return World.getNeighbours(pos).filter(n -> Unit.this.isValidPosition(n) && Unit.this.isStablePosition(n));
-            }
-
-            @Override
-            public double getCost(IntVector a, IntVector b) {
-                return a.substract(b).norm();
-            }
-
-            @Override
-            public int getHeuristic(IntVector a, IntVector b) {
-                return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY()) + Math.abs(a.getZ() - b.getZ());
-            }
-        });
     }
 
 
@@ -288,7 +268,7 @@ public class Unit {
      */
     @Model @Basic
     PathFinder<IntVector> getPathFinder() {
-        return pathFinder;
+        return getWorld().getPathFinder();
     }
     //</editor-fold>
 
@@ -494,13 +474,17 @@ public class Unit {
      *          |           cube.getZ() == 0 || cube.getZ() == world.Z_MAX - 1 ||
      *          |           World.getNeighbours(cube).anyMatch(p -> World.isSolid(world.getCubeType(p))))
      */
-    public boolean isStablePosition(IntVector cube) {
+    public static boolean isStablePosition(World world, IntVector cube) {
         // next to edges or a neighbour is solid
         return  cube.getX() == 0 || cube.getX() == world.X_MAX - 1 || cube.getY() == 0 ||
                 cube.getY() == world.Y_MAX - 1 || cube.getZ() == 0 || cube.getZ() == world.Z_MAX - 1 ||
                 World.getNeighbours(cube).anyMatch(p ->
                     World.isSolid(world.getCubeType(p)));
 
+    }
+
+    public boolean isStablePosition(IntVector cube) {
+        return Unit.isStablePosition(getWorld(), cube);
     }
 
     /**
@@ -514,9 +498,13 @@ public class Unit {
      *          | result == ((getWorld().isValidPosition(cubePos)) && (!World.isSolid(world.getCubeType(cubePos))) ||
      *          |           (this.getWorld() == null)
      */
-    public boolean isValidPosition(IntVector cubePos) {
+    public static boolean isValidPosition(World world, IntVector cubePos) {
         return world == null || (world.isValidPosition(cubePos) &&
                 !World.isSolid(world.getCubeType(cubePos)));
+    }
+
+    public boolean isValidPosition(IntVector pos) {
+        return Unit.isValidPosition(getWorld(), pos);
     }
 
 
@@ -1305,18 +1293,10 @@ public class Unit {
      *          The unit to attack.
      *
      * @return  Returns True if the unit's are in adjacent cubes.
-     *          | result == !(intDiff.getX() > 1 || intDiff.getX() < -1 ||
-     *          | intDiff.getY() > 1 || intDiff.getY() < -1 ||
-     *          | intDiff.getZ() > 1 || intDiff.getZ() < -1)
+     *          | result == this.getPosition().isNextTo(other.getPosition())
      */
     boolean canAttack(Unit other) {
-        IntVector otherCube = other.getPosition().toIntVector();
-        IntVector posCube = getPosition().toIntVector();
-        IntVector intDiff = otherCube.substract(posCube);
-
-        return !(intDiff.getX() > 1 || intDiff.getX() < -1 ||
-                intDiff.getY() > 1 || intDiff.getY() < -1 ||
-                intDiff.getZ() > 1 || intDiff.getZ() < -1);
+        return this.getPosition().isNextTo(other.getPosition());
     }
 
     /**

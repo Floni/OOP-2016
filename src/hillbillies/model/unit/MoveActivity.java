@@ -100,27 +100,22 @@ class MoveActivity extends Activity {
     @Override
     void advanceTime(double dt) {
         // TODO: simplify
-        double mod = 1;
         if (this.sprinting) {
             sprintStaminaTimer -= dt;
-            mod = 2;
             if(sprintStaminaTimer <= 0) {
                 sprintStaminaTimer += SPRINT_DELAY;
                 int newStamina = unit.getStamina()  - 1;
                 if (newStamina >= 0)
                     unit.setStamina(newStamina);
-                if (unit.getStamina() == 0) {
-                    mod = 1;
+                if (unit.getStamina() == 0)
                     this.sprinting = false;
-                }
             }
         } else if (unit.isDefaultEnabled()) {
-            // fix with timer? or just once while moving?
+            // TODO: fix with timer? or just once while moving?
             if (Math.random() >= 0.9999 && unit.getStamina() != 0)
                 this.sprinting = true;
         }
-
-        Vector newPosition = unit.getPosition().add(this.speed.multiply(mod*dt));
+        Vector newPosition = unit.getPosition().add(this.speed.multiply(this.sprinting ? 2*dt : dt));
         if (isAtNeighbour(newPosition)) {
             unit.addXp(1);
             unit.setPosition(this.targetNeighbour);

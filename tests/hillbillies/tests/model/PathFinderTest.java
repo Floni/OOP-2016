@@ -31,6 +31,12 @@ public class PathFinderTest {
             public double getCost(IntVector a, IntVector b) {
                 return a.substract(b).norm();
             }
+
+            @Override
+            public int getHeuristic(IntVector a, IntVector b) {
+                IntVector diff = a.substract(b);
+                return Math.abs(diff.getX()) + Math.abs(diff.getY()) + Math.abs(diff.getZ());
+            }
         });
     }
 
@@ -44,5 +50,10 @@ public class PathFinderTest {
             last = pos;
         }
         assertEquals(path.get(0), new IntVector(2, 1, 1));
+    }
+
+    @Test
+    public void testIsReachable() throws Exception {
+        assertTrue(pathFinder.isReachable(new IntVector(0, 0, 0), new IntVector(2, 1, 1)));
     }
 }

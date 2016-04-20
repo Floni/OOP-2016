@@ -2,6 +2,7 @@ package hillbillies.model.programs.statement;
 
 import hillbillies.model.Task;
 
+import javax.swing.plaf.nimbus.State;
 import java.util.List;
 
 /**
@@ -35,6 +36,11 @@ public class SequenceStatement implements Statement {
 
         getCurrentStatement().execute(task);
 
+    }
+
+    @Override
+    public void isValid(BreakChecker breakChecker) {
+        statements.forEach(s -> s.isValid(breakChecker));
     }
 
     private Statement getCurrentStatement() {

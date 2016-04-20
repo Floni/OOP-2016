@@ -1,8 +1,10 @@
 package hillbillies.model.programs;
 
 import hillbillies.model.Faction;
+import hillbillies.model.Log;
 import hillbillies.model.Task;
 import hillbillies.model.World;
+import hillbillies.model.programs.exceptions.TaskErrorException;
 import hillbillies.model.programs.exceptions.TaskInterruptException;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.vector.IntVector;
@@ -10,9 +12,9 @@ import hillbillies.part3.programs.ITaskFactory;
 import hillbillies.part3.programs.SourceLocation;
 import hillbillies.model.programs.expression.*;
 import hillbillies.model.programs.statement.*;
+import javafx.geometry.Pos;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -20,6 +22,12 @@ import java.util.stream.Collectors;
  * TaskFactory for crating new tasks.
  */
 public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task> {
+
+    private Map<String, Expression<?>> varTypeMap;
+
+    public TaskFactory() {
+        varTypeMap = new HashMap<>();
+    }
 
     @Override
     public List<Task> createTasks(String name, int priority, Statement activity, List<int[]> selectedCubes) {
@@ -34,12 +42,13 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
     //<editor-fold desc="Statements">
     @Override
     public Statement createAssignment(String variableName, Expression<?> value, SourceLocation sourceLocation) {
+        varTypeMap.put(variableName, value.getRead(variableName));
         return null;
     }
 
     @Override
     public Statement createWhile(Expression<?> condition, Statement body, SourceLocation sourceLocation) {
-        return null;
+        return new WhileStatement((BooleanExpression)condition, body);
     }
 
     @Override
@@ -49,25 +58,32 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public Statement createBreak(SourceLocation sourceLocation) {
-        return null;
+        return new BreakStatement();
     }
 
     @Override
     public Statement createPrint(Expression<?> value, SourceLocation sourceLocation) {
         return new Statement() {
+            boolean done = false;
             @Override
             public void reset() {
-                // NOP
+                done = false;
             }
 
             @Override
             public boolean isDone(Task task) {
-                return true;
+                return done;
             }
 
             @Override
             public void execute(Task task) {
+                done = true;
                 System.out.println(value.getValue(task));
+            }
+
+            @Override
+            public void isValid(BreakChecker breakChecker) {
+                // NOP
             }
         };
     }
@@ -102,7 +118,7 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
     //<editor-fold desc="Expressions">
     @Override
     public Expression<?> createReadVariable(String variableName, SourceLocation sourceLocation) {
-        return null;
+        return varTypeMap.get(variableName);
     }
 
     @Override
@@ -158,7 +174,13 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
     @Override
     public Expression<?> createLogPosition(SourceLocation sourceLocation) {
         //TODO return null & boulder (hasNext)
-        return (PositionExpression) task -> task.getAssignedUnit().getWorld().getLogs().iterator().next().getPosition().toIntVector();
+        //return (PositionExpression) task -> task.getAssignedUnit().getWorld().getLogs().iterator().next().getPosition().toIntVector();
+
+        return (PositionExpression) t -> t.getAssignedUnit().getWorld().getLogs().stream()
+                .min((Comparator<Log>) (o1, o2) ->
+                        (int)(o1.getPosition().subtract(t.getAssignedUnit().getPosition()).norm()
+                                - o2.getPosition().subtract(t.getAssignedUnit().getPosition()).norm()))
+                .orElseThrow(() -> new TaskInterruptException("no logs")).getPosition().toIntVector();
     }
 
     @Override

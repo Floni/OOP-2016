@@ -24,7 +24,6 @@ import java.util.stream.Stream;
  *
  */
 public class World {
-
     /**
      * Class representing a cube in the world.
      */
@@ -90,6 +89,7 @@ public class World {
     private final Set<GameObject> gameObjects;
 
     private final ConnectedToBorder connectedToBorder;
+    private final PathFinder<IntVector> pathFinder;
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
@@ -141,6 +141,23 @@ public class World {
 
         startCaveIn.forEach(this::breakCube);
 
+        this.pathFinder = new PathFinder<>(new PathFinder.PathGlue<IntVector>() {
+            @Override
+            public Stream<IntVector> getNeighbours(IntVector pos) {
+                return World.getNeighbours(pos).filter(n -> Unit.isValidPosition(World.this, n) && Unit.isStablePosition(World.this, n));
+            }
+
+            @Override
+            public double getCost(IntVector a, IntVector b) {
+                return a.substract(b).norm();
+            }
+
+            @Override
+            public int getHeuristic(IntVector a, IntVector b) {
+                IntVector diff = a.substract(b);
+                return Math.abs(diff.getX()) + Math.abs(diff.getY()) + Math.abs(diff.getZ());
+            }
+        });
     }
     //</editor-fold>
 
@@ -175,6 +192,10 @@ public class World {
     public boolean isValidPosition(IntVector pos) {
         return pos.getX() >= 0 && pos.getX() < X_MAX && pos.getY() >= 0
                 && pos.getY() < Y_MAX && pos.getZ() >= 0 && pos.getZ() < Z_MAX;
+    }
+
+    public PathFinder<IntVector> getPathFinder() {
+        return pathFinder;
     }
 
     //<editor-fold desc="Cubes">

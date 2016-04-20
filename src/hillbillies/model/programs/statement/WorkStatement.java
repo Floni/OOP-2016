@@ -30,4 +30,9 @@ public class WorkStatement implements Statement {
         task.getAssignedUnit().workAt(this.position.getValue(task));
         task.await();
     }
+
+    @Override
+    public void isValid(BreakChecker breakChecker) {
+        // NOP
+    }
 }

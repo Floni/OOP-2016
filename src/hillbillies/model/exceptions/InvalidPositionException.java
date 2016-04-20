@@ -12,7 +12,7 @@ public class InvalidPositionException extends RuntimeException {
     }
 
     public InvalidPositionException(Vector pos) {
-        super("Invalid position: " + pos.toString());
+        super("Invalid position: " + (pos == null ? "<null>" : pos.toString()));
     }
 
     public InvalidPositionException(String message, Vector pos) {

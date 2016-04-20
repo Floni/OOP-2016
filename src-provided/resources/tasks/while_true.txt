@@ -1,0 +1,9 @@
+name: "while true"
+priority : 5
+activities :    while true do
+                    print (1, 1, 1);
+                    break;
+                    print (2, 2, 2);
+                done
+                print (3, 3, 3);
+                print (4, 4, 4);

@@ -1,6 +1,10 @@
 package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import hillbillies.model.programs.exceptions.BreakException;
+import hillbillies.model.programs.exceptions.TaskErrorException;
+import hillbillies.model.programs.exceptions.TaskInterruptException;
+import hillbillies.model.programs.statement.BreakChecker;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.programs.statement.Statement;
@@ -41,6 +45,12 @@ public class Task implements Comparable<Task> {
         this.setPriority(priority);
         this.running = false;
         this.schedulers = new HashSet<>();
+    }
+
+    public boolean isWellFormed() {
+        BreakChecker breakChecker = new BreakChecker();
+        mainStatement.isValid(breakChecker);
+        return breakChecker.isValid();
     }
 
     /**
@@ -141,19 +151,25 @@ public class Task implements Comparable<Task> {
      */
     public void runFor(double time) {
         this.running = true;
-        if (!mainStatement.isDone(this)) {
-            do {
-                mainStatement.execute(this);
-                time -= 0.001;
-            } while (!mainStatement.isDone(this) && this.isRunning() && time >= 0.001);
-        }
+        try {
+            if (!mainStatement.isDone(this)) {
+                do {
+                    mainStatement.execute(this);
+                    time -= 0.001;
+                } while (!mainStatement.isDone(this) && this.isRunning() && time >= 0.001);
+            }
+            if (mainStatement.isDone(this)) {
+                this.mainStatement.reset();
+                this.finish();
+            }
 
-        if (mainStatement.isDone(this)) {
-            this.mainStatement.reset();
+        } catch (TaskInterruptException err) {
+            this.interrupt();
+        } catch (TaskErrorException | BreakException err) {
             this.finish();
         }
-
         this.running = false;
+
     }
 
     /**
@@ -195,5 +211,15 @@ public class Task implements Comparable<Task> {
         setAssignedUnit(null);
         this.setPriority(this.getPriority() - 1);
         schedulers.forEach(s -> s.rebuildTask(this));
+    }
+
+    public boolean getBooleanVariable(String name) {
+        return false;
+    }
+    public IntVector getPositionVariable(String name) {
+        return null;
+    }
+    public Unit getUnitVariable(String name) {
+        return null;
     }
 }

@@ -3,6 +3,9 @@ package hillbillies.tests.model;
 import hillbillies.model.Boulder;
 import hillbillies.model.Faction;
 import hillbillies.model.Log;
+import hillbillies.model.exceptions.InvalidActionException;
+import hillbillies.model.exceptions.InvalidPositionException;
+import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
@@ -45,12 +48,12 @@ public class UnitTest {
         assertDoublePositionEquals("Position in bounds",0.5,0.5,0.5,unit.getPosition().toDoubleArray());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = InvalidPositionException.class)
     public void testSetPositionNegativePosition() throws Exception {
         unit.setPosition(new Vector(-0.5, 0.5, 0.5));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = InvalidPositionException.class)
     public void testSetPositionLargePosition() throws Exception {
         unit.setPosition(new Vector(50.5, 0.5, 0.5));
     }
@@ -62,7 +65,7 @@ public class UnitTest {
         assertArrayEquals("Position in bounds", legalPosition, unit.getPosition().toDoubleArray(), 0.0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = InvalidPositionException.class)
     public void testSetPosition1Null() throws Exception {
         unit.setPosition(null);
     }
@@ -227,7 +230,7 @@ public class UnitTest {
         advanceTimeFor(unit, 3, 0.1);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = InvalidActionException.class)
     public void testSetSprintFail() throws Exception {
         unit.rest();
         unit.setSprint(true);
@@ -252,7 +255,7 @@ public class UnitTest {
         assertEquals(Math.PI/4.0, unit.getOrientation(), 1e-6);
     }
 
-    @Test (expected = IllegalArgumentException.class)
+    @Test (expected = InvalidUnitException.class)
     public void testAttackOutOfRange() throws Exception {
         Unit other = new Unit("Florian", 5 , 5, 0, 50, 50, 50, 50);
         world.addUnit(other);
@@ -298,7 +301,7 @@ public class UnitTest {
         unit.advanceTime(time - n * step);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = InvalidPositionException.class)
     public void setWorld() throws Exception {
         Unit unit = new Unit("Test", 0, 0, 0, 50, 50, 50, 50);
         unit.setWorld(world);
