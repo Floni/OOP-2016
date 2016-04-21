@@ -169,9 +169,9 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
     @Override
     public Expression<?> createLogPosition(SourceLocation sourceLocation) {
         return (PositionExpression) t -> {
-            Unit unit = t.getAssignedUnit();
-            World world = unit.getWorld();
-            IntVector unitPos = unit.getPosition().toIntVector();
+            final Unit unit = t.getAssignedUnit();
+            final World world = unit.getWorld();
+            final IntVector unitPos = unit.getPosition().toIntVector();
             return world.getLogs().stream().map(l -> l.getPosition().toIntVector())
                     .filter(l -> world.getPathFinder().isReachable(unitPos, l))
                     .min((Comparator<IntVector>) (l1, l2) -> (int)(l1.distance(unitPos) - l2.distance(unitPos)))
@@ -182,9 +182,9 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
     @Override
     public Expression<?> createBoulderPosition(SourceLocation sourceLocation) {
         return (PositionExpression) t -> {
-            Unit unit = t.getAssignedUnit();
-            World world = unit.getWorld();
-            IntVector unitPos = unit.getPosition().toIntVector();
+            final Unit unit = t.getAssignedUnit();
+            final World world = unit.getWorld();
+            final IntVector unitPos = unit.getPosition().toIntVector();
             return world.getBoulders().stream().map(l -> l.getPosition().toIntVector())
                     .filter(l -> world.getPathFinder().isReachable(unitPos, l))
                     .min((Comparator<IntVector>) (l1, l2) -> (int)(l1.distance(unitPos) - l2.distance(unitPos)))
@@ -194,7 +194,15 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public Expression<?> createWorkshopPosition(SourceLocation sourceLocation) {
-        return null; //TODO
+        return (PositionExpression) t -> {
+            final Unit unit = t.getAssignedUnit();
+            final World world = unit.getWorld();
+            final IntVector unitPos = unit.getPosition().toIntVector();
+            return world.getAllWorkshops()
+                    .filter(w -> world.getPathFinder().isReachable(unitPos, w))
+                    .min((Comparator<IntVector>) (w1, w2) -> (int)(w1.distance(unitPos) - w2.distance(unitPos)))
+                    .orElseThrow(() -> new TaskInterruptException("no possible workshops"));
+        };
     }
 
     @Override
@@ -220,10 +228,10 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
     @Override
     public Expression<?> createFriend(SourceLocation sourceLocation) {
         return (UnitExpression) t -> {
-            Unit unit = t.getAssignedUnit();
-            World world = unit.getWorld();
-            Vector unitPos = unit.getPosition();
-            Faction fac = unit.getFaction();
+            final Unit unit = t.getAssignedUnit();
+            final World world = unit.getWorld();
+            final Vector unitPos = unit.getPosition();
+            final Faction fac = unit.getFaction();
             return fac.getUnits().stream().filter( u -> u != unit)
                     .filter(u -> world.getPathFinder().isReachable(unitPos.toIntVector(), u.getPosition().toIntVector()))
                     .min((Comparator<Unit>) (u1, u2) -> (int)(u1.getPosition().distance(unitPos)))
@@ -234,10 +242,10 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
     @Override
     public Expression<?> createEnemy(SourceLocation sourceLocation) {
         return (UnitExpression) task -> {
-            Unit unit = task.getAssignedUnit();
-            Faction fac = unit.getFaction();
-            World world = unit.getWorld();
-            Vector unitPos = unit.getPosition();
+            final Unit unit = task.getAssignedUnit();
+            final Faction fac = unit.getFaction();
+            final World world = unit.getWorld();
+            final Vector unitPos = unit.getPosition();
             return world.getUnits().stream().filter(u -> u.getFaction() != fac)
                     .filter(u -> world.getPathFinder().isReachable(unitPos.toIntVector(), u.getPosition().toIntVector()))
                     .min((Comparator<Unit>) (u1, u2) -> (int)(u1.getPosition().distance(unitPos)))
@@ -248,9 +256,9 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
     @Override
     public Expression<?> createAny(SourceLocation sourceLocation) {
         return (UnitExpression) task -> {
-            Unit unit = task.getAssignedUnit();
-            World world = unit.getWorld();
-            Vector unitPos = unit.getPosition();
+            final Unit unit = task.getAssignedUnit();
+            final World world = unit.getWorld();
+            final Vector unitPos = unit.getPosition();
             return world.getUnits().stream().filter(u -> u != unit)
                     .filter(u -> world.getPathFinder().isReachable(unitPos.toIntVector(), u.getPosition().toIntVector()))
                     .min((Comparator<Unit>) (u1, u2) -> (int)(u1.getPosition().distance(unitPos)))

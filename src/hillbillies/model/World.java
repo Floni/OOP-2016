@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+// TODO: invalidCubeTypeException: throw if type is not 0, 1, 2, or 3.
+
 /**
  * Class representing a world.
  *
@@ -87,6 +89,11 @@ public class World {
      * @invar   Each GameObject must be effective.
      */
     private final Set<GameObject> gameObjects;
+    /**
+     * Set of the position of all workshops in the world.
+     * TODO: invar
+     */
+    private final Set<IntVector> workshops;
 
     private final ConnectedToBorder connectedToBorder;
     private final PathFinder<IntVector> pathFinder;
@@ -126,6 +133,7 @@ public class World {
 
         this.factions = new HashSet<>();
         this.gameObjects = new HashSet<>();
+        this.workshops = new HashSet<>();
 
         Set<IntVector> startCaveIn = new HashSet<>();
 
@@ -133,6 +141,8 @@ public class World {
             for (int y = 0; y < Y_MAX; y++) {
                 for (int z = 0; z < Z_MAX; z++) {
                     this.cubes[x][y][z] = new Cube(terrainTypes[x][y][z]);
+                    if (terrainTypes[x][y][z] == WORKSHOP)
+                        workshops.add(new IntVector(x, y, z));
                     if (!isSolid(terrainTypes[x][y][z]))
                         startCaveIn.addAll(connectedToBorder.changeSolidToPassable(x, y, z).stream().map(IntVector::new).collect(Collectors.toSet()));
                 }
@@ -279,6 +289,10 @@ public class World {
                 updateListener.notifyTerrainChanged(coord[0], coord[1], coord[2]);
             }
         }
+
+        if (type == WORKSHOP)
+            workshops.add(pos);
+
         cubes[pos.getX()][pos.getY()][pos.getZ()].type = type;
         updateListener.notifyTerrainChanged(pos.getX(), pos.getY(), pos.getZ());
     }
@@ -318,6 +332,10 @@ public class World {
         int type = getCubeType(location);
         setCubeType(location, AIR);
         dropChance(location, type);
+    }
+
+    public Stream<IntVector> getAllWorkshops() {
+        return workshops.stream();
     }
     //</editor-fold>
 
