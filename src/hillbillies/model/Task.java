@@ -9,7 +9,9 @@ import hillbillies.model.vector.IntVector;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.programs.statement.Statement;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -27,6 +29,9 @@ public class Task implements Comparable<Task> {
     private final Set<Scheduler> schedulers;
 
     private boolean running;
+
+    private Map<String, Object> variableTable;
+
     /**
      * Created a new task.
      * @param   name
@@ -45,6 +50,7 @@ public class Task implements Comparable<Task> {
         this.setPriority(priority);
         this.running = false;
         this.schedulers = new HashSet<>();
+        this.variableTable = new HashMap<>();
     }
 
     public boolean isWellFormed() {
@@ -215,13 +221,11 @@ public class Task implements Comparable<Task> {
         schedulers.forEach(s -> s.rebuildTask(this));
     }
 
-    public boolean getBooleanVariable(String name) {
-        return false;
+    public Object getVariable(String variable) {
+        return variableTable.get(variable);
     }
-    public IntVector getPositionVariable(String name) {
-        return null;
-    }
-    public Unit getUnitVariable(String name) {
-        return null;
+
+    public void setVariable(String variable, Object value) {
+        this.variableTable.put(variable, value);
     }
 }

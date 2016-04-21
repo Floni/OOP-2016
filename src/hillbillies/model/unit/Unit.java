@@ -411,7 +411,7 @@ public class Unit {
             throw new InvalidActionException("can't change activity");
 
         if (getCurrentActivity() == moveActivity && newActivity != moveActivity.getPendingActivity()) {
-            moveActivity.setPendingActivity(newActivity); // TODO: reset?
+            moveActivity.setPendingActivity(newActivity); // TODO: reset & check this function
         } else {
             // don't do the same activity twice
             if (newActivity != this.getCurrentActivity()) {

@@ -1,7 +1,7 @@
 package hillbillies.model.programs.statement;
 
 /**
- * Created by timo on 4/20/16.
+ * Interface for tracking the state of an activity an unit is conducting.
  */
 public interface ActivityTracker {
     void setDone();

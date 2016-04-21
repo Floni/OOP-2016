@@ -1,15 +1,11 @@
 package hillbillies.model.programs.expression;
 
-import hillbillies.model.Task;
-import hillbillies.model.programs.exceptions.TaskErrorException;
-import hillbillies.model.programs.exceptions.TaskInterruptException;
-
 /**
- * Created by florian on 14/04/2016.
+ * Interface representing an Expression returning a Boolean.
  */
 public interface BooleanExpression extends Expression<Boolean> {
     @Override
     default BooleanExpression getRead(String variable) {
-        return t -> t.getBooleanVariable(variable);
+        return t -> (Boolean)t.getVariable(variable); // should always exist in a valid program.
     }
 }

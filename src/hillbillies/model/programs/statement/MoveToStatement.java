@@ -10,8 +10,7 @@ import hillbillies.model.vector.IntVector;
 import hillbillies.model.programs.expression.PositionExpression;
 
 /**
- * Created by timo on 4/13/16.
- *
+ * Class for moveTo
  */
 public class MoveToStatement implements Statement, ActivityTracker {
     private final PositionExpression expression;

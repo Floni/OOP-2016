@@ -2,11 +2,12 @@ package hillbillies.model.programs.expression;
 
 import hillbillies.model.Task;
 import hillbillies.model.World;
+import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.programs.exceptions.TaskErrorException;
 import hillbillies.model.programs.exceptions.TaskInterruptException;
 
 /**
- * Created by florian on 14/04/2016.
+ * Class for is_passable expression
  */
 public class IsPassableBooleanExpression implements BooleanExpression{
 
@@ -19,6 +20,10 @@ public class IsPassableBooleanExpression implements BooleanExpression{
 
     @Override
     public Boolean getValue(Task task) throws TaskInterruptException, TaskErrorException {
-        return !World.isSolid(task.getAssignedUnit().getWorld().getCubeType(pos.getValue(task)));
+        try {
+            return !World.isSolid(task.getAssignedUnit().getWorld().getCubeType(pos.getValue(task)));
+        } catch (InvalidPositionException err) {
+            throw new TaskErrorException(err.getMessage());
+        }
     }
 }

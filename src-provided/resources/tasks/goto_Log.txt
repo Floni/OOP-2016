@@ -1,3 +1,3 @@
 name: "goto log"
 priority : 5
-activities : moveTo log;
+activities : moveTo boulder;

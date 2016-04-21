@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by timo on 4/14/16.
+ * Class for next_to expression
  */
 public class NextToPositionExpression implements PositionExpression {
 

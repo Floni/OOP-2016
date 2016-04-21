@@ -264,4 +264,8 @@ public class IntVector {
         IntVector diff = vector.substract(this);
         return Math.abs(diff.getX()) <= 1 && Math.abs(diff.getY()) <= 1 && Math.abs(diff.getZ()) <= 1;
     }
+
+    public double distance(IntVector other) {
+        return other.substract(this).norm();
+    }
 }

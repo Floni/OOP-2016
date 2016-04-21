@@ -1,11 +1,13 @@
 package hillbillies.model.programs.statement;
 
 import hillbillies.model.Task;
+import hillbillies.model.exceptions.InvalidActionException;
+import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.programs.exceptions.TaskInterruptException;
 import hillbillies.model.programs.expression.UnitExpression;
 
 /**
- * Created by timo on 4/14/16.
+ * Class for attack
  */
 public class AttackStatement implements Statement, ActivityTracker {
 
@@ -33,8 +35,12 @@ public class AttackStatement implements Statement, ActivityTracker {
     public void execute(Task task) {
         if (interrupted)
             throw new TaskInterruptException("attack was interrupted, shouldn't happen");
-        task.getAssignedUnit().attack(this.unitExpr.getValue(task));
-        task.getAssignedUnit().setActivityTracker(this);
+        try {
+            task.getAssignedUnit().attack(this.unitExpr.getValue(task));
+            task.getAssignedUnit().setActivityTracker(this);
+        } catch (InvalidActionException | InvalidUnitException err) {
+            throw new TaskInterruptException(err.getMessage());
+        }
         task.await();
     }
 

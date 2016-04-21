@@ -5,7 +5,7 @@ import hillbillies.model.programs.exceptions.TaskErrorException;
 import hillbillies.model.programs.exceptions.TaskInterruptException;
 
 /**
- * Created by florian on 14/04/2016.
+ * Class for is_alive expression
  */
 public class IsAliveBooleanExpression implements BooleanExpression {
 

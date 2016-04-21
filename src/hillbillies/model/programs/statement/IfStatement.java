@@ -4,7 +4,7 @@ import hillbillies.model.Task;
 import hillbillies.model.programs.expression.BooleanExpression;
 
 /**
- * Created by timo on 4/15/16.
+ * Class for if e then ... [else ...] fi
  *
  */
 public class IfStatement implements Statement {

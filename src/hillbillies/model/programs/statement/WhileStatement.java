@@ -7,8 +7,7 @@ import hillbillies.model.programs.exceptions.TaskInterruptException;
 import hillbillies.model.programs.expression.BooleanExpression;
 
 /**
- * Created by timo on 4/19/16.
- *
+ * Class for While loop.
  */
 public class WhileStatement implements Statement {
 

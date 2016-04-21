@@ -257,4 +257,8 @@ public class Vector {
     public boolean isNextTo(Vector other) {
         return this.toIntVector().isNextTo(other.toIntVector());
     }
+
+    public double distance(Vector other) {
+        return other.subtract(this).norm();
+    }
 }

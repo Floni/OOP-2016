@@ -1,21 +1,18 @@
 package hillbillies.model.programs;
 
 import hillbillies.model.Faction;
-import hillbillies.model.Log;
 import hillbillies.model.Task;
 import hillbillies.model.World;
-import hillbillies.model.programs.exceptions.TaskErrorException;
 import hillbillies.model.programs.exceptions.TaskInterruptException;
 import hillbillies.model.unit.Unit;
-import hillbillies.model.vector.IntVector;
+import hillbillies.model.vector.*;
+import hillbillies.model.vector.Vector;
 import hillbillies.part3.programs.ITaskFactory;
 import hillbillies.part3.programs.SourceLocation;
 import hillbillies.model.programs.expression.*;
 import hillbillies.model.programs.statement.*;
-import javafx.geometry.Pos;
 
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -31,19 +28,18 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public List<Task> createTasks(String name, int priority, Statement activity, List<int[]> selectedCubes) {
-        if (selectedCubes.isEmpty()) {
-            List<Task> ret = new ArrayList<>();
-            ret.add(new Task(name, priority, activity, null));
-            return ret;
-        }
-        return selectedCubes.stream().map(cube -> new Task(name, priority, activity, new IntVector(cube))).collect(Collectors.toList());
+        if (selectedCubes.isEmpty())
+            return Collections.singletonList(new Task(name, priority, activity, null));
+        return selectedCubes.stream()
+                .map(cube -> new Task(name, priority, activity, new IntVector(cube)))
+                .collect(Collectors.toList());
     }
 
     //<editor-fold desc="Statements">
     @Override
     public Statement createAssignment(String variableName, Expression<?> value, SourceLocation sourceLocation) {
         varTypeMap.put(variableName, value.getRead(variableName));
-        return null;
+        return new AssignStatement<>(variableName, value);
     }
 
     @Override
@@ -105,7 +101,7 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public Statement createFollow(Expression<?> unit, SourceLocation sourceLocation) {
-        return null;
+        return null; // TODO
     }
 
     @Override
@@ -113,7 +109,6 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
         return new AttackStatement((UnitExpression)unit);
     }
     //</editor-fold>
-
 
     //<editor-fold desc="Expressions">
     @Override
@@ -173,22 +168,28 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public Expression<?> createLogPosition(SourceLocation sourceLocation) {
-        //TODO return null & boulder (hasNext)
-        //return (PositionExpression) task -> task.getAssignedUnit().getWorld().getLogs().iterator().next().getPosition().toIntVector();
-
-        return (PositionExpression) t -> t.getAssignedUnit().getWorld().getLogs().stream()
-                .filter(l -> t.getAssignedUnit().getWorld().getPathFinder()
-                        .isReachable(t.getAssignedUnit().getPosition().toIntVector(), l.getPosition().toIntVector()))
-                .min((Comparator<Log>) (o1, o2) ->
-                        (int)(o1.getPosition().subtract(t.getAssignedUnit().getPosition()).norm()
-                                - o2.getPosition().subtract(t.getAssignedUnit().getPosition()).norm()))
-                .orElseThrow(() -> new TaskInterruptException("no logs")).getPosition().toIntVector();
+        return (PositionExpression) t -> {
+            Unit unit = t.getAssignedUnit();
+            World world = unit.getWorld();
+            IntVector unitPos = unit.getPosition().toIntVector();
+            return world.getLogs().stream().map(l -> l.getPosition().toIntVector())
+                    .filter(l -> world.getPathFinder().isReachable(unitPos, l))
+                    .min((Comparator<IntVector>) (l1, l2) -> (int)(l1.distance(unitPos) - l2.distance(unitPos)))
+                    .orElseThrow(() -> new TaskInterruptException("no possible logs"));
+        };
     }
 
     @Override
     public Expression<?> createBoulderPosition(SourceLocation sourceLocation) {
-        // TODO: see Log
-        return (PositionExpression) task -> task.getAssignedUnit().getWorld().getBoulders().iterator().next().getPosition().toIntVector();
+        return (PositionExpression) t -> {
+            Unit unit = t.getAssignedUnit();
+            World world = unit.getWorld();
+            IntVector unitPos = unit.getPosition().toIntVector();
+            return world.getBoulders().stream().map(l -> l.getPosition().toIntVector())
+                    .filter(l -> world.getPathFinder().isReachable(unitPos, l))
+                    .min((Comparator<IntVector>) (l1, l2) -> (int)(l1.distance(unitPos) - l2.distance(unitPos)))
+                    .orElseThrow(() -> new TaskInterruptException("no possible logs"));
+        };
     }
 
     @Override
@@ -218,35 +219,48 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public Expression<?> createFriend(SourceLocation sourceLocation) {
-        return (UnitExpression) task -> {
-            Faction fac = task.getAssignedUnit().getFaction();
-            return fac.getUnits().stream().filter( u -> u != task.getAssignedUnit())
-                    .findAny().orElseThrow(() -> new TaskInterruptException("Unit has no friends"));
+        return (UnitExpression) t -> {
+            Unit unit = t.getAssignedUnit();
+            World world = unit.getWorld();
+            Vector unitPos = unit.getPosition();
+            Faction fac = unit.getFaction();
+            return fac.getUnits().stream().filter( u -> u != unit)
+                    .filter(u -> world.getPathFinder().isReachable(unitPos.toIntVector(), u.getPosition().toIntVector()))
+                    .min((Comparator<Unit>) (u1, u2) -> (int)(u1.getPosition().distance(unitPos)))
+                    .orElseThrow(() -> new TaskInterruptException("no reachable friends found"));
         };
     }
 
     @Override
     public Expression<?> createEnemy(SourceLocation sourceLocation) {
         return (UnitExpression) task -> {
-            Faction fac = task.getAssignedUnit().getFaction();
-            World world = task.getAssignedUnit().getWorld();
+            Unit unit = task.getAssignedUnit();
+            Faction fac = unit.getFaction();
+            World world = unit.getWorld();
+            Vector unitPos = unit.getPosition();
             return world.getUnits().stream().filter(u -> u.getFaction() != fac)
-                    .findAny().orElseThrow(() -> new TaskInterruptException("unit has no enemies"));
+                    .filter(u -> world.getPathFinder().isReachable(unitPos.toIntVector(), u.getPosition().toIntVector()))
+                    .min((Comparator<Unit>) (u1, u2) -> (int)(u1.getPosition().distance(unitPos)))
+                    .orElseThrow(() -> new TaskInterruptException("no reachable enemies found"));
         };
     }
 
     @Override
     public Expression<?> createAny(SourceLocation sourceLocation) {
         return (UnitExpression) task -> {
-            World world = task.getAssignedUnit().getWorld();
-            return world.getUnits().stream().filter(u -> u != task.getAssignedUnit())
-                    .findAny().orElseThrow(() -> new TaskInterruptException("no other units available"));
+            Unit unit = task.getAssignedUnit();
+            World world = unit.getWorld();
+            Vector unitPos = unit.getPosition();
+            return world.getUnits().stream().filter(u -> u != unit)
+                    .filter(u -> world.getPathFinder().isReachable(unitPos.toIntVector(), u.getPosition().toIntVector()))
+                    .min((Comparator<Unit>) (u1, u2) -> (int)(u1.getPosition().distance(unitPos)))
+                    .orElseThrow(() -> new TaskInterruptException("no other units available"));
         };
     }
 
     @Override
     public Expression<?> createTrue(SourceLocation sourceLocation) {
-        return ((BooleanExpression)task -> true);
+        return (BooleanExpression)task -> true;
     }
 
     @Override

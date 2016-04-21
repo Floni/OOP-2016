@@ -5,7 +5,7 @@ import hillbillies.model.programs.exceptions.TaskErrorException;
 import hillbillies.model.programs.exceptions.TaskInterruptException;
 
 /**
- * Created by florian on 14/04/2016.
+ * Class for and expression
  */
 public class AndBooleanExpression implements BooleanExpression {
 

@@ -5,12 +5,11 @@ import hillbillies.model.programs.exceptions.TaskErrorException;
 import hillbillies.model.programs.exceptions.TaskInterruptException;
 
 /**
- * Created by florian on 14/04/2016.
+ * Class for is_enemy expression
  */
 public class IsEnemyBooleanExpression implements BooleanExpression {
 
     private final UnitExpression enemy;
-
 
     public IsEnemyBooleanExpression(UnitExpression enemy) {
         this.enemy = enemy;

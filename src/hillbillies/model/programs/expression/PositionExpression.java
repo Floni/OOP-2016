@@ -4,11 +4,11 @@ import hillbillies.model.vector.IntVector;
 import javafx.geometry.Pos;
 
 /**
- * Created by timo on 4/13/16.
+ * Class representing an expression returning a Position (IntVector).
  */
 public interface PositionExpression extends Expression<IntVector> {
     @Override
     default PositionExpression getRead(String variable) {
-        return t -> t.getPositionVariable(variable);
+        return t -> (IntVector)t.getVariable(variable);
     }
 }

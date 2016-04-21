@@ -1,11 +1,13 @@
 package hillbillies.model.programs.statement;
 
 import hillbillies.model.Task;
+import hillbillies.model.exceptions.InvalidActionException;
+import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.programs.exceptions.TaskInterruptException;
 import hillbillies.model.programs.expression.PositionExpression;
 
 /**
- * Created by timo on 4/14/16.
+ * Class for work.
  */
 public class WorkStatement implements Statement, ActivityTracker {
 
@@ -33,8 +35,12 @@ public class WorkStatement implements Statement, ActivityTracker {
         if (this.interrupted)
             throw new TaskInterruptException("work was interrupted");
 
-        task.getAssignedUnit().workAt(this.position.getValue(task));
-        task.getAssignedUnit().setActivityTracker(this);
+        try {
+            task.getAssignedUnit().workAt(this.position.getValue(task));
+            task.getAssignedUnit().setActivityTracker(this);
+        } catch (InvalidActionException | InvalidPositionException err) {
+            throw new TaskInterruptException(err.getMessage());
+        }
         task.await();
     }
 

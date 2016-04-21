@@ -1,7 +1,7 @@
 package hillbillies.model.programs.statement;
 
 /**
- * Created by timo on 4/20/16.
+ * Class for tracking if a break statement is in a while loop.
  */
 public class BreakChecker {
     private int depth;

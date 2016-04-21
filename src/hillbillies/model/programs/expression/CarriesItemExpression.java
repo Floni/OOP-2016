@@ -5,7 +5,7 @@ import hillbillies.model.programs.exceptions.TaskErrorException;
 import hillbillies.model.programs.exceptions.TaskInterruptException;
 
 /**
- * Created by florian on 14/04/2016.
+ * Class for carries item expression
  */
 public class CarriesItemExpression implements BooleanExpression {
 
@@ -16,7 +16,7 @@ public class CarriesItemExpression implements BooleanExpression {
     }
 
     @Override
-    public Boolean getValue(Task task) throws TaskInterruptException, TaskErrorException {
+    public Boolean getValue(Task task) {
         return unit.getValue(task).isCarryingLog() || unit.getValue(task).isCarryingBoulder();
     }
 }

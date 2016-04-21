@@ -1,6 +1,7 @@
 package hillbillies.model.programs.statement;
 
 import hillbillies.model.Task;
+import hillbillies.model.programs.exceptions.BreakException;
 import hillbillies.model.programs.exceptions.TaskErrorException;
 import hillbillies.model.programs.exceptions.TaskInterruptException;
 
@@ -24,7 +25,7 @@ public interface Statement {
      * @throws  TaskInterruptException
      *          ....
      */
-    void execute(Task task) throws TaskErrorException, TaskInterruptException;
+    void execute(Task task) throws TaskErrorException, TaskInterruptException, BreakException;
 
     /**
      *

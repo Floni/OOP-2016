@@ -6,7 +6,7 @@ import javax.swing.plaf.nimbus.State;
 import java.util.List;
 
 /**
- * Created by timo on 4/14/16.
+ * Class for a sequence of statements.
  */
 public class SequenceStatement implements Statement {
 
