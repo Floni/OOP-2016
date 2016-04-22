@@ -4,6 +4,7 @@ import com.sun.javafx.sg.prism.NGShape;
 import hillbillies.model.*;
 // import hillbillies.part1.facade.Facade;
 import hillbillies.model.exceptions.InvalidActionException;
+import hillbillies.model.exceptions.InvalidCubeTypeException;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.vector.IntVector;
@@ -58,7 +59,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
     public void setCubeType(World world, int x, int y, int z, int value) throws ModelException {
         try {
             world.setCubeType(new IntVector(x, y, z), value);
-        } catch (InvalidPositionException err) {
+        } catch (InvalidPositionException | InvalidCubeTypeException err) {
             throw new ModelException(err);
         }
     }

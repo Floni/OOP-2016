@@ -43,7 +43,6 @@ class RestActivity extends Activity {
      */
     @Override
     void advanceTime(double dt) {
-        // TODO: simplify
         this.restTimer -= dt;
         if (this.restTimer <= 0) {
             this.restTimer += REST_DELAY;

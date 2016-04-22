@@ -1,12 +1,12 @@
-package hillbillies.model.programs;
+package hillbillies.tests.model.programs;
 
 import hillbillies.model.Task;
+import hillbillies.model.programs.TaskFactory;
 import hillbillies.part3.programs.TaskParser;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;

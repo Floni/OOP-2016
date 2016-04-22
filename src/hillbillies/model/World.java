@@ -2,6 +2,7 @@ package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
+import hillbillies.model.exceptions.InvalidCubeTypeException;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.vector.IntVector;
@@ -14,8 +15,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-// TODO: invalidCubeTypeException: throw if type is not 0, 1, 2, or 3.
 
 /**
  * Class representing a world.
@@ -91,7 +90,10 @@ public class World {
     private final Set<GameObject> gameObjects;
     /**
      * Set of the position of all workshops in the world.
-     * TODO: invar
+     *
+     * @invar The set must be effective.
+     * @invar Each position in the set must be effective
+     *          and the type of the cube at that position must have type WORKSHOP.
      */
     private final Set<IntVector> workshops;
 
@@ -144,7 +146,7 @@ public class World {
                     if (terrainTypes[x][y][z] == WORKSHOP)
                         workshops.add(new IntVector(x, y, z));
                     if (!isSolid(terrainTypes[x][y][z]))
-                        startCaveIn.addAll(connectedToBorder.changeSolidToPassable(x, y, z).stream().map(IntVector::new).collect(Collectors.toSet()));
+                       startCaveIn.addAll(connectedToBorder.changeSolidToPassable(x, y, z).stream().map(IntVector::new).collect(Collectors.toSet()));
                 }
             }
         }
@@ -282,11 +284,13 @@ public class World {
     public void setCubeType(IntVector pos, int type) throws InvalidPositionException {
         if (!isValidPosition(pos))
             throw new InvalidPositionException(pos);
+        if (!isValidCubeType(type))
+            throw new InvalidCubeTypeException(type);
 
         if (isSolid(getCubeType(pos)) && !isSolid(type)) {
-            for (int[] coord : connectedToBorder.changeSolidToPassable(pos.getX(), pos.getY(), pos.getZ())) {
-                breakCube(new IntVector(coord));
-                updateListener.notifyTerrainChanged(coord[0], coord[1], coord[2]);
+            for (int[] cord : connectedToBorder.changeSolidToPassable(pos.getX(), pos.getY(), pos.getZ())) {
+                breakCube(new IntVector(cord));
+                updateListener.notifyTerrainChanged(cord[0], cord[1], cord[2]);
             }
         }
 
@@ -295,6 +299,10 @@ public class World {
 
         cubes[pos.getX()][pos.getY()][pos.getZ()].type = type;
         updateListener.notifyTerrainChanged(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    private boolean isValidCubeType(int type) {
+        return type >= 0 && type < 4;
     }
 
     /**
@@ -308,7 +316,7 @@ public class World {
      * @post    If a drop occurs a boulder or log will be added at the given position.
      */
     private void dropChance(IntVector location, int type) {
-        if (Math.random() < 0.99) { // TODO
+        if (Math.random() < 0.25) {
             if (type == World.ROCK) {
                 addGameObject(location, new Boulder(this, location));
             } else if (type == World.TREE) {
@@ -334,6 +342,12 @@ public class World {
         dropChance(location, type);
     }
 
+    /**
+     * Returns a stream of all locations where a workshop is.
+     *
+     * @return  A stream of positions of all workshops in the world.
+     *          | result.allMatch(p -> getCube(p) == WORKSHOP)
+     */
     public Stream<IntVector> getAllWorkshops() {
         return workshops.stream();
     }

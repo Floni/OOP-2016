@@ -111,7 +111,7 @@ class MoveActivity extends Activity {
         this.targetNeighbour = null;
         this.speed = null;
         sprintStaminaTimer = 0;
-        sprinting = false; // TODO: is sprinting reset between moves?
+        sprinting = false;
         this.path = null;
         this.idx = -1;
         this.pendingActivity = null;

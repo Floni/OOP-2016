@@ -90,7 +90,6 @@ class WorkActivity extends Activity {
      *          | addXp()
      */
     private void finishWork() {
-        // TODO: simplify!
         if (unit.isCarryingLog() || unit.isCarryingBoulder()){ //BOULDER OR LOG
             if (!World.isSolid(unit.getWorld().getCubeType(location)))
                 unit.dropCarry(location);

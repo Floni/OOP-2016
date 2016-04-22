@@ -3,7 +3,7 @@ package hillbillies.model.list;
 import java.util.*;
 
 /**
- * Created by timo on 4/17/16.
+ * A Linked List that is kept sorted.
  */
 public class SortedLinkedList<T extends Comparable<? super T>> extends AbstractCollection<T> {
     private LinkedList<T> backend;
@@ -24,12 +24,23 @@ public class SortedLinkedList<T extends Comparable<? super T>> extends AbstractC
 
     @Override
     public boolean add(T n) {
-        // TODO: walk from back?
-        int idx = 0;
-        while (idx < size() && n.compareTo(backend.get(idx)) > 0) {
-            idx++;
+        if (backend.isEmpty())
+            backend.addFirst(n);
+        else if (n.compareTo(backend.getFirst()) <= 0)
+            backend.addFirst(n);
+        else if (n.compareTo(backend.getLast()) >= 0)
+            backend.addLast(n);
+        else {
+            int idx = 0;
+            while (idx < size() && n.compareTo(backend.get(idx)) > 0) {
+                idx++;
+            }
+            backend.add(idx, n);
         }
-        backend.add(idx, n);
         return true;
+    }
+
+    public T get(int idx) {
+        return backend.get(idx);
     }
 }

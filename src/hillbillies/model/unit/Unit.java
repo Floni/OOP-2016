@@ -206,7 +206,7 @@ public class Unit {
 
         setOrientation(INIT_ORIENTATION);
 
-        this.restMinuteTimer = REST_MINUTE; // TODO: getter & setter
+        setRestMinuteTimer(REST_MINUTE);
     }
 
 
@@ -225,6 +225,7 @@ public class Unit {
      *          | new.getWorld() == null
      */
     public void terminate() {
+        // TODO: drop carry
         currentActivity = null;
         lastActivity = null;
 
@@ -334,12 +335,14 @@ public class Unit {
     public void advanceTime(double dt) throws IllegalArgumentException {
         if (dt < 0 || dt >= 0.2)
             throw new IllegalArgumentException("Invalid dt");
+        if (!isAlive())
+            return;
 
         getCurrentActivity().advanceTime(dt);
 
-        restMinuteTimer -= dt;
-        if (restMinuteTimer <= 0 && this.canSwitchActivity()) {
-            restMinuteTimer += REST_MINUTE;
+        setRestMinuteTimer(getRestMinuteTimer()-dt);
+        if (getRestMinuteTimer() <= 0 && this.canSwitchActivity()) {
+            setRestMinuteTimer(getRestMinuteTimer() + REST_MINUTE);
             rest();
         }
 
@@ -1394,6 +1397,14 @@ public class Unit {
         restActivity.reset();
         if (!isResting())
             switchActivity(restActivity);
+    }
+
+    private void setRestMinuteTimer(double val) {
+        this.restMinuteTimer = val;
+    }
+
+    private double getRestMinuteTimer() {
+        return this.restMinuteTimer;
     }
     //</editor-fold>
 
