@@ -81,6 +81,7 @@ public class Unit {
     private final FallActivity fallActivity = new FallActivity(this);
     private final RestActivity restActivity = new RestActivity(this);
     private final WorkActivity workActivity = new WorkActivity(this);
+    private final FollowActivity followActivity = new FollowActivity(this);
     private final AttackActivity attackActivity = new AttackActivity(this);
 
     private Activity currentActivity = noneActivity;
@@ -1164,6 +1165,15 @@ public class Unit {
     public boolean isSprinting() {
         return getCurrentActivity() == moveActivity && moveActivity.sprinting;
     }
+
+
+    /**
+     *
+     */
+    public void follow(Unit other) {
+        this.followActivity.setOther(other);
+    }
+
     //</editor-fold>
 
     //<editor-fold desc="Working">

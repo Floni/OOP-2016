@@ -140,7 +140,7 @@ class MoveActivity extends Activity {
      * @return  True if we are going to be further from the target in the next step
      *          | result == dist(newPosition, targetNeighbour) > dist(position, targetNeighbour)
      */
-    private boolean isAtNeighbour(Vector newPosition) {
+    boolean isAtNeighbour(Vector newPosition) {
         double dist_new = newPosition.subtract(this.targetNeighbour).norm();
         double dist_cur = unit.getPosition().subtract(this.targetNeighbour).norm();
         return dist_new > dist_cur;

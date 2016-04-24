@@ -101,7 +101,7 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public Statement createFollow(Expression<?> unit, SourceLocation sourceLocation) {
-        return null; // TODO
+        return new FollowStatement((UnitExpression) unit);
     }
 
     @Override
