@@ -17,7 +17,7 @@ import java.util.List;
 class MoveActivity extends Activity {
     static final double SPRINT_DELAY = 0.1;
 
-    protected Vector target; // the final target
+    protected IntVector target; // the final target
     private Vector targetNeighbour; // the next neighbour to reach
     protected Vector speed; // the speed at which we're going, doesn't use sprinting
 
@@ -129,7 +129,7 @@ class MoveActivity extends Activity {
      *          | result == this.position.isEqualTo(this.target, POS_EPS)
      */
     private boolean isAtTarget() {
-        return unit.getPosition().isEqualTo(this.target, Unit.POS_EPS);
+        return unit.getPosition().toIntVector().isEqualTo(this.target);
     }
 
     /**
@@ -234,15 +234,15 @@ class MoveActivity extends Activity {
      * @throws  UnreachableTargetException
      *          Throws if the target can't be reached.
      */
-    void updateTarget(Vector newTarget) throws InvalidPositionException, UnreachableTargetException {
-        if (!getUnit().isValidPosition(newTarget.toIntVector()))
+    void updateTarget(IntVector newTarget) throws InvalidPositionException, UnreachableTargetException {
+        if (!getUnit().isValidPosition(newTarget))
             throw new InvalidPositionException(newTarget);
 
         this.target = newTarget;
 
         // get path:
-        this.path = unit.getPathFinder().getPath(unit.getPosition().toIntVector(), newTarget.toIntVector());
-        if (path == null || path.size() == 0) {
+        this.path = unit.getPathFinder().getPath(unit.getPosition().toIntVector(), newTarget);
+        if (path == null) {
             unit.finishCurrentActivity();
             throw new UnreachableTargetException();
         }
@@ -251,6 +251,11 @@ class MoveActivity extends Activity {
         if (!unit.getPosition().subtract(
                 unit.getPosition().toIntVector().toVector()).isEqualTo(new Vector(0.5, 0.5, 0.5), Unit.POS_EPS))
             this.path.add(unit.getPosition().toIntVector());
+
+        if (path.size() == 0) {
+            unit.finishCurrentActivity();
+            throw new UnreachableTargetException();
+        }
 
         idx = path.size() - 1;
 

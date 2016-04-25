@@ -1104,8 +1104,7 @@ public class Unit {
     public void moveTo(IntVector target)
             throws InvalidPositionException, InvalidActionException, UnreachableTargetException {
 
-        Vector newTarget =  target.toVector().add(World.Lc /2);
-        moveActivity.updateTarget(newTarget);
+        moveActivity.updateTarget(target);
         switchActivity(this.moveActivity);
     }
 

@@ -26,18 +26,16 @@ class FollowActivity extends MoveActivity{
     @Override
     void advanceTime(double dt) throws InvalidPositionException, UnreachableTargetException {
         super.advanceTime(dt);
-        if (unit.getPosition().toIntVector().isNextTo(this.target.toIntVector()) || !other.isAlive()) {
-            if (this.hasTracker())
-                getTracker().setDone();
-            unit.finishCurrentActivity(); // TODO: if nextTo move to centre of cube
-        } else if (!other.getPosition().toIntVector().equals(this.target.toIntVector())) {
-            this.updateTarget(other.getPosition());
+        if (unit.getPosition().toIntVector().isNextTo(this.target) || !other.isAlive()) {
+            this.updateTarget(unit.getPosition().toIntVector());
+        } else if (!other.getPosition().toIntVector().equals(this.target)) {
+            this.updateTarget(other.getPosition().toIntVector());
         }
     }
 
     public void setOther(Unit other) throws InvalidPositionException, UnreachableTargetException {
         this.other = other;
-        updateTarget(other.getPosition());
+        updateTarget(other.getPosition().toIntVector());
     }
 
     @Override
@@ -47,7 +45,7 @@ class FollowActivity extends MoveActivity{
 
     @Override
     void reset() {
-        other = null;
         super.reset();
+        other = null;
     }
 }
