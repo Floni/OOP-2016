@@ -89,6 +89,7 @@ class MoveActivity extends Activity {
                     updateTarget(this.target);
                 goToNextNeighbour();
             }
+
         } else {
             unit.setPosition(newPosition);
         }

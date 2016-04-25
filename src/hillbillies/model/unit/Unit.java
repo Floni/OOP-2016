@@ -1035,7 +1035,7 @@ public class Unit {
      */
     @Basic
     public boolean isMoving() {
-        return this.getCurrentActivity() == this.moveActivity || this.getCurrentActivity() == this.fallActivity;
+        return this.getCurrentActivity() == this.moveActivity || this.getCurrentActivity() == this.fallActivity || this.getCurrentActivity() == this.followActivity;
     }
 
 
@@ -1172,6 +1172,7 @@ public class Unit {
      */
     public void follow(Unit other) {
         this.followActivity.setOther(other);
+        switchActivity(this.followActivity);
     }
 
     //</editor-fold>
