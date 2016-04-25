@@ -1,10 +1,7 @@
 package hillbillies.model.unit;
 
-import be.kuleuven.cs.som.annotate.Basic;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.UnreachableTargetException;
-import hillbillies.model.vector.IntVector;
-import hillbillies.model.vector.Vector;
 
 /**
  * The activity for following another unit.
@@ -12,7 +9,6 @@ import hillbillies.model.vector.Vector;
 class FollowActivity extends MoveActivity{
 
     private Unit other;
-    private IntVector pos;
 
     /**
      * Initializes the move activity for the given unit.
@@ -25,23 +21,17 @@ class FollowActivity extends MoveActivity{
     FollowActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
         this.reset();
-
     }
 
     @Override
     void advanceTime(double dt) throws InvalidPositionException, UnreachableTargetException {
-        if (unit.getPosition().isNextTo(other.getPosition()) || other.getPosition() == unit.getPosition() || !other.isAlive()) {
+        super.advanceTime(dt);
+        if (unit.getPosition().toIntVector().isNextTo(this.target.toIntVector()) || !other.isAlive()) {
             if (this.hasTracker())
-                this.getTracker().setDone();
-            unit.finishCurrentActivity();
-        } else {
-            if ((!getOtherPos().equals(this.target) || this.target == null) && ((unit.getPosition().toIntVector().equals(pos)) || pos == null)) {
-                pos = getPos();
-                this.updateTarget(getOtherPos());
-                super.advanceTime(dt);
-            } else {
-                super.advanceTime(dt);
-            }
+                getTracker().setDone();
+            unit.finishCurrentActivity(); // TODO: if nextTo move to centre of cube
+        } else if (!other.getPosition().toIntVector().equals(this.target.toIntVector())) {
+            this.updateTarget(other.getPosition());
         }
     }
 
@@ -50,25 +40,14 @@ class FollowActivity extends MoveActivity{
         updateTarget(other.getPosition());
     }
 
-    private Vector getOtherPos() {
-        return other.getPosition();
-    }
-
-    private IntVector getPos(){
-        return unit.getPosition().toIntVector();
-    }
-
-    @Override @Basic
+    @Override
     boolean canSwitch(){
-        return other != null;
+        return other != null; // TODO: why ?
     }
 
     @Override
     void reset() {
         other = null;
-        if (this.hasTracker())
-            this.getTracker().setInterrupt();
-        this.resetTracker();
         super.reset();
     }
 }
