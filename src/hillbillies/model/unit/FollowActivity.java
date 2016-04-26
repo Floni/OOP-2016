@@ -1,6 +1,5 @@
 package hillbillies.model.unit;
 
-import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.UnreachableTargetException;
 
 /**
@@ -15,16 +14,25 @@ class FollowActivity extends MoveActivity{
      *
      * @param   unit
      *          The unit that starts following.
+     *
      * @effect  Initialize the Activity with the given unit
      *          | super(unit);
+     *
+     * @effect  Reset the activity.
+     *          | this.reset()
      */
     FollowActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
         this.reset();
     }
 
+    /**
+     * TODO
+     * @param   dt
+     *          The given time step.
+     */
     @Override
-    void advanceTime(double dt) throws InvalidPositionException, UnreachableTargetException {
+    void advanceTime(double dt) {
         super.advanceTime(dt);
         //if (/* TODO position exactly on half*/) {
             if (this.isAtTarget() || !other.isAlive()) {
@@ -35,7 +43,14 @@ class FollowActivity extends MoveActivity{
         //}
     }
 
-    public void setOther(Unit other) throws InvalidPositionException, UnreachableTargetException {
+    /**
+     * TODO
+     * @param other
+     *
+     * @throws UnreachableTargetException
+     */
+    public void setOther(Unit other) throws UnreachableTargetException {
+        // TODO: other must be effective & alive otherwise throw InvalidUnitException
         this.other = other;
         updateTarget(other.getPosition().toIntVector());
     }

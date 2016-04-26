@@ -216,6 +216,11 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
     }
 
     @Override
+    public Expression<?> createPositionOf(Expression<?> unit, SourceLocation sourceLocation) {
+        return new PositionOfPositionExpression((UnitExpression)unit);
+    }
+
+    @Override
     public Expression<?> createLiteralPosition(int x, int y, int z, SourceLocation sourceLocation) {
         return (PositionExpression) task -> new IntVector(x, y, z);
     }

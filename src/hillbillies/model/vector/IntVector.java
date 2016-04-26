@@ -260,11 +260,21 @@ public class IntVector {
         return obj != null && obj.getClass().equals(IntVector.class) && this.isEqualTo((IntVector)obj);
     }
 
+    /**
+     * TODO & Vector
+     * @param vector
+     * @return
+     */
     public boolean isNextTo(IntVector vector) {
         IntVector diff = vector.substract(this);
         return Math.abs(diff.getX()) <= 1 && Math.abs(diff.getY()) <= 1 && Math.abs(diff.getZ()) <= 1;
     }
 
+    /**
+     * TODO & Vector
+     * @param other
+     * @return
+     */
     public double distance(IntVector other) {
         return other.substract(this).norm();
     }
