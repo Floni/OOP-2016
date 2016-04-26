@@ -43,4 +43,14 @@ public class SortedLinkedList<T extends Comparable<? super T>> extends AbstractC
     public T get(int idx) {
         return backend.get(idx);
     }
+
+    public boolean isSorted() {
+        T last = backend.getFirst();
+        for (T t : backend) {
+            if (t.compareTo(last) < 0)
+                return false;
+            last = t;
+        }
+        return true;
+    }
 }

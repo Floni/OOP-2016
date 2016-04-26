@@ -1,6 +1,5 @@
 package hillbillies.model.unit;
 
-import be.kuleuven.cs.som.annotate.Basic;
 import hillbillies.model.World;
 import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.exceptions.UnreachableTargetException;
@@ -14,7 +13,6 @@ import java.util.stream.Collectors;
  * The default activity for when an unit isn't doing anything, also manages default behaviour.
  */
 class NoneActivity extends Activity {
-
 
     /**
      * Initializes the default behavior activity.
@@ -94,8 +92,11 @@ class NoneActivity extends Activity {
 
     /**
      * Returns whether the unit can switch activities which is true when the unit is alive.
+     *
+     * @return  Always true.
+     *          | result == true
      */
-    @Override @Basic
+    @Override
     boolean canSwitch() {
         return true;
     }

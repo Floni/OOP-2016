@@ -19,23 +19,40 @@ class FollowActivity extends MoveActivity{
      *
      * @effect  Initialize the Activity with the given unit
      *          | super(unit);
+     *
+     * @effect  Reset the activity.
+     *          | this.reset()
      */
     FollowActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
         this.reset();
     }
 
+    /**
+     * TODO
+     * @param   dt
+     *          The given time step.
+     */
     @Override
-    void advanceTime(double dt) throws InvalidPositionException, UnreachableTargetException {
+    void advanceTime(double dt) {
         super.advanceTime(dt);
-        if (unit.getPosition().toIntVector().isNextTo(this.target) || !other.isAlive()) {
-            this.updateTarget(unit.getPosition().toIntVector());
-        } else if (!other.getPosition().toIntVector().equals(this.target)) {
-            this.updateTarget(other.getPosition().toIntVector());
-        }
+        //if (/* TODO position exactly on half*/) {
+            if (this.isAtTarget() || !other.isAlive()) {
+                this.updateTarget(unit.getPosition().toIntVector());
+            } else if (!other.getPosition().toIntVector().equals(this.target)) {
+                this.updateTarget(other.getPosition().toIntVector());
+            }
+        //}
     }
 
-    public void setOther(Unit other) throws InvalidPositionException, UnreachableTargetException {
+    /**
+     * TODO
+     * @param other
+     *
+     * @throws UnreachableTargetException
+     */
+    public void setOther(Unit other) throws UnreachableTargetException {
+        // TODO: other must be effective & alive otherwise throw InvalidUnitException
         this.other = other;
         updateTarget(other.getPosition().toIntVector());
     }

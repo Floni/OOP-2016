@@ -1,6 +1,7 @@
 package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Model;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
 import hillbillies.model.World;
@@ -19,20 +20,25 @@ class FallActivity extends Activity {
      * @param   unit
      *          The unit who is falling.
      *
-     * @post    The units speed will be 3.
-     *          | (new unit).getSpeedScalar() == 3
-     *
      * @effect  Initialize the Activity with the given unit
-     *          | super(unit);
+     *          | super(unit)
      *
+     * @effect  Reset the activity.
+     *          | this.reset()
      */
     FallActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
         this.reset();
     }
 
+    /**
+     * Start the falling.
+     *
+     * @effect  The start position will be set.
+     *          | this.setStartPosition(this.getUnit().getPosition())
+     */
     void startFalling() {
-        this.startPosition = getUnit().getPosition(); // we use target as the starting position
+        this.setStartPosition(this.getUnit().getPosition()); // we use target as the starting position
     }
 
     /**
@@ -60,7 +66,7 @@ class FallActivity extends Activity {
             getUnit().setPosition(new Vector(getUnit().getPosition().getX(),
                     getUnit().getPosition().getY(), Math.floor(getUnit().getPosition().getZ()) + World.Lc / 2.0));
 
-            int diffZ = this.startPosition.toIntVector().substract(newCube).getZ();
+            int diffZ = this.getStartPosition().toIntVector().substract(newCube).getZ();
             getUnit().deduceHitPoints(10*diffZ);
 
             getUnit().finishCurrentActivity();
@@ -70,7 +76,10 @@ class FallActivity extends Activity {
     }
 
     /**
-     * Returns whether the unit can switch activities, which always returns false.
+     * Returns whether the unit can switch activities.
+     *
+     * @return  Always false.
+     *          | !result
      */
     @Override @Basic
     boolean canSwitch() {
@@ -78,10 +87,35 @@ class FallActivity extends Activity {
     }
 
     /**
+     * Resets the fall activity.
      *
+     * @effect  The start position will be cleared.
+     *          | this.setStartPosition(null)
      */
     @Override
     void reset() {
-        this.startPosition = null;
+        this.setStartPosition(null);
+    }
+
+    /**
+     * Sets the start Position
+     *
+     * @param   startPosition
+     *          The new start position.
+     *
+     * @post    The start position will be set.
+     *          | new.getStartPosition() == startPosition
+     */
+    @Model
+    private void setStartPosition(Vector startPosition) {
+        this.startPosition = startPosition;
+    }
+
+    /**
+     * Returns the start position, where the unit started falling.
+     */
+    @Basic
+    private Vector getStartPosition() {
+        return this.startPosition;
     }
 }

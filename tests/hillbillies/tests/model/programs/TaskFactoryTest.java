@@ -23,8 +23,8 @@ public class TaskFactoryTest {
     @Test
     public void invalidProgramTest() {
         List<Task> tasks = TaskParser.parseTasksFromString(
-                    "name: \"work task\"\npriority: 1\nactivities: w := (1, 2, 3); moveTo w;",
-                    new TaskFactory(), new ArrayList<>());
+                "name: \"work task\"\npriority: 1\nactivities: w := (1, 2, 3); attack w;",
+                new TaskFactory(), new ArrayList<>());
         assertNull(tasks);
 
     }
@@ -34,6 +34,7 @@ public class TaskFactoryTest {
         List<Task> tasks = TaskParser.parseTasksFromString(
                 "name: \"work task\"\npriority: 1\nactivities: break;",
                 new TaskFactory(), new ArrayList<>());
+        assertNotNull(tasks);
         assertEquals(1, tasks.size());
         assertFalse(tasks.get(0).isWellFormed());
 
@@ -44,6 +45,7 @@ public class TaskFactoryTest {
         List<Task> tasks = TaskParser.parseTasksFromString(
                 "name: \"work task\"\npriority: 1\nactivities: while true do break; done",
                 new TaskFactory(), new ArrayList<>());
+        assertNotNull(tasks);
         assertEquals(1, tasks.size());
         assertTrue(tasks.get(0).isWellFormed());
 

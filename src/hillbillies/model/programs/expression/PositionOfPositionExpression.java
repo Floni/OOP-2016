@@ -6,7 +6,7 @@ import hillbillies.model.programs.exceptions.TaskInterruptException;
 import hillbillies.model.vector.IntVector;
 
 /**
- * Class for position_of expression. TODO: mail
+ * Class for position_of expression.
  */
 public class PositionOfPositionExpression implements PositionExpression {
     private final UnitExpression other;
