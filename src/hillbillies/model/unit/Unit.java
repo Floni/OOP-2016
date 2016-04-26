@@ -1167,9 +1167,30 @@ public class Unit {
 
 
     /**
+     * Makes the current unit follow the given unit.
      *
+     * @param   other
+     *          The unit to be followed.
+     *
+     * @post    The unit starts moving.
+     *          | new.isMoving() == true
+     * @post    The unit will move to a position next to the other unit when calling advanceTime().
+     *          | new.getPosition().toIntVector.().isNextTo(new.other.getPosition)
+     * @post    The unit will stop moving if the other unit is dead.
+     *          | if (!new.other.isAlive())
+     *          |   then new.getPosition() == current.getPosition()
+     *
+     * @throws  InvalidActionException
+     *          TODO: when can a followactivity switch.
+     * @throws  InvalidPositionException
+     *          Throws if the other's unit position is not a valid position.
+     *          | !((getWorld().isValidPosition(cubePos)) && (!World.isSolid(world.getCubeType(cubePos))) ||
+     *          |           (this.getWorld() == null))
+     * @throws  UnreachableTargetException
+     *          Throws if the position of the other unit is unreachable.
+     *          | this.getPathFinder(this.getPosition().toIntVector(), target.toIntVector()) == null
      */
-    public void follow(Unit other) {
+    public void follow(Unit other) throws InvalidActionException, InvalidPositionException, UnreachableTargetException {
         this.followActivity.setOther(other);
         switchActivity(this.followActivity);
     }

@@ -1,5 +1,6 @@
 package hillbillies.model.unit;
 
+import be.kuleuven.cs.som.annotate.Basic;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.UnreachableTargetException;
 
@@ -15,6 +16,7 @@ class FollowActivity extends MoveActivity{
      *
      * @param   unit
      *          The unit that starts following.
+     *
      * @effect  Initialize the Activity with the given unit
      *          | super(unit);
      */
@@ -38,9 +40,9 @@ class FollowActivity extends MoveActivity{
         updateTarget(other.getPosition().toIntVector());
     }
 
-    @Override
+    @Override @Basic
     boolean canSwitch(){
-        return other != null; // TODO: why ?
+        return this.other != null; // TODO: why ?
     }
 
     @Override
