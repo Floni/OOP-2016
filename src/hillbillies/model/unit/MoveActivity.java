@@ -9,6 +9,7 @@ import hillbillies.model.vector.Vector;
 import hillbillies.model.World;
 import sun.plugin.dom.exception.InvalidStateException;
 
+import java.util.Deque;
 import java.util.List;
 
 /**
@@ -24,8 +25,7 @@ class MoveActivity extends Activity {
     double sprintStaminaTimer; // timer for sprinting
     boolean sprinting; // true if we are sprinting
 
-    private List<IntVector> path; // the path, may be null
-    private int idx; // the index in the path we are currently at.
+    private Deque<IntVector> path; // the path, may be null
     private Activity pendingActivity; // the activity that is pending to be executed when we reach the next centre.
 
     /**
@@ -89,7 +89,6 @@ class MoveActivity extends Activity {
                     updateTarget(this.target);
                 goToNextNeighbour();
             }
-
         } else {
             unit.setPosition(newPosition);
         }
@@ -114,7 +113,6 @@ class MoveActivity extends Activity {
         sprintStaminaTimer = 0;
         sprinting = false;
         this.path = null;
-        this.idx = -1;
         this.pendingActivity = null;
 
         if (this.hasTracker())
@@ -128,7 +126,7 @@ class MoveActivity extends Activity {
      * @return  True if the unit's position equals the target position.
      *          | result == this.position.isEqualTo(this.target, POS_EPS)
      */
-    private boolean isAtTarget() {
+    boolean isAtTarget() {
         return unit.getPosition().toIntVector().isEqualTo(this.target);
     }
 
@@ -154,13 +152,12 @@ class MoveActivity extends Activity {
      *          | moveToNeighbour(path.get(idx))
      */
     private void goToNextNeighbour() {
-        IntVector next = path.get(idx);
+        IntVector next = path.getFirst(); // examine next position
         if (!unit.isStablePosition(next) || !unit.isValidPosition(next)) {
             this.updateTarget(this.target); // recalc path
             return;
         }
-        moveToNeighbour(path.get(idx));
-        idx -= 1;
+        moveToNeighbour(path.pop());
     }
 
     /**
@@ -250,17 +247,15 @@ class MoveActivity extends Activity {
         // check if we first need to center the unit:
         if (!unit.getPosition().subtract(
                 unit.getPosition().toIntVector().toVector()).isEqualTo(new Vector(0.5, 0.5, 0.5), Unit.POS_EPS))
-            this.path.add(unit.getPosition().toIntVector());
+            this.path.push(unit.getPosition().toIntVector());
 
         if (path.size() == 0) {
             unit.finishCurrentActivity();
             throw new UnreachableTargetException();
         }
 
-        idx = path.size() - 1;
-
         // TEST:
-        IntVector next = path.get(idx);
+        IntVector next = path.getFirst();
         if (!unit.isStablePosition(next) || !unit.isValidPosition(next)) {
             throw new InvalidStateException("????"); //TODO: test & fix
         }

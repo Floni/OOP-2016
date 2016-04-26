@@ -6,6 +6,7 @@ import hillbillies.model.World;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Deque;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -42,14 +43,14 @@ public class PathFinderTest {
 
     @Test
     public void testGetPath() throws Exception {
-        List<IntVector> path = pathFinder.getPath(new IntVector(0, 0, 0), new IntVector(2, 1, 1));
+        Deque<IntVector> path = pathFinder.getPath(new IntVector(0, 0, 0), new IntVector(2, 1, 1));
         IntVector last = new IntVector(2, 1, 1); // end
         for (IntVector pos : path) {
             IntVector diff = pos.substract(last);
             assertTrue(Math.abs(diff.getX()) <= 1 && Math.abs(diff.getY()) <= 1 && Math.abs(diff.getZ()) <= 1);
             last = pos;
         }
-        assertEquals(path.get(0), new IntVector(2, 1, 1));
+        assertEquals(path.getLast(), new IntVector(2, 1, 1));
     }
 
     @Test

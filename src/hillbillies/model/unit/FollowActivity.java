@@ -26,11 +26,13 @@ class FollowActivity extends MoveActivity{
     @Override
     void advanceTime(double dt) throws InvalidPositionException, UnreachableTargetException {
         super.advanceTime(dt);
-        if (unit.getPosition().toIntVector().isNextTo(this.target) || !other.isAlive()) {
-            this.updateTarget(unit.getPosition().toIntVector());
-        } else if (!other.getPosition().toIntVector().equals(this.target)) {
-            this.updateTarget(other.getPosition().toIntVector());
-        }
+        //if (/* TODO position exactly on half*/) {
+            if (this.isAtTarget() || !other.isAlive()) {
+                this.updateTarget(unit.getPosition().toIntVector());
+            } else if (!other.getPosition().toIntVector().equals(this.target)) {
+                this.updateTarget(other.getPosition().toIntVector());
+            }
+        //}
     }
 
     public void setOther(Unit other) throws InvalidPositionException, UnreachableTargetException {

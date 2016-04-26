@@ -65,7 +65,7 @@ public class PathFinder<T> {
      *          The list is in reverse order, the first element will be target and the last will be start.
      *          If no path can be found getPath returns null.
      */
-    public List<T> getPath(T start, T target) {
+    public Deque<T> getPath(T start, T target) {
         PriorityQueue<PriorityData> frontier = new PriorityQueue<>();
         frontier.add(new PriorityData(0, start));
         Map<T, T> cameFrom = new HashMap<>();
@@ -90,6 +90,7 @@ public class PathFinder<T> {
             });
         }
 
+        /*
         List<T> path = new ArrayList<>();
         T current = target;
         while (!current.equals(start)) {
@@ -100,6 +101,16 @@ public class PathFinder<T> {
                 return null;
         }
         //Collections.reverse(path);
+        */
+        Deque<T> path = new ArrayDeque<>();
+        T current = target;
+        while(!current.equals(start)) {
+            path.push(current);
+            current = cameFrom.get(current);
+
+            if (current == null)
+                return null;
+        }
         return path;
     }
 

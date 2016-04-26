@@ -1,5 +1,6 @@
 package hillbillies.model;
 
+import be.kuleuven.cs.som.annotate.Basic;
 import hillbillies.model.list.SortedLinkedList;
 import hillbillies.model.unit.Unit;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -12,6 +13,12 @@ import java.util.stream.Stream;
  */
 public class Scheduler {
 
+    /**
+     * A Sorted List of all tasks this scheduler controls.
+     *
+     * @invar   Each task must be effective.
+     *          | for (Task task : tasks) task != null;
+     */
     private final SortedLinkedList<Task> allTasks;
 
     /**
@@ -28,10 +35,9 @@ public class Scheduler {
      *          | The task that will await execution.
      *
      * @post    The scheduler will contain the task
-     *          | this.getAllTasksStream()....
-     * @post    If the task isn't assigned the task will be available for execution
-     *          | this.getAvailableTasksStream()....
-     *
+     *          | new.getAllTasks().contains(task)
+     * @post    The task will contain this scheduler in it's schedulers.
+     *          | (new task).getSchedulers().contains(this)
      */
     public void schedule(Task task) {
         this.allTasks.add(task);
@@ -42,19 +48,22 @@ public class Scheduler {
      * Checks whether a task is available for execution.
      *
      * @return  True if a task is available.
-     *          | result == ...
+     *          | result == this.getAllTasksStream().anyMatch(t -> !t.isAssigned()) TODO: There exists predicate?
      */
     public boolean isTaskAvailable() {
-        return allTasks.stream().anyMatch(t -> !t.isAssigned());
+        return this.getAllTasksStream().anyMatch(t -> !t.isAssigned());
     }
 
     /**
      * Gets the task with the highest priority for execution.
      *
-     * @return  The task with highest priority
-     *          | for (task : this.getItterator()) {
+     * @return  The task with highest priority that is not yet assigned.
+     *          | for (Task task : this.getAllTasks())
+     *          |   if (!task.isAssigned())
      *          |       result.getPriority() > task.getPriority()
-     *          | }
+     *
+     * @effect The task will have the unit as assigned unit.
+     *          | result.setAssignedUnit(unit)
      *
      * @throws  NoSuchElementException
      *          | If there are no tasks for execution
@@ -73,7 +82,7 @@ public class Scheduler {
      *          The task that must be removed from the scheduler.
      *
      * @post    The task will be removed from the scheduler.
-     *          | ...
+     *          | !new.getAllTasks().contains(task)
      *
      */
     public void finishTask(Task task) {
@@ -81,12 +90,16 @@ public class Scheduler {
     }
 
     /**
-     * Interrupt task.
+     * Rebuild the task list, used when a task changes priority.
      *
-     * @param task
+     * @param   task
+     *          | The task that changed priority.
      *
-     * @post    The task will be available for execution again.
-     *          | ...
+     * @post    The task will be in allTasks
+     *          | this.getAllTasks().contains(task)
+     *
+     * @post    The allTasks list will be sorted again.
+     *          | TODO: add isSorted method
      */
     public void rebuildTask(Task task) {
         allTasks.remove(task);
@@ -94,34 +107,50 @@ public class Scheduler {
     }
 
     /**
-     * ...
-     * @return
+     *  Returns an iterator over all tasks this scheduler controls.
      */
+    @Basic
     public Iterator<Task> getAllTasksIterator() {
         return allTasks.iterator();
     }
 
     /**
-     *
-     * @return
+     *  Returns a stream over all tasks this scheduler controls.
      */
+    @Basic
     public Stream<Task> getAllTasksStream() {
         return allTasks.stream();
     }
 
     /**
+     * Returns a list of all tasks this scheduler controls.
+     */
+    @Basic
+    public List<Task> getAllTasks() {
+        return new ArrayList<>(this.allTasks);
+    }
+
+    /**
+     * Returns whether or not this schedulers controls all given tasks.
      *
-     * @param tasks
-     * @return
+     * @param   tasks
+     *          The tasks to check.
+     *
+     * @return  True if this scheduler contains all given tasks, false otherwise.
+     *          | result == this.getAllTasks().containsAll(tasks)
      */
     public boolean containsAllTasks(Collection<Task> tasks) {
         return allTasks.containsAll(tasks);
     }
 
     /**
+     * Replace a task with the given replacement.
      *
-     * @param original
-     * @param replacement
+     * @param   original
+     *          The task to replace.
+     * @param   replacement
+     *          The replacement task.
+     *          TODO
      */
     public void replace(Task original, Task replacement) {
         if (original.isAssigned())
