@@ -22,8 +22,11 @@ abstract class Activity {
      * @param   unit
      *          The unit which will execute the activity.
      *
-     * @post    The unit will be set
+     * @post    The unit will be set.
      *          | new.getUnit() == unit
+     *
+     * @effect  Reset the activity.
+     *          | this.reset()
      *
      * @throws  IllegalArgumentException
      *          If the unit isn't effective.
@@ -34,6 +37,7 @@ abstract class Activity {
             throw new IllegalArgumentException("unit isn't effective");
 
         this.unit = unit;
+        this.reset();
     }
 
     /**

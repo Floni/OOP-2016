@@ -25,7 +25,6 @@ class FollowActivity extends MoveActivity{
      */
     FollowActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
-        this.reset();
     }
 
     /**

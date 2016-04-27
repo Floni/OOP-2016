@@ -38,7 +38,6 @@ class MoveActivity extends Activity {
      */
     MoveActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
-        this.reset();
     }
 
     /**

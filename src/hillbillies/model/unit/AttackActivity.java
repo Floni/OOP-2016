@@ -25,7 +25,6 @@ class AttackActivity extends Activity {
      */
     AttackActivity(Unit unit) {
         super(unit);
-        this.reset();
     }
 
     /**
