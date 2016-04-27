@@ -38,7 +38,7 @@ class FollowActivity extends MoveActivity{
         super.advanceTime(dt);
         //if (/* TODO position exactly on half*/) {
             if (this.isAtTarget() || !other.isAlive()) {
-                this.updateTarget(unit.getPosition().toIntVector());
+                this.updateTarget(getUnit().getPosition().toIntVector());
             } else if (!other.getPosition().toIntVector().equals(this.target)) {
                 this.updateTarget(other.getPosition().toIntVector());
             }

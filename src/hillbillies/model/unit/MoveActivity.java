@@ -238,25 +238,25 @@ class MoveActivity extends Activity {
         this.target = newTarget;
 
         // get path:
-        this.path = unit.getPathFinder().getPath(unit.getPosition().toIntVector(), newTarget);
+        this.path = getUnit().getPathFinder().getPath(getUnit().getPosition().toIntVector(), newTarget);
         if (path == null) {
-            unit.finishCurrentActivity();
+            getUnit().finishCurrentActivity();
             throw new UnreachableTargetException();
         }
 
         // check if we first need to center the unit:
-        if (!unit.getPosition().subtract(
-                unit.getPosition().toIntVector().toVector()).isEqualTo(new Vector(0.5, 0.5, 0.5), Unit.POS_EPS))
-            this.path.push(unit.getPosition().toIntVector());
+        if (!getUnit().getPosition().subtract(
+                getUnit().getPosition().toIntVector().toVector()).isEqualTo(new Vector(0.5, 0.5, 0.5), Unit.POS_EPS))
+            this.path.push(getUnit().getPosition().toIntVector());
 
         if (path.size() == 0) {
-            unit.finishCurrentActivity();
+            getUnit().finishCurrentActivity();
             throw new UnreachableTargetException();
         }
 
         // TEST:
         IntVector next = path.getFirst();
-        if (!unit.isStablePosition(next) || !unit.isValidPosition(next)) {
+        if (!getUnit().isStablePosition(next) || !getUnit().isValidPosition(next)) {
             throw new InvalidStateException("????"); //TODO: test & fix
         }
         // END TEST;
@@ -275,10 +275,10 @@ class MoveActivity extends Activity {
      *          | / getSpeedScalar())).isEqualTo(target)
      */
     private Vector calculateSpeed(Vector target) {
-        Vector diff = target.subtract(unit.getPosition());
+        Vector diff = target.subtract(getUnit().getPosition());
         diff = diff.divide(diff.norm());
 
-        double vw = 1.5*(unit.getStrength()+unit.getAgility())/(2*(unit.getWeight()));
+        double vw = 1.5*(getUnit().getStrength()+getUnit().getAgility())/(2*(getUnit().getWeight()));
         if (diff.getZ() > Unit.POS_EPS)
             vw *= 0.5;
         else if (diff.getZ() < -Unit.POS_EPS)
