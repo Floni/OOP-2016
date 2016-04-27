@@ -38,7 +38,6 @@ abstract class Activity {
 
     /**
      * Returns the unit which will conduct the activity.
-     * TODO: use getUnit() everywhere
      */
     @Basic @Immutable
     Unit getUnit() {
