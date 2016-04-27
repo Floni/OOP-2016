@@ -62,7 +62,7 @@ class FallActivity extends Activity {
             getUnit().setPosition(new Vector(getUnit().getPosition().getX(),
                     getUnit().getPosition().getY(), Math.floor(getUnit().getPosition().getZ()) + World.Lc / 2.0));
 
-            int diffZ = this.getStartPosition().toIntVector().substract(newCube).getZ();
+            int diffZ = this.getStartPosition().toIntVector().subtract(newCube).getZ();
             getUnit().deduceHitPoints(10*diffZ);
 
             this.finishActivity();

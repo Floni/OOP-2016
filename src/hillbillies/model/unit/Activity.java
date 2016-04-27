@@ -3,6 +3,7 @@ package hillbillies.model.unit;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Model;
+import be.kuleuven.cs.som.annotate.Raw;
 import hillbillies.model.programs.statement.ActivityTracker;
 
 /**
@@ -144,6 +145,7 @@ abstract class Activity {
     /**
      * Resumes the activity when it was interrupted.
      */
+    @Raw
     abstract void reset();
 
 }

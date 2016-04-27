@@ -83,7 +83,6 @@ public class Scheduler {
      *
      * @post    The task will be removed from the scheduler.
      *          | !new.getAllTasks().contains(task)
-     *
      */
     public void finishTask(Task task) {
         allTasks.remove(task);
@@ -99,7 +98,7 @@ public class Scheduler {
      *          | this.getAllTasks().contains(task)
      *
      * @post    The allTasks list will be sorted again.
-     *          | TODO: add isSorted method
+     *          | getAllTasks.isSorted()
      */
     public void rebuildTask(Task task) {
         allTasks.remove(task);
@@ -126,8 +125,8 @@ public class Scheduler {
      * Returns a list of all tasks this scheduler controls.
      */
     @Basic
-    public List<Task> getAllTasks() {
-        return new ArrayList<>(this.allTasks);
+    public SortedLinkedList<Task> getAllTasks() {
+        return new SortedLinkedList<>(this.allTasks);
     }
 
     /**
@@ -150,13 +149,19 @@ public class Scheduler {
      *          The task to replace.
      * @param   replacement
      *          The replacement task.
-     *          TODO
+     *
+     * @effect  If the original is assigned, it's interrupted.
+     *          | if (original.isAssigned()) original.interrupt()
+     * @effect  The original is removed.
+     *          | this.finishTask(original)
+     * @effect  The replacement is added.
+     *          | this.schedule(replacement)
      */
     public void replace(Task original, Task replacement) {
         if (original.isAssigned())
             original.interrupt();
-        this.allTasks.remove(original);
 
-        this.allTasks.add(replacement);
+        this.finishTask(original);
+        this.schedule(replacement);
     }
 }

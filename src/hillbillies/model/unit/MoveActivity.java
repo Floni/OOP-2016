@@ -1,6 +1,7 @@
 package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.UnreachableTargetException;
@@ -101,14 +102,21 @@ class MoveActivity extends Activity {
 
     /**
      * Returns whether the unit can switch activities, this is possible when the target is not null.
+     *
+     * @return  True if we aren't just moving to a neighbour.
+     *          | this.getTarget() != null
      */
-    @Override @Basic
+    @Override
     boolean canSwitch() {
-        return this.target != null;
+        return this.getTarget() != null;
     }
 
     /**
      * Resumes the moving activity, which does nothing since the target would only be updated.
+     *
+     * @post    The target is cleared.
+     *          | new.getTarget() == null
+     * @post    The target neightbour is cleared.
      */
     @Override @Raw
     void reset() {
@@ -131,7 +139,7 @@ class MoveActivity extends Activity {
      * @return  True if the unit's position equals the target position.
      *          | result == this.position.isEqualTo(this.target, POS_EPS)
      */
-    boolean isAtTarget() {
+    private boolean isAtTarget() {
         return unit.getPosition().toIntVector().isEqualTo(this.target);
     }
 
@@ -144,7 +152,7 @@ class MoveActivity extends Activity {
      * @return  True if we are going to be further from the target in the next step
      *          | result == dist(newPosition, targetNeighbour) > dist(position, targetNeighbour)
      */
-    boolean isAtNeighbour(Vector newPosition) {
+    private boolean isAtNeighbour(Vector newPosition) {
         double dist_new = newPosition.subtract(this.targetNeighbour).norm();
         double dist_cur = unit.getPosition().subtract(this.targetNeighbour).norm();
         return dist_new > dist_cur || dist_new == 0;
@@ -309,5 +317,14 @@ class MoveActivity extends Activity {
     @Basic
     Activity getPendingActivity() {
         return this.pendingActivity;
+    }
+
+
+    /**
+     * Returns the target the unit is moving towards.
+     */
+    @Basic @Model
+    private IntVector getTarget() {
+        return this.target;
     }
 }

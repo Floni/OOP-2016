@@ -161,12 +161,12 @@ public class World {
 
             @Override
             public double getCost(IntVector a, IntVector b) {
-                return a.substract(b).norm();
+                return a.subtract(b).norm();
             }
 
             @Override
             public int getHeuristic(IntVector a, IntVector b) {
-                IntVector diff = a.substract(b);
+                IntVector diff = a.subtract(b);
                 return Math.abs(diff.getX()) + Math.abs(diff.getY()) + Math.abs(diff.getZ());
             }
         });

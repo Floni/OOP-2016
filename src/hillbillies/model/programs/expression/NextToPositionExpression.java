@@ -24,7 +24,7 @@ public class NextToPositionExpression implements PositionExpression {
     @Override
     public IntVector getValue(Task task) throws TaskInterruptException, TaskErrorException {
         Unit unit = task.getAssignedUnit();
-        // TODO: check
+        // TODO: must next_to return reachable position?
         List<IntVector> possible = World.getNeighbours(pos.getValue(task)).filter(p -> unit.isValidPosition(p)
                 && unit.isStablePosition(p)).collect(Collectors.toList());
 

@@ -281,13 +281,13 @@ public class Task implements Comparable<Task> {
      *
      * @post    This task will not be assigned.
      *          | !new.isAssigned() && !this.getAssignedUnit().hasAssignedTask()
-     * @post    Each of the schedulers of this task won't contain this task anymore. TODO: effect?
-     *          | for (Scheduler s : this.getSchedulers())
-     *          |   !s.getAllTasks().contains(this)
      * @post    This task won't have any schedulers
      *          | new.getSchedulers().isEmpty()
      *
      * @effect  The execution will be stopped and reset.
+     * @effect  All schedulers will have this task finished.
+     *          | for (Scheduler s : this.getSchedulers())
+     *          |   s.finishTask(this)
      */
     public void finish() {
         if (this.isAssigned()) {

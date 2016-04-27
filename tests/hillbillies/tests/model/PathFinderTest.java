@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Deque;
-import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
@@ -30,12 +29,12 @@ public class PathFinderTest {
 
             @Override
             public double getCost(IntVector a, IntVector b) {
-                return a.substract(b).norm();
+                return a.subtract(b).norm();
             }
 
             @Override
             public int getHeuristic(IntVector a, IntVector b) {
-                IntVector diff = a.substract(b);
+                IntVector diff = a.subtract(b);
                 return Math.abs(diff.getX()) + Math.abs(diff.getY()) + Math.abs(diff.getZ());
             }
         });
@@ -46,7 +45,7 @@ public class PathFinderTest {
         Deque<IntVector> path = pathFinder.getPath(new IntVector(0, 0, 0), new IntVector(2, 1, 1));
         IntVector last = new IntVector(2, 1, 1); // end
         for (IntVector pos : path) {
-            IntVector diff = pos.substract(last);
+            IntVector diff = pos.subtract(last);
             assertTrue(Math.abs(diff.getX()) <= 1 && Math.abs(diff.getY()) <= 1 && Math.abs(diff.getZ()) <= 1);
             last = pos;
         }

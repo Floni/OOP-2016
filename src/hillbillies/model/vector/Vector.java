@@ -254,10 +254,26 @@ public class Vector {
         return obj != null && obj.getClass().equals(Vector.class) && this.isEqualTo((Vector)obj, 1e-6);
     }
 
+    /**
+     * Returns true if two vectors are next to each other.
+     *
+     * @param   other
+     *          The vector that may be next to this vector.
+     * @return  True if they are next to each other.
+     *          | result == this.toIntVector().isNextTo(other.toIntVector())
+     */
     public boolean isNextTo(Vector other) {
         return this.toIntVector().isNextTo(other.toIntVector());
     }
 
+    /**
+     * Returns the distance between two vectors.
+     *
+     * @param   other
+     *          The vector to calculate the distance to.
+     * @return  The distance.
+     *          | result == other.subtract(this).norm()
+     */
     public double distance(Vector other) {
         return other.subtract(this).norm();
     }

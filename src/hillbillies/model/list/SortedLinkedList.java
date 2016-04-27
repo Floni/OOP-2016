@@ -8,6 +8,14 @@ import java.util.*;
 public class SortedLinkedList<T extends Comparable<? super T>> extends AbstractCollection<T> {
     private LinkedList<T> backend;
 
+    /**
+     *
+     * @param other
+     *          Must be sorted!
+     */
+    public SortedLinkedList(SortedLinkedList<T> other) {
+        backend = new LinkedList<>(other);
+    }
     public SortedLinkedList() {
         backend = new LinkedList<>();
     }

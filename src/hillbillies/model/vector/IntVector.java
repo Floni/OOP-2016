@@ -138,7 +138,7 @@ public class IntVector {
      *          | result.getY() == this.getY() - other.getY() &&
      *          | result.getZ() == this.getZ() - other.getZ()
      */
-    public IntVector substract(IntVector other) {
+    public IntVector subtract(IntVector other) {
         return new IntVector(getX() - other.getX(), getY() - other.getY(), getZ() - other.getZ());
     }
 
@@ -261,21 +261,29 @@ public class IntVector {
     }
 
     /**
-     * TODO & Vector
-     * @param vector
-     * @return
+     * Returns true if two vectors are next to each other.
+     *
+     * @param   vector
+     *          The vector that may be next to this vector.
+     * @return  True if they are next to each other.
+     *          | result == Math.abs(vector.getX() - this.getX()) <= 1
+     *          |   && Math.abs(vector.getY() - this.getY()) <= 1
+     *          |   && Math.abs(diff.getZ() - this.getZ()) <= 1
      */
     public boolean isNextTo(IntVector vector) {
-        IntVector diff = vector.substract(this);
+        IntVector diff = vector.subtract(this);
         return Math.abs(diff.getX()) <= 1 && Math.abs(diff.getY()) <= 1 && Math.abs(diff.getZ()) <= 1;
     }
 
     /**
-     * TODO & Vector
-     * @param other
-     * @return
+     * Returns the distance between two vectors.
+     *
+     * @param   other
+     *          The vector to calculate the distance to.
+     * @return  The distance.
+     *          | result == other.subtract(this).norm()
      */
     public double distance(IntVector other) {
-        return other.substract(this).norm();
+        return other.subtract(this).norm();
     }
 }
