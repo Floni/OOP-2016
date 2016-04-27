@@ -22,8 +22,6 @@ class AttackActivity extends Activity {
      * @effect  Initialize the Activity with the given unit.
      *          | super(unit);
      *
-     * @effect  Reset the activity.
-     *          | this.reset()
      */
     AttackActivity(Unit unit) {
         super(unit);

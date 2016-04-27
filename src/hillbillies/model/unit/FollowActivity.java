@@ -18,10 +18,7 @@ class FollowActivity extends MoveActivity{
      *          The unit that starts following.
      *
      * @effect  Initialize the Activity with the given unit
-     *          | super(unit);
-     *
-     * @effect  Reset the activity.
-     *          | this.reset()
+     *          | super(unit)
      */
     FollowActivity(Unit unit) throws IllegalArgumentException {
         super(unit);

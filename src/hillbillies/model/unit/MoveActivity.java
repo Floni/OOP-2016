@@ -43,8 +43,6 @@ class MoveActivity extends Activity {
      *
      * @effect  Initialize the Activity with the given unit
      *          | super(unit)
-     * @effect  Reset this activity.
-     *          | this.reset()
      */
     MoveActivity(Unit unit) throws IllegalArgumentException {
         super(unit);

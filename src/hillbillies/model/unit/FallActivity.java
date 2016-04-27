@@ -22,9 +22,6 @@ class FallActivity extends Activity {
      *
      * @effect  Initialize the Activity with the given unit
      *          | super(unit)
-     *
-     * @effect  Reset the activity.
-     *          | this.reset()
      */
     FallActivity(Unit unit) throws IllegalArgumentException {
         super(unit);

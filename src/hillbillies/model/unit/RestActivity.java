@@ -23,8 +23,6 @@ class RestActivity extends Activity {
      *
      * @effect  Initialize the Activity with the given unit
      *          | super(unit)
-     * @effect  Reset this activity.
-     *          | this.reset()
      */
     RestActivity(Unit unit) throws IllegalArgumentException {
         super(unit);

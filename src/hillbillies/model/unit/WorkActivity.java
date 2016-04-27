@@ -26,8 +26,6 @@ class WorkActivity extends Activity {
      *
      * @effect  Initialize the Activity with the given unit
      *          | super(unit)
-     * @effect  Reset this activity.
-     *          | this.reset()
      */
     WorkActivity(Unit unit) {
         super(unit);
@@ -89,29 +87,29 @@ class WorkActivity extends Activity {
     void advanceTime(double dt) {
         workTimer -= dt;
         if (this.getWorkTimer() <= 0) {
-            if (unit.isCarryingLog() || unit.isCarryingBoulder()){ //BOULDER OR LOG
-                if (!World.isSolid(unit.getWorld().getCubeType(getLocation())))
-                    unit.dropCarry(getLocation());
+            if (getUnit().isCarryingLog() || getUnit().isCarryingBoulder()){ //BOULDER OR LOG
+                if (!World.isSolid(getUnit().getWorld().getCubeType(getLocation())))
+                    getUnit().dropCarry(getLocation());
                 else
                     return; // don't add xp
-            } else if (unit.getWorld().getCubeType(getLocation()) == World.WORKSHOP &&
-                    unit.getWorld().getLogs(getLocation()).size() >= 1 && unit.getWorld().getBoulders(getLocation()).size() >= 1) {
+            } else if (getUnit().getWorld().getCubeType(getLocation()) == World.WORKSHOP &&
+                    getUnit().getWorld().getLogs(getLocation()).size() >= 1 && getUnit().getWorld().getBoulders(getLocation()).size() >= 1) {
 
-                unit.getWorld().consumeBoulder(getLocation());
-                unit.getWorld().consumeLog(getLocation());
+                getUnit().getWorld().consumeBoulder(getLocation());
+                getUnit().getWorld().consumeLog(getLocation());
 
-                unit.setWeight(unit.getWeight() + 1);
-                unit.setToughness(unit.getToughness() + 1);
-            } else if (unit.getWorld().getBoulders(getLocation()).size() >= 1) {
-                unit.pickUpBoulder(unit.getWorld().getBoulders(getLocation()).iterator().next());
-            } else if (unit.getWorld().getLogs(getLocation()).size() >= 1) {
-                unit.pickUpLog(unit.getWorld().getLogs(getLocation()).iterator().next());
-            } else if (unit.getWorld().getCubeType(getLocation()) == World.TREE) {
-                unit.getWorld().breakCube(getLocation());
-            } else if (unit.getWorld().getCubeType(getLocation()) == World.ROCK) {
-                unit.getWorld().breakCube(getLocation());
+                getUnit().setWeight(getUnit().getWeight() + 1);
+                getUnit().setToughness(getUnit().getToughness() + 1);
+            } else if (getUnit().getWorld().getBoulders(getLocation()).size() >= 1) {
+                getUnit().pickUpBoulder(getUnit().getWorld().getBoulders(getLocation()).iterator().next());
+            } else if (getUnit().getWorld().getLogs(getLocation()).size() >= 1) {
+                getUnit().pickUpLog(getUnit().getWorld().getLogs(getLocation()).iterator().next());
+            } else if (getUnit().getWorld().getCubeType(getLocation()) == World.TREE) {
+                getUnit().getWorld().breakCube(getLocation());
+            } else if (getUnit().getWorld().getCubeType(getLocation()) == World.ROCK) {
+                getUnit().getWorld().breakCube(getLocation());
             }
-            unit.addXp(10);
+            getUnit().addXp(10);
 
             this.finishActivity();
         }
