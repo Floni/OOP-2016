@@ -1181,7 +1181,7 @@ public class Unit {
      *          |   then new.getPosition() == current.getPosition()
      *
      * @throws  InvalidActionException
-     *          TODO: when can a followactivity switch.
+     *          Never throws this exception.
      * @throws  InvalidPositionException
      *          Throws if the other's unit position is not a valid position.
      *          | !((getWorld().isValidPosition(cubePos)) && (!World.isSolid(world.getCubeType(cubePos))) ||
