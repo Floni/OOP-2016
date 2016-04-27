@@ -36,8 +36,10 @@ class AttackActivity extends Activity {
      *          The unit that is attacked.
      *
      * @effect  The unit's will face each other.
-     *          | this.setOrientation(TODO)
-     *          | other.setOrientation()
+     *          | this.getUnit().setOrientation(atan2((other.getPosition().getY() - this.getUnit().getPosition().getY()),
+     *          |       (other.getPosition().getX() - this.getUnit().getPosition().getX()))
+     *          | other.setOrientation(atan2((this.getUnit().getPosition().getY() - other.getPosition().getY()),
+     *          |       (this.getUnit().getPosition().getX() - other.getPosition().getX()))
      * @effect  The defender will defend against the attack
      *          | other.defend(this.getUnit())
      *

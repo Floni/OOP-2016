@@ -1315,10 +1315,10 @@ public class Unit {
      *          The unit that is attacked by this unit.
      *
      * @post    Makes the units look at each other.
-     *          | new.getOrientation() == atan2((other.getPosition[1] - this.getPosition[1]),
-     *          |       (other.getPosition[0] - this.getPosition[0]))
-     *          | (new other).getOrientation() == atan2((this.getPosition[1] - other.getPosition[1]),
-     *          |       (this.getPosition[0] - other.getPosition[0]))
+     *          | new.getOrientation() == atan2((other.getPosition().getY() - this.getPosition().getY()),
+     *          |       (other.getPosition().getX() - this.getPosition().getX()))
+     *          | (new other).getOrientation() == atan2((this.getPosition().getY() - other.getPosition().getY()),
+     *          |       (this.getPosition().getX() - other.getPosition().getX()))
      * @post    Makes the unit attack.
      *          | new.isAttacking == True
      *
