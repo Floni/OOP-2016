@@ -31,7 +31,6 @@ class WorkActivity extends Activity {
      */
     WorkActivity(Unit unit) {
         super(unit);
-        this.reset();
     }
 
     /**

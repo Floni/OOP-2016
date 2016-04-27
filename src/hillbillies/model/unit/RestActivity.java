@@ -28,7 +28,6 @@ class RestActivity extends Activity {
      */
     RestActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
-        this.reset();
     }
 
     /**
@@ -64,7 +63,7 @@ class RestActivity extends Activity {
                     unit.setStamina(unit.getStamina() + 1);
                 }
             } else {
-                unit.finishCurrentActivity();
+                getUnit().finishCurrentActivity();
             }
         }
     }

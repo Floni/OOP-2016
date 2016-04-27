@@ -1,5 +1,7 @@
 package hillbillies.model.unit;
 
+import be.kuleuven.cs.som.annotate.Basic;
+import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.UnreachableTargetException;
 
 /**
@@ -23,7 +25,6 @@ class FollowActivity extends MoveActivity{
      */
     FollowActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
-        this.reset();
     }
 
     /**
@@ -36,7 +37,7 @@ class FollowActivity extends MoveActivity{
         super.advanceTime(dt);
         //if (/* TODO position exactly on half*/) {
             if (this.isAtTarget() || !other.isAlive()) {
-                this.updateTarget(unit.getPosition().toIntVector());
+                this.updateTarget(getUnit().getPosition().toIntVector());
             } else if (!other.getPosition().toIntVector().equals(this.target)) {
                 this.updateTarget(other.getPosition().toIntVector());
             }
@@ -55,9 +56,14 @@ class FollowActivity extends MoveActivity{
         updateTarget(other.getPosition().toIntVector());
     }
 
+    /**
+     * The activity is only controllable by default behaviour so the default behaviour can always switch activities.
+     * @return  Always returns true
+     *          | result == true
+     */
     @Override
     boolean canSwitch(){
-        return other != null; // TODO: why ?
+        return true;
     }
 
     @Override
