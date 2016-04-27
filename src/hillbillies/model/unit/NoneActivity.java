@@ -19,6 +19,7 @@ class NoneActivity extends Activity {
      *
      * @param   unit
      *          The unit who starts default behavior.
+     *
      * @effect  Initialize the Activity with the given unit
      *          | super(unit);
      */
@@ -31,7 +32,7 @@ class NoneActivity extends Activity {
      *
      * @param   dt
      *          The time step to update the activity with.
-     *
+     * TODO: complete
      * @post    If the unit still has an unfinished activity, he will reset this activity.
      * @post    Else if default behavior is enabled the unit does with an equal chance one of the following things.
      *          - The unit moves to a random valid position in the world which the unit can reach.

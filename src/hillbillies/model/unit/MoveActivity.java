@@ -25,16 +25,26 @@ class MoveActivity extends Activity {
     double sprintStaminaTimer; // timer for sprinting
     boolean sprinting; // true if we are sprinting
 
+    /**
+     * A stack containing the current path, may be null.
+     *
+     * @invar   The path is either not effective, or all elements are effective, valid and nextTo each other.
+     *          | path == null ||
+     *          | for (TODO) TODO
+     */
     private Deque<IntVector> path; // the path, may be null
     private Activity pendingActivity; // the activity that is pending to be executed when we reach the next centre.
 
     /**
-     * Initializes the move activity for the given unit.
+     * Creates the move activity for the given unit.
      *
      * @param   unit
-     *          The unit that starts moving.
+     *          The unit who is conducting the activity.
+     *
      * @effect  Initialize the Activity with the given unit
-     *          | super(unit);
+     *          | super(unit)
+     * @effect  Reset this activity.
+     *          | this.reset()
      */
     MoveActivity(Unit unit) throws IllegalArgumentException {
         super(unit);

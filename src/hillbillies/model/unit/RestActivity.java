@@ -1,6 +1,7 @@
 package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 
 /**
@@ -15,21 +16,20 @@ class RestActivity extends Activity {
 
 
     /**
-     *  Starts the rest activity for the given unit.
+     * Creates the rest activity for the given unit.
      *
      * @param   unit
      *          The unit who is conducting the activity.
      *
-     * @post    The unit can not switch activities until he recovers one hitPoint.
-     *
      * @effect  Initialize the Activity with the given unit
-     *          | super(unit);
+     *          | super(unit)
+     * @effect  Reset this activity.
+     *          | this.reset()
      */
     RestActivity(Unit unit) throws IllegalArgumentException {
         super(unit);
         this.reset();
     }
-
 
     /**
      * Updates the state of the rest activity.
@@ -43,22 +43,23 @@ class RestActivity extends Activity {
      */
     @Override
     void advanceTime(double dt) {
-        this.restTimer -= dt;
-        if (this.restTimer <= 0) {
-            this.restTimer += REST_DELAY;
+        this.setRestTimer(this.getRestTimer() - dt);
+        if (this.getRestTimer() <= 0) {
+            this.setRestTimer(this.getRestTimer() + REST_DELAY);
 
             if (unit.getHitPoints() != unit.getMaxPoints()) {
                 restDiff += (unit.getToughness()/200.0);
                 // recover at least 1 HP
-                if (restDiff >= 1) {
-                    initialRest = false;
+                if (getRestDiff() >= 1) {
+                    this.resetInitialRest();
                     restDiff -= 1;
                     unit.setHitPoints(unit.getHitPoints()+1);
                 }
             } else if (unit.getStamina() != unit.getMaxPoints()) {
-                initialRest = false;
+                this.resetInitialRest();
                 restDiff += (unit.getToughness()/100.0);
-                if (restDiff >= 1) {
+
+                if (getRestDiff() >= 1) {
                     restDiff -= 1;
                     unit.setStamina(unit.getStamina() + 1);
                 }
@@ -71,20 +72,73 @@ class RestActivity extends Activity {
 
     /**
      * Returns true if the unit can switch activities.
+     *
+     * @return  The unit may switch when the activity isn't in the initial rest.
+     *          | !this.isInitialRest()
      */
-    @Override @Basic
+    @Override
     boolean canSwitch() {
-        return !initialRest;
+        return !this.isInitialRest();
     }
 
 
     /**
-     * Resumes the rest activity.
+     * Resets the rest.
+     *
+     * @post    The activity is in it's initial rest
+     *          | new.isInitialRest() == true
+     * @post    The point difference is reset.
+     *          | new.getRestDiff() == 0
+     * @post    The timer is reset.
+     *          | new.getRestTimer() == REST_DELAY
      */
     @Override @Raw
     void reset() {
-        this.restTimer = REST_DELAY;
+        this.setRestTimer(REST_DELAY);
         this.initialRest = true;
         this.restDiff = 0;
+    }
+
+    /**
+     * TODO
+     * @param val
+     *
+     * @post ...
+     */
+    private void setRestTimer(double val) {
+        this.restTimer = val;
+    }
+
+    /**
+     * ...
+     */
+    @Basic @Model
+    private double getRestTimer() {
+        return this.restTimer;
+    }
+
+    /**
+     * ...
+     */
+    @Basic @Model
+    private double getRestDiff() {
+        return this.restDiff;
+    }
+
+    /**
+     *
+     */
+    @Basic @Model
+    private boolean isInitialRest() {
+        return this.initialRest;
+    }
+
+    /**
+     * ..
+     *
+     * @post
+     */
+    private void resetInitialRest() {
+        this.initialRest = false;
     }
 }

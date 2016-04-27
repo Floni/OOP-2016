@@ -100,7 +100,7 @@ abstract class Activity {
      * @effect  Finishes this activity.
      *          | this.getUnit().finishCurrentActivity().
      */
-    void finishTracker() {
+    void finishActivity() {
         assert getUnit().getCurrentActivity() == this;
 
         if (this.hasTracker())

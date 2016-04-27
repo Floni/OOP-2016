@@ -1,5 +1,7 @@
 package hillbillies.model.unit;
 
+import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Model;
 import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.vector.Vector;
 
@@ -35,7 +37,8 @@ class AttackActivity extends Activity {
      *          The unit that is attacked.
      *
      * @effect  The unit's will face each other.
-     *          | setOrientation(TODO)
+     *          | this.setOrientation(TODO)
+     *          | other.setOrientation()
      * @effect  The defender will defend against the attack
      *          | other.defend(this.getUnit())
      *
@@ -75,21 +78,17 @@ class AttackActivity extends Activity {
      *          The given time step.
      *
      * @post    The attackTimer is decreased with dt.
-     *          | new.TODO = this.TODO - dt;
-     * @post    If the attackTimer is less or equal to zero it is reset.
-     *          | TODO
+     *          | new.getAttackTimer() == this.getAttackTimer() - dt
      *
-     * @effect  If the attack is completed, finishTracker the attack activity
-     *          | TODO
-     *          | this.finishTracker()
+     * @effect  If the attack is completed, finishActivity the attack activity
+     *          | if (new.getAttackTimer() <= 0)
+     *          |   this.finishActivity()
      */
     @Override
     void advanceTime(double dt) {
         this.attackTimer -= dt;
-        if (this.attackTimer <= 0) {
-            this.attackTimer = 0;
-
-            this.finishTracker();
+        if (this.getAttackTimer() <= 0) {
+            this.finishActivity();
         }
     }
 
@@ -108,7 +107,7 @@ class AttackActivity extends Activity {
      * Resets the activity.
      *
      * @post    The attackTimer will be reset.
-     *          | this.TODO == 0
+     *          | this.getAttackTimer() == 0
      *
      * @effect  The tracker is interrupted.
      *          | this.interruptTracker()
@@ -130,5 +129,13 @@ class AttackActivity extends Activity {
      */
     private boolean canAttack(Unit other) {
         return getUnit().getPosition().isNextTo(other.getPosition());
+    }
+
+    /**
+     * Returns the time left.
+     */
+    @Basic @Model
+    private double getAttackTimer() {
+        return this.attackTimer;
     }
 }
