@@ -43,7 +43,7 @@ class NoneActivity extends Activity {
     @Override
     void advanceTime(double dt) {
         if (getUnit().getLastActivity() != getUnit().noneActivity) {
-            getUnit().finishCurrentActivity(); // we still have an interrupted activity
+            this.finishActivity();; // we still have an interrupted activity
         } else if (getUnit().isDefaultEnabled()) {
             if (getUnit().hasAssignedTask()) {
                 getUnit().getAssignedTask().runFor(dt);

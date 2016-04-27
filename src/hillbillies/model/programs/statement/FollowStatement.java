@@ -52,7 +52,7 @@ public class FollowStatement implements Statement, ActivityTracker {
         try {
             task.getAssignedUnit().follow(unitExpr.getValue(task));
             task.getAssignedUnit().setActivityTracker(this);
-        } catch (InvalidActionException | InvalidUnitException err) {
+        } catch (InvalidActionException | InvalidUnitException | UnreachableTargetException err) {
             throw new TaskInterruptException(err.getMessage());
         }
         task.await();

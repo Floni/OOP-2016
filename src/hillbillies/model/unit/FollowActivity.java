@@ -1,8 +1,11 @@
 package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import hillbillies.model.World;
 import hillbillies.model.exceptions.InvalidPositionException;
+import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.exceptions.UnreachableTargetException;
+import hillbillies.model.vector.Vector;
 
 /**
  * The activity for following another unit.
@@ -26,19 +29,20 @@ class FollowActivity extends MoveActivity{
 
     /**
      * TODO
-     * @param   dt
-     *          The given time step.
+     *
+     * @param dt The given time step.
      */
     @Override
     void advanceTime(double dt) {
-        super.advanceTime(dt);
-        //if (/* TODO position exactly on half*/) {
-            if (this.isAtTarget() || !other.isAlive()) {
-                this.updateTarget(getUnit().getPosition().toIntVector());
+        if (getOther() != null && getUnit().getPosition().subtract(getUnit().getPosition().toIntVector().toVector()).isEqualTo(new Vector(World.Lc / 2, World.Lc / 2, World.Lc / 2), Unit.POS_EPS)) {
+            if (this.getUnit().getPosition().isNextTo(getOther().getPosition()) || !other.isAlive()) {
+                this.finishActivity();
+                return;
             } else if (!other.getPosition().toIntVector().equals(this.target)) {
                 this.updateTarget(other.getPosition().toIntVector());
             }
-        //}
+        }
+        super.advanceTime(dt);
     }
 
     /**
@@ -47,8 +51,9 @@ class FollowActivity extends MoveActivity{
      *
      * @throws UnreachableTargetException
      */
-    public void setOther(Unit other) throws UnreachableTargetException {
-        // TODO: other must be effective & alive otherwise throw InvalidUnitException
+    public void setOther(Unit other) throws UnreachableTargetException, InvalidUnitException {
+        if (other == null || !other.isAlive())
+            throw new InvalidUnitException("The other unit is not valid");
         this.other = other;
         updateTarget(other.getPosition().toIntVector());
     }
@@ -67,5 +72,9 @@ class FollowActivity extends MoveActivity{
     void reset() {
         super.reset();
         other = null;
+    }
+
+    public Unit getOther() {
+        return other;
     }
 }

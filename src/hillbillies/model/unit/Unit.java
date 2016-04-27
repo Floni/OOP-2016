@@ -438,7 +438,6 @@ public class Unit {
      *          | this.lastActivity.reset()
      */
     void finishCurrentActivity() {
-        getCurrentActivity().reset();
         setCurrentActivity(getLastActivity());
         setLastActivity(noneActivity);
     }
@@ -1190,7 +1189,8 @@ public class Unit {
      *          Throws if the position of the other unit is unreachable.
      *          | this.getPathFinder(this.getPosition().toIntVector(), target.toIntVector()) == null
      */
-    public void follow(Unit other) throws InvalidActionException, InvalidPositionException, UnreachableTargetException {
+    public void follow(Unit other) throws InvalidActionException,
+            InvalidPositionException, UnreachableTargetException, InvalidUnitException {
         this.followActivity.setOther(other);
         switchActivity(this.followActivity);
     }

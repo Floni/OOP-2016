@@ -104,11 +104,12 @@ abstract class Activity {
      *          | this.getUnit().finishCurrentActivity().
      */
     void finishActivity() {
-        assert getUnit().getCurrentActivity() == this;
-
-        if (this.hasTracker())
-            this.getTracker().setDone();
-        getUnit().finishCurrentActivity();
+        if (getUnit().getCurrentActivity() == this) {
+            if (this.hasTracker())
+                this.getTracker().setDone();
+            getUnit().finishCurrentActivity();
+        }
+        this.reset();
     }
 
     /**

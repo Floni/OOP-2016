@@ -1,0 +1,7 @@
+name: "follow"
+priority: 5
+activities: E := enemy;
+            while (is_alive E) do
+                follow E;
+                attack E;
+            done

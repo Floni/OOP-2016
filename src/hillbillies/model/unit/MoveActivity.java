@@ -88,9 +88,7 @@ class MoveActivity extends Activity {
                 unit.switchActivity(getPendingActivity());
                 setPendingActivity(null);
             } else if (this.target == null || isAtTarget()) {
-                if (this.hasTracker())
-                    this.getTracker().setDone();
-                unit.finishCurrentActivity();
+                this.finishActivity();
             } else {
                 if (path == null)
                     updateTarget(this.target);
@@ -149,7 +147,7 @@ class MoveActivity extends Activity {
     boolean isAtNeighbour(Vector newPosition) {
         double dist_new = newPosition.subtract(this.targetNeighbour).norm();
         double dist_cur = unit.getPosition().subtract(this.targetNeighbour).norm();
-        return dist_new > dist_cur;
+        return dist_new > dist_cur || dist_new == 0;
     }
 
     /**
@@ -247,25 +245,20 @@ class MoveActivity extends Activity {
         // get path:
         this.path = getUnit().getPathFinder().getPath(getUnit().getPosition().toIntVector(), newTarget);
         if (path == null) {
-            getUnit().finishCurrentActivity();
+            this.finishActivity();
             throw new UnreachableTargetException();
         }
 
         // check if we first need to center the unit:
-        if (!getUnit().getPosition().subtract(
-                getUnit().getPosition().toIntVector().toVector()).isEqualTo(new Vector(0.5, 0.5, 0.5), Unit.POS_EPS))
-            this.path.push(getUnit().getPosition().toIntVector());
-
-        if (path.size() == 0) {
-            getUnit().finishCurrentActivity();
-            throw new UnreachableTargetException();
-        }
+        this.path.push(getUnit().getPosition().toIntVector());
 
         // TEST:
+        /*
         IntVector next = path.getFirst();
         if (!getUnit().isStablePosition(next) || !getUnit().isValidPosition(next)) {
             throw new InvalidStateException("????"); //TODO: test & fix
         }
+        */
         // END TEST;
 
         goToNextNeighbour();
@@ -283,7 +276,10 @@ class MoveActivity extends Activity {
      */
     private Vector calculateSpeed(Vector target) {
         Vector diff = target.subtract(getUnit().getPosition());
-        diff = diff.divide(diff.norm());
+        double normDiff = diff.norm();
+        if (normDiff == 0)
+            return Vector.ZERO;
+        diff = diff.divide(normDiff);
 
         double vw = 1.5*(getUnit().getStrength()+getUnit().getAgility())/(2*(getUnit().getWeight()));
         if (diff.getZ() > Unit.POS_EPS)
