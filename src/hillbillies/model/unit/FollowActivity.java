@@ -28,9 +28,19 @@ class FollowActivity extends MoveActivity{
     }
 
     /**
-     * TODO
+     * Updates the follow activity for the given time step.
      *
-     * @param dt The given time step.
+     * @param   dt
+     *          The given time step.
+     *
+     * @post    If the other unit exists and the unit is standing in the centre of a cube
+     * @post    then if the unit is standing on a position next to the other unit or the other unit is dead,
+     *          the unit will finish following the other unit.
+     * @post    Else if the the unit is not standing on the same cube as the other unit,
+     *          the unit will update his target to the cube of the other unit.
+     *
+     * @effect  Advances the parent move activity of this follow activity
+     *          | super.advanceTime(dt)
      */
     @Override
     void advanceTime(double dt) {
@@ -46,10 +56,17 @@ class FollowActivity extends MoveActivity{
     }
 
     /**
-     * TODO
-     * @param other
+     * Sets the unit to follow and starts the following
      *
-     * @throws UnreachableTargetException
+     * @param   other
+     *          The unit to follow
+     *
+     * @effect  Updates the target to follow.
+     *          | updateTarget(ot
+     *
+     * @throws  UnreachableTargetException
+     *          Throws if the other unit is null or not alive.
+     *          | other == null || !other.isAlive()
      */
     public void setOther(Unit other) throws UnreachableTargetException, InvalidUnitException {
         if (other == null || !other.isAlive())

@@ -32,9 +32,12 @@ class NoneActivity extends Activity {
      *
      * @param   dt
      *          The time step to update the activity with.
-     * TODO: complete
+     *
      * @post    If the unit still has an unfinished activity, he will reset this activity.
-     * @post    Else if default behavior is enabled the unit does with an equal chance one of the following things.
+     * @post    Else if default behavior is enabled and the unit has an assigned task, the task will be updated with timestep dt.
+     * @posta   Else if default behavior is enabled and the unit has no assigned task, the unit will get the task with the highest
+     *          priority from the scheduler of his faction.
+     * @post    Else if default behavior is enabled and there are no tasks available, the unit does with an equal chance one of the following things.
      *          - The unit moves to a random valid position in the world which the unit can reach.
      *          - The unit works on a neighbouring cube.
      *          - The unit starts resting.
@@ -43,7 +46,7 @@ class NoneActivity extends Activity {
     @Override
     void advanceTime(double dt) {
         if (getUnit().getLastActivity() != getUnit().noneActivity) {
-            this.finishActivity();; // we still have an interrupted activity
+            this.finishActivity(); // we still have an interrupted activity
         } else if (getUnit().isDefaultEnabled()) {
             if (getUnit().hasAssignedTask()) {
                 getUnit().getAssignedTask().runFor(dt);

@@ -42,7 +42,7 @@ class MoveActivity extends Activity {
      * @param   unit
      *          The unit who is conducting the activity.
      *
-     * @effect  Initialize the Activity with the given unit
+     * @effect  Initialize the Activity with the given unit.
      *          | super(unit)
      */
     MoveActivity(Unit unit) throws IllegalArgumentException {
@@ -50,7 +50,7 @@ class MoveActivity extends Activity {
     }
 
     /**
-     * Updates the move activity for the given time step
+     * Updates the move activity for the given time step.
      *
      * @param   dt
      *          The given time step.
