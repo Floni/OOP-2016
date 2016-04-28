@@ -7,11 +7,10 @@ import hillbillies.model.exceptions.UnreachableTargetException;
 import hillbillies.model.programs.exceptions.BreakException;
 import hillbillies.model.programs.exceptions.TaskErrorException;
 import hillbillies.model.programs.exceptions.TaskInterruptException;
-import hillbillies.model.programs.expression.PositionExpression;
 import hillbillies.model.programs.expression.UnitExpression;
 
 /**
- * Created by florian on 24/04/2016.
+ * Class for the follow statement.
  */
 public class FollowStatement implements Statement, ActivityTracker {
 
