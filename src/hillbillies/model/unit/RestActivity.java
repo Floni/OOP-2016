@@ -97,17 +97,20 @@ class RestActivity extends Activity {
     }
 
     /**
-     * TODO
-     * @param val
+     * Sets the rest timer to the given value.
      *
-     * @post ...
+     * @param   val
+     *          The value to set the rest timer to.
+     *
+     * @post    The rest timer wil be equal to the given value
+     *          | new.getRestTimer() == val
      */
     private void setRestTimer(double val) {
         this.restTimer = val;
     }
 
     /**
-     * ...
+     * Returns the rest timer.
      */
     @Basic @Model
     private double getRestTimer() {
@@ -115,7 +118,7 @@ class RestActivity extends Activity {
     }
 
     /**
-     * ...
+     * Returns the rest timer difference.
      */
     @Basic @Model
     private double getRestDiff() {
@@ -123,7 +126,7 @@ class RestActivity extends Activity {
     }
 
     /**
-     *
+     * Returns whether the rest activity is still in the initial rest phase.
      */
     @Basic @Model
     private boolean isInitialRest() {
@@ -131,9 +134,10 @@ class RestActivity extends Activity {
     }
 
     /**
-     * ..
+     * Disables the initial rest period.
      *
-     * @post
+     * @post    The initial rest phase will be disabled.
+     *          | new.isInitialRest() == false
      */
     private void resetInitialRest() {
         this.initialRest = false;
