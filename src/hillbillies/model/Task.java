@@ -245,7 +245,6 @@ public class Task implements Comparable<Task> {
             System.out.println(err.getMessage());
         }
         this.running = false;
-
     }
 
     /**

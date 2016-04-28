@@ -24,13 +24,13 @@ public class NextToPositionExpression implements PositionExpression {
     @Override
     public IntVector getValue(Task task) throws TaskInterruptException, TaskErrorException {
         Unit unit = task.getAssignedUnit();
-        // TODO: must next_to return reachable position?
-        List<IntVector> possible = World.getNeighbours(pos.getValue(task)).filter(p -> unit.isValidPosition(p)
-                && unit.isStablePosition(p)).collect(Collectors.toList());
+        World world = unit.getWorld();
+        IntVector unitPos = unit.getPosition().toIntVector();
 
-        if (possible.isEmpty())
-            throw new TaskInterruptException("nextTo has no possible cubes");
-
-        return possible.get((int)(Math.random()*possible.size()));
+        return World.getNeighbours(pos.getValue(task))
+                .filter(p -> unit.isValidPosition(p)
+                        && unit.isStablePosition(p)
+                        && world.getPathFinder().isReachable(unitPos, p))
+                .findAny().orElseThrow(() ->new TaskInterruptException("nextTo has no possible cubes"));
     }
 }
