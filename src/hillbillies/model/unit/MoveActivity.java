@@ -29,9 +29,10 @@ class MoveActivity extends Activity {
     /**
      * A stack containing the current path, may be null.
      *
-     * @invar   The path is either not effective, or all elements are effective, valid and nextTo each other.
+     * @invar   The path is either not effective, or all elements are effective, valid.
      *          | path == null ||
-     *          | for (TODO) TODO
+     *          | (for each position in path:
+     *          |       this.getUnit().getWorld().isValidPosition(position))
      */
     private Deque<IntVector> path; // the path, may be null
     private Activity pendingActivity; // the activity that is pending to be executed when we reach the next centre.
@@ -264,7 +265,7 @@ class MoveActivity extends Activity {
         /*
         IntVector next = path.getFirst();
         if (!getUnit().isStablePosition(next) || !getUnit().isValidPosition(next)) {
-            throw new InvalidStateException("????"); //TODO: test & fix
+            throw new InvalidStateException("????");
         }
         */
         // END TEST;

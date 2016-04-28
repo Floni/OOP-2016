@@ -2,7 +2,6 @@ package hillbillies.model.programs.statement;
 
 import hillbillies.model.Task;
 
-import javax.swing.plaf.nimbus.State;
 import java.util.List;
 
 /**
@@ -26,9 +25,9 @@ public class SequenceStatement implements Statement {
 
     @Override
     public boolean isDone(Task task) {
-        // TODO
-        return currentStmtIdx >= statements.size() ||
-                (currentStmtIdx == statements.size() - 1 && getCurrentStatement().isDone(task));
+        return currentStmtIdx >= statements.size() || // we have executed all statements.
+                (currentStmtIdx == statements.size() - 1
+                        && getCurrentStatement().isDone(task)); // or we are at the last stmt and it is done
     }
 
     @Override
@@ -41,8 +40,9 @@ public class SequenceStatement implements Statement {
     }
 
     @Override
-    public void isValid(BreakChecker breakChecker) {
-        statements.forEach(s -> s.isValid(breakChecker));
+    public BreakChecker checkValid(BreakChecker breakChecker) {
+        statements.forEach(s -> s.checkValid(breakChecker));
+        return breakChecker;
     }
 
     private Statement getCurrentStatement() {

@@ -67,21 +67,19 @@ class WorkActivity extends Activity {
      * @param   dt
      *          The time step to update the activity with.
      *
-     * TODO
-     *      * Finishes the work activity and executes the required action.
-     *
-     * @post    If the unit carries a boulder or log, the boulder or log is dropped at the centre
-     *          of the cube targeted by the labour action.
-     * @post    Else if the target cube is a workshop and one boulder and one log are available on
-     *          that cube, the unit will improve their equipment, consuming one boulder and one log
-     *          (from the workshop cube), and increasing the unit's weight and toughness.
-     * @post    Else if a boulder is present on the target cube, the unit shall pick up the boulder.
-     * @post    Else if a log is present on the target cube, the unit shall pick up the log.
-     * @post    Else if the target cube is wood, the cube collapses leaving a log.
-     * @post    Else if the target cube is rock, the cube collapses leaving a boulder.
+     * @post    If the time delay has ended the unit will:
+     *              If the unit carries a boulder or log, the boulder or log is dropped at the centre
+     *              of the cube targeted by the labour action.
+     *              Else if the target cube is a workshop and one boulder and one log are available on
+     *              that cube, the unit will improve their equipment, consuming one boulder and one log
+     *              (from the workshop cube), and increasing the unit's weight and toughness.
+     *              Else if a boulder is present on the target cube, the unit shall pick up the boulder.
+     *              Else if a log is present on the target cube, the unit shall pick up the log.
+     *              Else if the target cube is wood, the cube collapses leaving a log.
+     *              Else if the target cube is rock, the cube collapses leaving a boulder.
      *
      * @effect  If work is done, the unit receives 10 xp.
-     *          | addXp()
+     *          | addXp(10)
      */
     @Override
     void advanceTime(double dt) {

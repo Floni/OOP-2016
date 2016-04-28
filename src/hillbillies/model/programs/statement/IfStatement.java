@@ -47,9 +47,10 @@ public class IfStatement implements Statement {
     }
 
     @Override
-    public void isValid(BreakChecker breakChecker) {
-        trueStmt.isValid(breakChecker);
+    public BreakChecker checkValid(BreakChecker breakChecker) {
+        trueStmt.checkValid(breakChecker);
         if (falseStmt != null)
-            falseStmt.isValid(breakChecker);
+            falseStmt.checkValid(breakChecker);
+        return breakChecker;
     }
 }

@@ -202,7 +202,7 @@ public class World {
      * @return  result is true if the position is within world bounds.
      */
     public boolean isValidPosition(IntVector pos) {
-        return pos.getX() >= 0 && pos.getX() < X_MAX && pos.getY() >= 0
+        return pos != null && pos.getX() >= 0 && pos.getX() < X_MAX && pos.getY() >= 0
                 && pos.getY() < Y_MAX && pos.getZ() >= 0 && pos.getZ() < Z_MAX;
     }
 

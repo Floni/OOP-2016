@@ -45,11 +45,6 @@ public class WorkStatement implements Statement, ActivityTracker {
     }
 
     @Override
-    public void isValid(BreakChecker breakChecker) {
-        // NOP
-    }
-
-    @Override
     public void setDone() {
         done = true;
     }

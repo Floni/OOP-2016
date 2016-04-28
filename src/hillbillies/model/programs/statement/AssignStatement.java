@@ -35,9 +35,4 @@ public class AssignStatement<T> implements Statement {
         task.setVariable(varName, expression.getValue(task));
         done = true;
     }
-
-    @Override
-    public void isValid(BreakChecker breakChecker) {
-        // NOP
-    }
 }

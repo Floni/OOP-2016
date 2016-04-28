@@ -47,8 +47,9 @@ public class Scheduler {
     /**
      * Checks whether a task is available for execution.
      *
-     * @return  True if a task is available.
-     *          | result == this.getAllTasksStream().anyMatch(t -> !t.isAssigned()) TODO: There exists predicate?
+     * @return  True if a task is available which hasn't been assigned yet.
+     *          | result == (for some task in this.getAllTasks():
+     *          |               !task.isAssigned())
      */
     public boolean isTaskAvailable() {
         return this.getAllTasksStream().anyMatch(t -> !t.isAssigned());

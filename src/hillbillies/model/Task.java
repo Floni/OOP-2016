@@ -10,11 +10,9 @@ import hillbillies.model.programs.statement.BreakChecker;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.programs.statement.Statement;
+import ogp.framework.util.internal.Options;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Class implementing a task that a unit can execute.
@@ -90,11 +88,11 @@ public class Task implements Comparable<Task> {
 
     //<editor-fold desc="Properties">
     /**
-     * Returns the selected position or null.
+     * Optionally returns the selected position.
      */
     @Basic @Immutable
-    public IntVector getSelectedPosition() {
-        return selected;
+    public Optional<IntVector> getSelectedPosition() {
+        return Optional.ofNullable(this.selected);
     }
 
     /**
@@ -116,12 +114,10 @@ public class Task implements Comparable<Task> {
      * Only checks break statement as type correctness is checked at construction of statements.
      *
      * @return  True if the task is well formed.
-     *          | ... TODO
+     *          | result == this.getMainStatement().checkValid(new BreakChecker()).checkValid()
      */
     public boolean isWellFormed() {
-        BreakChecker breakChecker = new BreakChecker();
-        getMainStatement().isValid(breakChecker);
-        return breakChecker.isValid();
+        return this.getMainStatement().checkValid(new BreakChecker()).isValid();
     }
 
     //<editor-fold desc="Schedulers">
@@ -219,12 +215,18 @@ public class Task implements Comparable<Task> {
     //<editor-fold desc="Running">
     /**
      * Runs the task for a certain amount of cycles.
-     *  TODO
+     *
      * @param   time
      *          | The time the task may run for.
+     *
+     * TODO: formal?
+     * @effect  The mainStatement is ran while we have time left, we are running and it hasn't finish'd yet.
+     * @effect  The task is ended when a fatal error occurs.
+     * @effect  The task is interrupted when an other error occurs.
      */
     public void runFor(double time) {
         this.running = true;
+
         try {
             if (!mainStatement.isDone(this)) {
                 do {
@@ -232,10 +234,8 @@ public class Task implements Comparable<Task> {
                     time -= 0.001;
                 } while (!mainStatement.isDone(this) && this.isRunning() && time >= 0.001);
             }
-            if (mainStatement.isDone(this)) {
-                this.mainStatement.reset();
+            if (mainStatement.isDone(this))
                 this.finish();
-            }
 
         } catch (TaskInterruptException err) {
             this.interrupt();
@@ -244,6 +244,7 @@ public class Task implements Comparable<Task> {
             this.finish();
             System.out.println(err.getMessage());
         }
+
         this.running = false;
     }
 
@@ -284,17 +285,20 @@ public class Task implements Comparable<Task> {
      *          | new.getSchedulers().isEmpty()
      *
      * @effect  The execution will be stopped and reset.
+     *          | this.reset()
+     *          | this.await()
      * @effect  All schedulers will have this task finished.
      *          | for (Scheduler s : this.getSchedulers())
      *          |   s.finishTask(this)
      */
     public void finish() {
         if (this.isAssigned()) {
-            this.await();
-            this.reset();
             this.getAssignedUnit().assignTask(null);
         }
         this.setAssignedUnit(null);
+
+        this.await();
+        this.reset();
 
         schedulers.forEach(s -> s.finishTask(this));
         this.schedulers.clear();
@@ -309,15 +313,19 @@ public class Task implements Comparable<Task> {
      *          | new.getPriority() == this.getPriority() - 1
      *
      * @effect  The execution will be stopped and reset.
+     *          | this.reset()
+     *          | this.await()
      */
     public void interrupt() {
         if (this.isAssigned()) {
             this.await();
-            this.reset();
             this.getAssignedUnit().assignTask(null);
         }
-
         setAssignedUnit(null);
+
+        this.await();
+        this.reset();
+
         this.setPriority(this.getPriority() - 1);
         schedulers.forEach(s -> s.rebuildTask(this));
     }

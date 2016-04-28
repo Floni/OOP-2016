@@ -26,6 +26,8 @@ import java.util.ArrayList;
  *
  */
 
+// TODO: redo all comments in Unit & World
+
 /**
  * The unit class, this class keeps tracks of the unit's position, speed and other attributes.
  * It provides methods to move, to attack or to rest.
@@ -224,9 +226,14 @@ public class Unit {
      *          | !this.getWorld().getUnits().contains(this)
      * @post    The unit's world will be set to null
      *          | new.getWorld() == null
+     *
+     * @effect  If the unit is carrying an item, drop it
+     *          | if (this.isCarryingBoulder() || this.isCarryingLog())
+     *          |   this.dropCarry(this.getPosition().toIntVector())
      */
     public void terminate() {
-        // TODO: drop carry
+        if (this.isCarryingBoulder() || this.isCarryingLog())
+            this.dropCarry(this.getPosition().toIntVector());
         currentActivity = null;
         lastActivity = null;
 
@@ -278,6 +285,7 @@ public class Unit {
      * @param   dt
      *          The time step taken between frames.
      *
+     * @post    If the unit isn't alive then this method has no effect.
      * @post    If the unit is moving then:
      *          0: If default behaviour is enabled, the unit has a small chance to start sprinting.
      *          1: If the unit is sprinting the unit's stamina is decreased with one:
@@ -328,8 +336,6 @@ public class Unit {
      * @effect  A unit will take falling damage.
      *          | this.deduceHitPoints()
      *
-     *
-     * // TODO: isAlive()?
      * @throws  IllegalArgumentException
      *          The given time step was to big or negative.
      */
@@ -414,13 +420,18 @@ public class Unit {
         if (!canSwitchActivity())
             throw new InvalidActionException("can't change activity");
 
-        if (getCurrentActivity() == moveActivity && newActivity != moveActivity.getPendingActivity()) {
-            moveActivity.setPendingActivity(newActivity); // TODO: reset & check this function
+        if (getCurrentActivity() == moveActivity &&
+                newActivity != moveActivity && newActivity != moveActivity.getPendingActivity()) {
+            if (moveActivity.getPendingActivity() != null)
+                moveActivity.getPendingActivity().reset();
+            moveActivity.setPendingActivity(newActivity);
         } else {
             // don't do the same activity twice
             if (newActivity != this.getCurrentActivity()) {
                 getLastActivity().reset();
                 setLastActivity(getCurrentActivity());
+            } else {
+                getCurrentActivity().reset();
             }
             setCurrentActivity(newActivity);
         }

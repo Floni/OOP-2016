@@ -51,11 +51,6 @@ public class MoveToStatement implements Statement, ActivityTracker {
         task.await();
     }
 
-    @Override
-    public void isValid(BreakChecker breakChecker) {
-        // NOP
-    }
-
     private PositionExpression getExpression() {
         return expression;
     }

@@ -56,11 +56,4 @@ public class FollowStatement implements Statement, ActivityTracker {
         }
         task.await();
     }
-
-    @Override
-    public void isValid(BreakChecker breakChecker) {
-
-    }
-
-
 }

@@ -25,7 +25,8 @@ public class BreakStatement implements Statement {
     }
 
     @Override
-    public void isValid(BreakChecker breakChecker) {
+    public BreakChecker checkValid(BreakChecker breakChecker) {
         breakChecker.testBreak();
+        return breakChecker;
     }
 }

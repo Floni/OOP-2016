@@ -28,9 +28,11 @@ public interface Statement {
     void execute(Task task) throws TaskErrorException, TaskInterruptException, BreakException;
 
     /**
-     *
+     * Checks if the Statement is valid, returns the break checker it was passed.
      */
-    void isValid(BreakChecker breakChecker);
+    default BreakChecker checkValid(BreakChecker breakChecker) {
+        return breakChecker;
+    }
 }
 
 

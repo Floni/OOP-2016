@@ -45,11 +45,6 @@ public class AttackStatement implements Statement, ActivityTracker {
     }
 
     @Override
-    public void isValid(BreakChecker breakChecker) {
-        // NOP
-    }
-
-    @Override
     public void setDone() {
         this.done = true;
     }

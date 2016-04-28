@@ -50,10 +50,11 @@ public class WhileStatement implements Statement {
     }
 
     @Override
-    public void isValid(BreakChecker breakChecker) {
+    public BreakChecker checkValid(BreakChecker breakChecker) {
         breakChecker.enterWhile();
-        body.isValid(breakChecker);
+        body.checkValid(breakChecker);
         breakChecker.exitWhile();
+        return breakChecker;
     }
 
 }

@@ -3,6 +3,7 @@ package hillbillies.model.programs;
 import hillbillies.model.Faction;
 import hillbillies.model.Task;
 import hillbillies.model.World;
+import hillbillies.model.programs.exceptions.TaskErrorException;
 import hillbillies.model.programs.exceptions.TaskInterruptException;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.vector.*;
@@ -75,11 +76,6 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
             public void execute(Task task) {
                 done = true;
                 System.out.println(value.getValue(task));
-            }
-
-            @Override
-            public void isValid(BreakChecker breakChecker) {
-                // NOP
             }
         };
     }
@@ -207,7 +203,8 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public Expression<?> createSelectedPosition(SourceLocation sourceLocation) {
-        return (PositionExpression) Task::getSelectedPosition; // TODO: throw if no selected?
+        return (PositionExpression) (task) -> task.getSelectedPosition()
+                .orElseThrow(() -> new TaskErrorException("selected used in program, but task has no selected cubes"));
     }
 
     @Override
