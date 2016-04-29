@@ -9,6 +9,7 @@ import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.exceptions.UnreachableTargetException;
 import hillbillies.model.programs.statement.ActivityTracker;
+import hillbillies.model.util.PathFinder;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
 

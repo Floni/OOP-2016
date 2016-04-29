@@ -1,10 +1,8 @@
 package hillbillies.tests.model.list;
 
-import hillbillies.model.list.SortedLinkedList;
+import hillbillies.model.util.SortedLinkedList;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Collection;
 
 import static org.junit.Assert.*;
 

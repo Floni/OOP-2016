@@ -5,6 +5,7 @@ import be.kuleuven.cs.som.annotate.Model;
 import hillbillies.model.exceptions.InvalidCubeTypeException;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.unit.Unit;
+import hillbillies.model.util.PathFinder;
 import hillbillies.model.vector.IntVector;
 import hillbillies.part2.listener.TerrainChangeListener;
 import hillbillies.util.ConnectedToBorder;
@@ -15,6 +16,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+// TODO: check everything
 
 /**
  * Class representing a world.

@@ -1,4 +1,4 @@
-package hillbillies.model;
+package hillbillies.model.util;
 
 import java.util.*;
 import java.util.stream.Stream;

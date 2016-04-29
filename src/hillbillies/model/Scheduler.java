@@ -1,9 +1,8 @@
 package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
-import hillbillies.model.list.SortedLinkedList;
+import hillbillies.model.util.SortedLinkedList;
 import hillbillies.model.unit.Unit;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
 import java.util.stream.Stream;

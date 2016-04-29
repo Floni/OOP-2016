@@ -1,6 +1,6 @@
 package hillbillies.tests.model;
 
-import hillbillies.model.PathFinder;
+import hillbillies.model.util.PathFinder;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.World;
 import org.junit.Before;

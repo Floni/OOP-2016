@@ -1,4 +1,4 @@
-package hillbillies.model.list;
+package hillbillies.model.util;
 
 import java.util.*;
 
