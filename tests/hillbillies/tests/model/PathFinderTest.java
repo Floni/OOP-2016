@@ -1,5 +1,6 @@
 package hillbillies.tests.model;
 
+import hillbillies.model.Terrain;
 import hillbillies.model.util.PathFinder;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.World;
@@ -24,7 +25,7 @@ public class PathFinderTest {
         pathFinder = new PathFinder<>(new PathFinder.PathGlue<IntVector>() {
             @Override
             public Stream<IntVector> getNeighbours(IntVector pos) {
-                return World.getNeighbours(pos);
+                return Terrain.getNeighbours(pos);
             }
 
             @Override

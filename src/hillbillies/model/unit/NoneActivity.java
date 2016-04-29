@@ -1,5 +1,6 @@
 package hillbillies.model.unit;
 
+import hillbillies.model.Terrain;
 import hillbillies.model.World;
 import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.exceptions.UnreachableTargetException;
@@ -58,9 +59,11 @@ class NoneActivity extends Activity {
                     case 3: // move
                         IntVector randPos;
                         do {
-                            randPos = new IntVector(Math.random()*getUnit().getWorld().X_MAX,
-                                    Math.random()*getUnit().getWorld().Y_MAX,
-                                    Math.random()*getUnit().getWorld().Z_MAX);
+                            randPos = new IntVector(
+                                        Math.random()*getUnit().getWorld().getTerrain().getMaxX(),
+                                        Math.random()*getUnit().getWorld().getTerrain().getMaxY(),
+                                        Math.random()*getUnit().getWorld().getTerrain().getMaxZ()
+                                      );
                             if (getUnit().isValidPosition(randPos)) {
                                 try {
                                     getUnit().moveTo(randPos);
@@ -70,8 +73,8 @@ class NoneActivity extends Activity {
                         } while (true);
                         break;
                     case 0: // work
-                        List<IntVector> neighbours = World.getNeighbours(getUnit().getPosition().toIntVector())
-                                .filter(v -> getUnit().getWorld().isValidPosition(v)).collect(Collectors.toList());
+                        List<IntVector> neighbours = Terrain.getNeighbours(getUnit().getPosition().toIntVector())
+                                .filter(v -> getUnit().getWorld().getTerrain().isValidPosition(v)).collect(Collectors.toList());
                         getUnit().workAt(neighbours.get((int)(Math.random() * neighbours.size())));
                         break;
                     case 1: // rest

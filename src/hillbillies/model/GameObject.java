@@ -38,14 +38,22 @@ public abstract class GameObject {
      * @post    The weight of the object is random between 10 and 50.
      *
      * @effect  The position is set
-     *          | new.setPosition(location.toVector().add(World.Lc/2))
+     *          | new.setPosition(location.toVector().add(Terrain.Lc/2))
      *
      */
     protected GameObject(World world, IntVector location) throws InvalidPositionException {
         this.world = world;
-        setPosition(location.toVector().add(World.Lc/2));
+        setPosition(location.toVector().add(Terrain.Lc/2));
         this.weight = (int)Math.floor(Math.random()*41 + 10);
         this.falling = false;
+    }
+
+    /**
+     * Returns the world this gameObject belongs to.
+     */
+    @Basic @Immutable
+    private World getWorld() {
+        return this.world;
     }
 
     /**
@@ -67,15 +75,15 @@ public abstract class GameObject {
      */
     public void advanceTime(double dt) {
         IntVector cubePos = getPosition().toIntVector();
-        if (!(cubePos.getZ() == 0 || World.isSolid(world.getCubeType(cubePos.add(0, 0, -1))))
-                || (getPosition().getZ() - Math.floor(getPosition().getZ())) > World.Lc/2) {
+        if (!(cubePos.getZ() == 0 || Terrain.isSolid(getWorld().getTerrain().getCubeType(cubePos.add(0, 0, -1))))
+                || (getPosition().getZ() - Math.floor(getPosition().getZ())) > Terrain.Lc/2) {
             setPosition(getPosition().add(0, 0, FALL_SPEED * dt));
             falling = true;
-            world.removeCubeObject(this);
+            getWorld().getTerrain().removeCubeObject(this); // remove from terrain but keep in world.
         } else {
             if (falling) {
-                setPosition(new Vector(getPosition().getX(), getPosition().getY(), getPosition().toIntVector().getZ() + World.Lc/2));
-                world.addCubeObject(this);
+                setPosition(new Vector(getPosition().getX(), getPosition().getY(), getPosition().toIntVector().getZ() + Terrain.Lc/2));
+                getWorld().getTerrain().addCubeObject(this); // add to terrain.
             }
             falling = false;
         }
@@ -94,7 +102,8 @@ public abstract class GameObject {
      *          The position is not valid or the position is a solid cube.
      */
     public void setPosition(Vector pos) throws InvalidPositionException {
-        if (!world.isValidPosition(pos.toIntVector()) || World.isSolid(world.getCubeType(pos.toIntVector())))
+        if (!getWorld().getTerrain().isValidPosition(pos.toIntVector())
+                || Terrain.isSolid(getWorld().getTerrain().getCubeType(pos.toIntVector())))
             throw new InvalidPositionException(pos);
         this.position = pos;
     }

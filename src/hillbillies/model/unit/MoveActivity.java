@@ -3,6 +3,7 @@ package hillbillies.model.unit;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
+import hillbillies.model.Terrain;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.UnreachableTargetException;
 import hillbillies.model.vector.IntVector;
@@ -192,7 +193,7 @@ class MoveActivity extends Activity {
         if (!unit.isStablePosition(neighbour) || !unit.isValidPosition(neighbour))
             throw new InvalidPositionException("Invalid neighbour: ", neighbour);
 
-        this.targetNeighbour = neighbour.toVector().add(World.Lc/2);
+        this.targetNeighbour = neighbour.toVector().add(Terrain.Lc/2);
         this.speed = calculateSpeed(this.targetNeighbour);
         unit.setOrientation(Math.atan2(this.speed.getY(), this.speed.getX()));
     }

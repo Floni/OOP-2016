@@ -28,51 +28,13 @@ import java.util.stream.Stream;
  *
  */
 public class World {
-    /**
-     * Class representing a cube in the world.
-     */
-    private static class Cube {
-        Cube(int type) {
-            this.type = type;
-            this.gameObjects = new HashSet<>();
-        }
-        public int type;
-
-        /**
-         * Set of all GameObject laying on this cube.
-         * @invar The set must be effective.
-         * @invar Each GameObject must be effective.
-         * @invar Each GameObjects position must be this cube.
-         */
-        final Set<GameObject> gameObjects;
-    }
-
-
     //<editor-fold desc="Constants">
-    public static final int AIR = 0;
-    public static final int WORKSHOP = 3;
-    public static final int ROCK = 1;
-    public static final int TREE = 2;
-
-    public static final double Lc = 1.0;
     private static final int MAX_UNITS = 100;
     private static final int MAX_FACTIONS = 5;
     //</editor-fold>
 
     //<editor-fold desc="Variables">
-    public final int X_MAX;
-    public final int Y_MAX;
-    public final int Z_MAX;
-
-    private final TerrainChangeListener updateListener;
-
-    /**
-     * A 3 dimensional array of all cubes in the world.
-     *
-     * @invar   The array must be effective.
-     * @invar   Each cube must be effective.
-     */
-    private final Cube[][][] cubes;
+    private final Terrain terrain;
 
     private int totalUnits;
     /**
@@ -100,12 +62,10 @@ public class World {
      */
     private final Set<IntVector> workshops;
 
-    private final ConnectedToBorder connectedToBorder;
     private final PathFinder<IntVector> pathFinder;
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
-
     /**
      * Creates a new world.
      *
@@ -123,43 +83,16 @@ public class World {
      *          Thrown if terrainTypes or modelListener was null.
      */
     public World(int[][][] terrainTypes, TerrainChangeListener modelListener) throws IllegalArgumentException {
-        if (terrainTypes == null|| modelListener == null)
-            throw new IllegalArgumentException("no terrain types given");
-
-        this.updateListener = modelListener;
-
-        this.X_MAX = terrainTypes.length;
-        this.Y_MAX = terrainTypes[0].length;
-        this.Z_MAX = terrainTypes[0][0].length;
-
-        this.cubes = new Cube[X_MAX][Y_MAX][Z_MAX];
-
-        connectedToBorder = new ConnectedToBorder(X_MAX, Y_MAX, Z_MAX);
-
         this.factions = new HashSet<>();
         this.gameObjects = new HashSet<>();
         this.workshops = new HashSet<>();
 
-        Set<IntVector> startCaveIn = new HashSet<>();
-
-        for (int x = 0; x < X_MAX; x++) {
-            for (int y = 0; y < Y_MAX; y++) {
-                for (int z = 0; z < Z_MAX; z++) {
-                    this.cubes[x][y][z] = new Cube(terrainTypes[x][y][z]);
-                    if (terrainTypes[x][y][z] == WORKSHOP)
-                        workshops.add(new IntVector(x, y, z));
-                    if (!isSolid(terrainTypes[x][y][z]))
-                       startCaveIn.addAll(connectedToBorder.changeSolidToPassable(x, y, z).stream().map(IntVector::new).collect(Collectors.toSet()));
-                }
-            }
-        }
-
-        startCaveIn.forEach(this::breakCube);
+        this.terrain = new Terrain(this, terrainTypes, modelListener);
 
         this.pathFinder = new PathFinder<>(new PathFinder.PathGlue<IntVector>() {
             @Override
             public Stream<IntVector> getNeighbours(IntVector pos) {
-                return World.getNeighbours(pos).filter(n -> Unit.isValidPosition(World.this, n) && Unit.isStablePosition(World.this, n));
+                return Terrain.getNeighbours(pos).filter(n -> Unit.isValidPosition(World.this, n) && Unit.isStablePosition(World.this, n));
             }
 
             @Override
@@ -177,7 +110,6 @@ public class World {
     //</editor-fold>
 
     //<editor-fold desc="advanceTime">
-
     /**
      * Calls advanceTime on all Unit, Boulders and logs.
      *
@@ -197,154 +129,15 @@ public class World {
     }
     //</editor-fold>
 
-    /**
-     * Checks whether the given position is valid in the world.
-     *
-     * @param   pos
-     *          The position to be checked
-     * @return  result is true if the position is within world bounds.
-     */
-    public boolean isValidPosition(IntVector pos) {
-        return pos != null && pos.getX() >= 0 && pos.getX() < X_MAX && pos.getY() >= 0
-                && pos.getY() < Y_MAX && pos.getZ() >= 0 && pos.getZ() < Z_MAX;
-    }
-
     public PathFinder<IntVector> getPathFinder() {
         return pathFinder;
     }
 
-    //<editor-fold desc="Cubes">
-
-    /**
-     * Checks whether the given cube type is solid.
-     *
-     * @param   type
-     *          The type to be checked.
-     * @return  true if the type is solid.
-     */
-    public static boolean isSolid(int type) {
-        return type == ROCK || type == TREE;
+    public Terrain getTerrain() {
+        return terrain;
     }
 
-    /**
-     * Returns a cube object for the given location.
-     *
-     * @param   cubeLoc
-     *          The location
-     * @return  The cube at the given location
-     * @throws  InvalidPositionException
-     *          If the given position is invalid.
-     */
-    private Cube getCube(IntVector cubeLoc) throws InvalidPositionException {
-        if (!isValidPosition(cubeLoc))
-            throw new InvalidPositionException(cubeLoc);
-        return cubes[cubeLoc.getX()][cubeLoc.getY()][cubeLoc.getZ()];
-    }
-
-    /**
-     * Checks whether the cube at the given position has a path to the border.
-     *
-     * @param   pos
-     *          The position of the cube to be checked.
-     * @return  true of the cube is connected to the border.
-     * @throws  InvalidPositionException
-     *          If the given position is invalid.
-     */
-    public boolean isCubeConnected(IntVector pos) throws InvalidPositionException {
-        if (!isValidPosition(pos))
-            throw new InvalidPositionException(pos);
-        return connectedToBorder.isSolidConnectedToBorder(pos.getX(), pos.getY(), pos.getZ());
-    }
-
-    /**
-     * Gets the type of the cube at the given position.
-     *
-     * @param   cube
-     *          The location of the cube.
-     * @return  An integer representing the type of the cube.
-     * @throws  InvalidPositionException
-     *          If the given position is invalid
-     */
-    public int getCubeType(IntVector cube) throws InvalidPositionException {
-         return getCube(cube).type;
-    }
-
-    /**
-     * Sets the type of the cube at the given position.
-     *
-     * @param   pos
-     *          The position of the cube
-     * @param   type
-     *          The new type
-     *
-     * @post    The cube at position pos will have the given type and
-     *          any cubes that aren't connected to the border anymore will cave in (include the given cube).
-     *          When cubes cave in they may drop a boulder or a log.
-     *
-     * @throws  InvalidPositionException
-     *          If the given position is invalid.
-     */
-    public void setCubeType(IntVector pos, int type) throws InvalidPositionException {
-        if (!isValidPosition(pos))
-            throw new InvalidPositionException(pos);
-        if (!isValidCubeType(type))
-            throw new InvalidCubeTypeException(type);
-
-        if (isSolid(getCubeType(pos)) && !isSolid(type)) {
-            for (int[] cord : connectedToBorder.changeSolidToPassable(pos.getX(), pos.getY(), pos.getZ())) {
-                breakCube(new IntVector(cord));
-                updateListener.notifyTerrainChanged(cord[0], cord[1], cord[2]);
-            }
-        }
-
-        if (type == WORKSHOP)
-            workshops.add(pos);
-
-        cubes[pos.getX()][pos.getY()][pos.getZ()].type = type;
-        updateListener.notifyTerrainChanged(pos.getX(), pos.getY(), pos.getZ());
-    }
-
-    private boolean isValidCubeType(int type) {
-        return type >= 0 && type < 4;
-    }
-
-    /**
-     * Drops an GameObject at the given position with a chance of 0.25.
-     *
-     * @param   location
-     *          The location to drop.
-     * @param   type
-     *          Determines the type of object to drop.
-     *
-     * @post    If a drop occurs a boulder or log will be added at the given position.
-     */
-    private void dropChance(IntVector location, int type) {
-        if (Math.random() < 0.25) {
-            if (type == World.ROCK) {
-                addGameObject(location, new Boulder(this, location));
-            } else if (type == World.TREE) {
-                addGameObject(location, new Log(this, location));
-            }
-        }
-    }
-
-    /**
-     * Break a cube at the given position.
-     *
-     * @param   location
-     *          The location of the cube.
-     *
-     * @post    The type of the cube at the given location will be AIR.
-     *
-     * @effect  There is a chance to drop an boulder or log.
-     *          | this.dropChance(location, this.getCubeType(location))
-     */
-    public void breakCube(IntVector location) {
-        int type = getCubeType(location);
-        setCubeType(location, AIR);
-        dropChance(location, type);
-    }
-
+    //<editor-fold desc="Logs and Boulders">
     /**
      * Returns a stream of all locations where a workshop is.
      *
@@ -354,9 +147,10 @@ public class World {
     public Stream<IntVector> getAllWorkshops() {
         return workshops.stream();
     }
-    //</editor-fold>
 
-    //<editor-fold desc="Logs and Boulders">
+    public void addWorkShop(IntVector position) {
+        this.workshops.add(position);
+    }
 
     /**
      * Returns all the logs in the world.
@@ -377,61 +171,47 @@ public class World {
     }
 
     /**
-     * Returns all the logs at the given location.
-     * @param   cubeLoc
-     *          The location of the cube.
-     * @throws  InvalidPositionException
-     *          If the given position is not valid.
-     */
-    @Basic
-    public Set<Log> getLogs(IntVector cubeLoc) throws InvalidPositionException {
-        Cube cube = getCube(cubeLoc);
-        return cube.gameObjects.stream().filter(o -> o instanceof Log)
-                .map(Log.class::cast).collect(Collectors.toSet());
-    }
-
-    /**
-     * Returns all the boulders at the given location.
-     * @param   cubeLoc
-     *          The location of the cube.
-     * @throws  InvalidPositionException
-     *          If the given position is not valid.
-     */
-    @Basic
-    public Set<Boulder> getBoulders(IntVector cubeLoc) throws InvalidPositionException {
-        Cube cube = getCube(cubeLoc);
-        return cube.gameObjects.stream().filter(o -> o instanceof Boulder)
-                .map(Boulder.class::cast).collect(Collectors.toSet());
-    }
-
-    /**
      *  Adds the given gameObject to the world at the given position.
      *
-     * @param   cubeLoc
-     *          The location of the gameObject.
      * @param   gameObject
      *          The gameObject.
      *
      * @post    The position of the gameObject is set to the given cube.
      * @post    The world contains the gameObject and the cube at the given locations will contain the gameObject.
      */
-    public void addGameObject(IntVector cubeLoc, GameObject gameObject) throws InvalidPositionException {
-        gameObject.setPosition(cubeLoc.toVector().add(Lc/2));
-        Cube cube = getCube(cubeLoc);
-        gameObjects.add(gameObject);
-        cube.gameObjects.add(gameObject);
+    public void addGameObject(GameObject gameObject) throws InvalidPositionException {
+        this.gameObjects.add(gameObject);
+        this.getTerrain().addCubeObject(gameObject);
+    }
+
+    /**
+     * Drops an GameObject at the given position with a chance of 0.25.
+     *
+     * @param   location
+     *          The location to drop.
+     * @param   type
+     *          Determines the type of object to drop.
+     *
+     * @post    If a drop occurs a boulder or log will be added at the given position.
+     */
+    public void dropChance(IntVector location, int type) {
+        if (Math.random() < 0.25) {
+            if (type == Terrain.ROCK) {
+                this.addGameObject(new Boulder(this, location));
+            } else if (type == Terrain.TREE) {
+                this.addGameObject(new Log(this, location));
+            }
+        }
     }
 
     /**
      * Removes one Log from the cube at the given position.
      *
-     * @param   cubeLoc
-     *          The position of the cube.
-     *
-     * @post    If the cube at the given position has Logs, one is removed.
+     * @param cubeLoc The position of the cube.
+     * @post If the cube at the given position has Logs, one is removed.
      */
     public void consumeLog(IntVector cubeLoc) {
-        Set<Log> cubeLogs = getLogs(cubeLoc);
+        Set<Log> cubeLogs = this.getTerrain().getLogs(cubeLoc);
         if (cubeLogs.size() >= 1)
             removeGameObject(cubeLogs.iterator().next());
     }
@@ -445,7 +225,7 @@ public class World {
      * @post    If the cube at the given position has Boulders, one is removed.
      */
     public void consumeBoulder(IntVector cubeLoc) {
-        Set<Boulder> boulders = getBoulders(cubeLoc);
+        Set<Boulder> boulders = this.getTerrain().getBoulders(cubeLoc);
         if (boulders.size() >= 1)
             removeGameObject(boulders.iterator().next());
     }
@@ -461,30 +241,8 @@ public class World {
      *          | removeCubeObject(object)
      */
     public void removeGameObject (GameObject object) {
-        removeCubeObject(object);
+        this.getTerrain().removeCubeObject(object);
         gameObjects.remove(object);
-    }
-
-    /**
-     * Removes the given object from its cube.
-     *
-     * @param   object
-     *          The object to be removed
-     * @post    The cube where the object was positioned won't contain the object anymore.
-     */
-    public void removeCubeObject(GameObject object) {
-        getCube(object.getPosition().toIntVector()).gameObjects.remove(object);
-    }
-
-    /**
-     * Adds an gameObject to its cube.
-     *
-     * @param   object
-     *          The gameObject to add to its cube.
-     * @post    The cube given by the gameObjects position will now contain the gameObject.
-     */
-    public void addCubeObject(GameObject object) {
-        getCube(object.getPosition().toIntVector()).gameObjects.add(object);
     }
     //</editor-fold>
 
@@ -539,10 +297,11 @@ public class World {
     public Unit spawnUnit(boolean defaultBehaviour) {
         IntVector randPos;
         do {
-            randPos = new IntVector(Math.random()*X_MAX,
-                    Math.random()*Y_MAX,
-                    Math.random()*Z_MAX);
-        } while (!isValidPosition(randPos) || isSolid(getCubeType(randPos)) || (randPos.getZ() != 0 && !isSolid(getCubeType(randPos.add(0, 0, -1)))));
+            randPos = new IntVector(Math.random()*this.getTerrain().getMaxX(),
+                    Math.random()*this.getTerrain().getMaxY(),
+                    Math.random()*this.getTerrain().getMaxZ());
+        } while (!this.getTerrain().isValidPosition(randPos) || Terrain.isSolid(this.getTerrain().getCubeType(randPos))
+                || (randPos.getZ() != 0 && !Terrain.isSolid(this.getTerrain().getCubeType(randPos.add(0, 0, -1))))); // TODO: add getRandPos to terrain?
 
         // shouldn't throw because name is valid & position is valid.
         Unit unit = new Unit("Spawn", randPos.getX(), randPos.getY(), randPos.getZ(), getRandomAttribute(), getRandomAttribute(),
@@ -610,65 +369,6 @@ public class World {
         unitFac.removeUnit(unit);
         if (unitFac.getFactionSize() <= 0)
             factions.remove(unitFac);
-    }
-    //</editor-fold>
-
-    //<editor-fold desc="Neighbours">
-    private static final int[][] neighbourOffsets = new int[][] {
-
-            { -1, 0, 0 },
-            { +1, 0, 0 },
-            { 0, -1, 0 },
-            { 0, +1, 0 },
-            { 0, 0, -1 },
-            { 0, 0, +1 },
-
-            { -1, -1, -1},
-            { -1, -1, 0 },
-            { -1, 0, -1 },
-            { 0, -1, -1 },
-
-            { +1, +1, +1},
-            { +1, +1, 0 },
-            { +1, 0, +1 },
-            { 0, +1, +1 },
-
-            { +1 , -1, +1},
-            { +1 , +1, -1},
-            { -1 , +1, +1},
-            { -1 , -1, +1},
-            { -1 , +1, -1},
-            { +1 , -1, -1},
-
-            { +1, -1, 0 },
-            { 0, +1, -1 },
-            { -1, 0, +1 },
-            { +1, 0, -1 },
-            { 0, -1, +1 },
-            { -1, +1 , 0}
-
-    };
-
-    /**
-     * Returns a stream of all neighbours to the given position.
-     *
-     * @param   pos
-     *          The position to get all neighbours from.
-     * @return  an stream gotten by adding each offset [-1, 0, 1] to the position.
-     */
-    public static Stream<IntVector> getNeighbours(IntVector pos) {
-        return Arrays.stream(neighbourOffsets).map(offset -> pos.add(offset[0], offset[1], offset[2]));
-    }
-
-    /**
-     * Returns a stream of all neighbours to the given position.
-     *
-     * @param   pos
-     *          The position to get all neighbours from.
-     * @return  an stream gotten by adding each offset [-1, 0, 1] to the position but no diagonal positions.
-     */
-    public static Stream<IntVector> getDirectlyAdjacent(IntVector pos) {
-        return Arrays.stream(neighbourOffsets).limit(6).map(offset -> pos.add(offset[0], offset[1], offset[2]));
     }
     //</editor-fold>
 }

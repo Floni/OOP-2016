@@ -1,6 +1,7 @@
 package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import hillbillies.model.Terrain;
 import hillbillies.model.World;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.InvalidUnitException;
@@ -44,7 +45,7 @@ class FollowActivity extends MoveActivity{
      */
     @Override
     void advanceTime(double dt) {
-        if (getOther() != null && getUnit().getPosition().subtract(getUnit().getPosition().toIntVector().toVector()).isEqualTo(new Vector(World.Lc / 2, World.Lc / 2, World.Lc / 2), Unit.POS_EPS)) {
+        if (getOther() != null && getUnit().getPosition().subtract(getUnit().getPosition().toIntVector().toVector()).isEqualTo(new Vector(Terrain.Lc / 2, Terrain.Lc / 2, Terrain.Lc / 2), Unit.POS_EPS)) {
             if (this.getUnit().getPosition().isNextTo(getOther().getPosition()) || !other.isAlive()) {
                 this.finishActivity();
                 return;

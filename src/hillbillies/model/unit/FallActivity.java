@@ -2,6 +2,7 @@ package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
+import hillbillies.model.Terrain;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
 import hillbillies.model.World;
@@ -56,11 +57,11 @@ class FallActivity extends Activity {
 
         IntVector newCube = newPosition.toIntVector();
         //if (newCube.getZ() == 0 || World.isSolid(unit.getWorld().getCubeType(newCube.add(0, 0, -1)))) {
-        if ((newCube.getZ() == 0 || World.isSolid(getUnit().getWorld().getCubeType(newCube.add(0, 0, -1))))
-                && (newPosition.getZ() - Math.floor(newPosition.getZ())) <= World.Lc/2.0) {
+        if ((newCube.getZ() == 0 || Terrain.isSolid(getUnit().getWorld().getTerrain().getCubeType(newCube.add(0, 0, -1))))
+                && (newPosition.getZ() - Math.floor(newPosition.getZ())) <= Terrain.Lc/2.0) {
 
             getUnit().setPosition(new Vector(getUnit().getPosition().getX(),
-                    getUnit().getPosition().getY(), Math.floor(getUnit().getPosition().getZ()) + World.Lc / 2.0));
+                    getUnit().getPosition().getY(), Math.floor(getUnit().getPosition().getZ()) + Terrain.Lc / 2.0));
 
             int diffZ = this.getStartPosition().toIntVector().subtract(newCube).getZ();
             getUnit().deduceHitPoints(10*diffZ);

@@ -173,7 +173,7 @@ public class Unit {
     public Unit(String name, int x, int y, int z, int weight, int strength, int agility, int toughness)
             throws IllegalArgumentException, InvalidPositionException {
         setName(name);
-        Vector position = new Vector(x, y, z).add(World.Lc/2);
+        Vector position = new Vector(x, y, z).add(Terrain.Lc/2);
         setPosition(position);
 
         if (toughness < 25)
@@ -493,13 +493,20 @@ public class Unit {
      */
     public static boolean isStablePosition(World world, IntVector cube) {
         // next to edges or a neighbour is solid
-        return  cube.getX() == 0 || cube.getX() == world.X_MAX - 1 || cube.getY() == 0 ||
-                cube.getY() == world.Y_MAX - 1 || cube.getZ() == 0 || cube.getZ() == world.Z_MAX - 1 ||
-                World.getNeighbours(cube).anyMatch(p ->
-                    World.isSolid(world.getCubeType(p)));
-
+        return  cube.getX() == 0 || cube.getX() == world.getTerrain().getMaxX() - 1 ||
+                cube.getY() == 0 || cube.getY() == world.getTerrain().getMaxY() - 1 ||
+                cube.getZ() == 0 || cube.getZ() == world.getTerrain().getMaxZ() - 1 ||
+                Terrain.getNeighbours(cube).anyMatch(p -> Terrain.isSolid(world.getTerrain().getCubeType(p)));
     }
 
+    /**
+     * Check whether the cube is a stable position for unit's to be at.
+     *
+     * @param   cube
+     *          The cube to check.
+     * @return  TODO
+     *          | result == Unit.isStablePosition(this.getWorld(), cube)
+     */
     public boolean isStablePosition(IntVector cube) {
         return Unit.isStablePosition(getWorld(), cube);
     }
@@ -513,11 +520,12 @@ public class Unit {
      * @return  True if the given position is within the boundaries of the world and if it is not solid or
      *          if the world is null.
      *          | result == ((getWorld().isValidPosition(cubePos)) && (!World.isSolid(world.getCubeType(cubePos))) ||
-     *          |           (this.getWorld() == null)
+     *          |           (this.getWorld() == null) TODO
      */
     public static boolean isValidPosition(World world, IntVector cubePos) {
-        return world == null || (world.isValidPosition(cubePos) &&
-                !World.isSolid(world.getCubeType(cubePos)));
+        return  world == null ||
+                (world.getTerrain().isValidPosition(cubePos) &&
+                    !Terrain.isSolid(world.getTerrain().getCubeType(cubePos)));
     }
 
     public boolean isValidPosition(IntVector pos) {
@@ -1271,10 +1279,12 @@ public class Unit {
      */
     void dropCarry(IntVector workLoc) {
         if (isCarryingLog()) {
-            world.addGameObject(workLoc, carryLog);
+            carryLog.setPosition(workLoc.toVector().add(Terrain.Lc/2));
+            world.addGameObject(carryLog);
             carryLog = null;
         } else if (isCarryingBoulder()) {
-            world.addGameObject(workLoc, carryBoulder);
+            carryBoulder.setPosition(workLoc.toVector().add(Terrain.Lc/2));
+            world.addGameObject(carryBoulder);
             carryBoulder = null;
         }
     }

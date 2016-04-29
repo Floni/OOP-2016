@@ -42,7 +42,7 @@ public class MoveToStatement implements Statement, ActivityTracker {
             task.getAssignedUnit().moveTo(target);
             task.getAssignedUnit().setActivityTracker(this);
         } catch (UnreachableTargetException | InvalidActionException | InvalidPositionException err) {
-            if (!task.getAssignedUnit().getWorld().isValidPosition(target))
+            if (!task.getAssignedUnit().getWorld().getTerrain().isValidPosition(target))
                 throw new TaskErrorException(err.getMessage());
             else
                 throw new TaskInterruptException(err.getMessage());

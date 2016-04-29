@@ -1,6 +1,7 @@
 package hillbillies.model.programs.expression;
 
 import hillbillies.model.Task;
+import hillbillies.model.Terrain;
 import hillbillies.model.World;
 import hillbillies.model.programs.exceptions.TaskErrorException;
 import hillbillies.model.programs.exceptions.TaskInterruptException;
@@ -27,7 +28,7 @@ public class NextToPositionExpression implements PositionExpression {
         World world = unit.getWorld();
         IntVector unitPos = unit.getPosition().toIntVector();
 
-        return World.getNeighbours(pos.getValue(task))
+        return Terrain.getNeighbours(pos.getValue(task))
                 .filter(p -> unit.isValidPosition(p)
                         && unit.isStablePosition(p)
                         && world.getPathFinder().isReachable(unitPos, p))

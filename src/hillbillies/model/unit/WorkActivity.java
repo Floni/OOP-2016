@@ -2,10 +2,10 @@ package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
+import hillbillies.model.Terrain;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
-import hillbillies.model.World;
 
 /**
  * The activity for working.
@@ -47,7 +47,7 @@ class WorkActivity extends Activity {
      *          | !unit.isValidPosition(location) || dist(unit.getPosition(), location) > 1
      */
     void workAt(IntVector location) throws IllegalArgumentException, InvalidPositionException {
-        if (!getUnit().getWorld().isValidPosition(location))
+        if (!getUnit().getWorld().getTerrain().isValidPosition(location))
             throw new InvalidPositionException(location);
 
         if (!location.isNextTo(getUnit().getPosition().toIntVector()))
@@ -56,7 +56,7 @@ class WorkActivity extends Activity {
         this.workTimer  = 500.0 / getUnit().getStrength();
         this.location = location;
 
-        Vector diff = location.toVector().add(World.Lc/2).subtract(getUnit().getPosition());
+        Vector diff = location.toVector().add(Terrain.Lc/2).subtract(getUnit().getPosition());
         getUnit().setOrientation(Math.atan2(diff.getY(), diff.getX()));
     }
 
@@ -86,26 +86,27 @@ class WorkActivity extends Activity {
         workTimer -= dt;
         if (this.getWorkTimer() <= 0) {
             if (getUnit().isCarryingLog() || getUnit().isCarryingBoulder()){ //BOULDER OR LOG
-                if (!World.isSolid(getUnit().getWorld().getCubeType(getLocation())))
+                if (!Terrain.isSolid(getUnit().getWorld().getTerrain().getCubeType(getLocation())))
                     getUnit().dropCarry(getLocation());
                 else
                     return; // don't add xp
-            } else if (getUnit().getWorld().getCubeType(getLocation()) == World.WORKSHOP &&
-                    getUnit().getWorld().getLogs(getLocation()).size() >= 1 && getUnit().getWorld().getBoulders(getLocation()).size() >= 1) {
+            } else if (getUnit().getWorld().getTerrain().getCubeType(getLocation()) == Terrain.WORKSHOP &&
+                       getUnit().getWorld().getTerrain().getLogs(getLocation()).size() >= 1 &&
+                       getUnit().getWorld().getTerrain().getBoulders(getLocation()).size() >= 1) {
 
                 getUnit().getWorld().consumeBoulder(getLocation());
                 getUnit().getWorld().consumeLog(getLocation());
 
                 getUnit().setWeight(getUnit().getWeight() + 1);
                 getUnit().setToughness(getUnit().getToughness() + 1);
-            } else if (getUnit().getWorld().getBoulders(getLocation()).size() >= 1) {
-                getUnit().pickUpBoulder(getUnit().getWorld().getBoulders(getLocation()).iterator().next());
-            } else if (getUnit().getWorld().getLogs(getLocation()).size() >= 1) {
-                getUnit().pickUpLog(getUnit().getWorld().getLogs(getLocation()).iterator().next());
-            } else if (getUnit().getWorld().getCubeType(getLocation()) == World.TREE) {
-                getUnit().getWorld().breakCube(getLocation());
-            } else if (getUnit().getWorld().getCubeType(getLocation()) == World.ROCK) {
-                getUnit().getWorld().breakCube(getLocation());
+            } else if (getUnit().getWorld().getTerrain().getBoulders(getLocation()).size() >= 1) {
+                getUnit().pickUpBoulder(getUnit().getWorld().getTerrain().getBoulders(getLocation()).iterator().next());
+            } else if (getUnit().getWorld().getTerrain().getLogs(getLocation()).size() >= 1) {
+                getUnit().pickUpLog(getUnit().getWorld().getTerrain().getLogs(getLocation()).iterator().next());
+            } else if (getUnit().getWorld().getTerrain().getCubeType(getLocation()) == Terrain.TREE) {
+                getUnit().getWorld().getTerrain().breakCube(getLocation());
+            } else if (getUnit().getWorld().getTerrain().getCubeType(getLocation()) == Terrain.ROCK) {
+                getUnit().getWorld().getTerrain().breakCube(getLocation());
             }
             getUnit().addXp(10);
 

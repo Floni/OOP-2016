@@ -1,15 +1,12 @@
 package hillbillies.tests.model;
 
-import hillbillies.model.Boulder;
-import hillbillies.model.Faction;
-import hillbillies.model.Log;
+import hillbillies.model.*;
 import hillbillies.model.exceptions.InvalidActionException;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
-import hillbillies.model.World;
 import ogp.framework.util.ModelException;
 import ogp.framework.util.Util;
 import org.junit.After;
@@ -305,7 +302,7 @@ public class UnitTest {
     public void setWorld() throws Exception {
         Unit unit = new Unit("Test", 0, 0, 0, 50, 50, 50, 50);
         unit.setWorld(world);
-        unit.setPosition(new Vector(world.X_MAX, 0, 0));
+        unit.setPosition(new Vector(world.getTerrain().getMaxX(), 0, 0));
         unit.terminate();
     }
 
@@ -320,19 +317,19 @@ public class UnitTest {
 
     @Test
     public void testWorkAtLog() throws Exception {
-        world.setCubeType(new IntVector(0, 0, 0), World.TREE);
+        world.getTerrain().setCubeType(new IntVector(0, 0, 0), Terrain.TREE);
         unit.setPosition(new Vector(1.5, 1.5, 0.5));
         unit.workAt(new IntVector(0, 0, 0));
         advanceTimeFor(unit, 500.0 / unit.getStrength() + 1.0, 0.1);
         assertFalse(unit.isWorking());
-        assertEquals(World.AIR, world.getCubeType(new IntVector(0, 0, 0)));
+        assertEquals(Terrain.AIR, world.getTerrain().getCubeType(new IntVector(0, 0, 0)));
     }
 
 
     @Test
     public void isCarryingBoulder() throws Exception {
         Boulder boulder = new Boulder(world, new IntVector(0, 0, 0));
-        world.addGameObject(boulder.getPosition().toIntVector(), boulder);
+        world.addGameObject(boulder);
         unit.setPosition(new Vector(1.5, 1.5, 0.5));
         unit.workAt(boulder.getPosition().toIntVector());
         advanceTimeFor(unit,  500.0 / unit.getStrength() + 1.0, 0.1);
@@ -342,7 +339,7 @@ public class UnitTest {
     @Test
     public void isCarryingLog() throws Exception {
         Log log = new Log(world, new IntVector(0, 0, 0));
-        world.addGameObject(log.getPosition().toIntVector(), log);
+        world.addGameObject(log);
         unit.setPosition(new Vector(1.5, 1.5, 0.5));
         unit.workAt(log.getPosition().toIntVector());
         advanceTimeFor(unit,  500.0 / unit.getStrength() + 1.0, 0.1);
@@ -387,7 +384,7 @@ public class UnitTest {
         world.addUnit(unit);
         unit.moveTo(new IntVector(4, 0, 0));
         advanceTimeFor(unit, 0.2, 0.1);
-        world.setCubeType(new IntVector(3, 0, 0), World.ROCK);
+        world.getTerrain().setCubeType(new IntVector(3, 0, 0), Terrain.ROCK);
         advanceTimeFor(unit, 10, 0.1);
         assertEquals(new Vector(4.5, 0.5, 0.5), unit.getPosition());
     }

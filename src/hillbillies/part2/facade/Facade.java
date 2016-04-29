@@ -24,17 +24,17 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public int getNbCubesX(World world) throws ModelException {
-        return world.X_MAX;
+        return world.getTerrain().getMaxX();
     }
 
     @Override
     public int getNbCubesY(World world) throws ModelException {
-        return world.Y_MAX;
+        return world.getTerrain().getMaxY();
     }
 
     @Override
     public int getNbCubesZ(World world) throws ModelException {
-        return world.Z_MAX;
+        return world.getTerrain().getMaxZ();
     }
 
     @Override
@@ -49,7 +49,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
     @Override
     public int getCubeType(World world, int x, int y, int z) throws ModelException {
         try {
-            return world.getCubeType(new IntVector(x, y, z));
+            return world.getTerrain().getCubeType(new IntVector(x, y, z));
         } catch (InvalidPositionException err) {
             throw new ModelException(err);
         }
@@ -58,7 +58,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
     @Override
     public void setCubeType(World world, int x, int y, int z, int value) throws ModelException {
         try {
-            world.setCubeType(new IntVector(x, y, z), value);
+            world.getTerrain().setCubeType(new IntVector(x, y, z), value);
         } catch (InvalidPositionException | InvalidCubeTypeException err) {
             throw new ModelException(err);
         }
@@ -67,7 +67,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
     @Override
     public boolean isSolidConnectedToBorder(World world, int x, int y, int z) throws ModelException {
         try {
-            return world.isCubeConnected(new IntVector(x, y, z));
+            return world.getTerrain().isCubeConnected(new IntVector(x, y, z));
         } catch (InvalidPositionException err) {
             throw new ModelException(err);
         }
