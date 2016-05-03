@@ -49,7 +49,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
     @Override
     public int getCubeType(World world, int x, int y, int z) throws ModelException {
         try {
-            return world.getTerrain().getCubeType(new IntVector(x, y, z));
+            return world.getTerrain().getCubeType(new IntVector(x, y, z)).getId();
         } catch (InvalidPositionException err) {
             throw new ModelException(err);
         }
@@ -58,7 +58,7 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
     @Override
     public void setCubeType(World world, int x, int y, int z, int value) throws ModelException {
         try {
-            world.getTerrain().setCubeType(new IntVector(x, y, z), value);
+            world.getTerrain().setCubeType(new IntVector(x, y, z), Terrain.Type.fromId(value));
         } catch (InvalidPositionException | InvalidCubeTypeException err) {
             throw new ModelException(err);
         }

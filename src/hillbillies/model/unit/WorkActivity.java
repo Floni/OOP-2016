@@ -90,7 +90,7 @@ class WorkActivity extends Activity {
                     getUnit().dropCarry(getLocation());
                 else
                     return; // don't add xp
-            } else if (getUnit().getWorld().getTerrain().getCubeType(getLocation()) == Terrain.WORKSHOP &&
+            } else if (getUnit().getWorld().getTerrain().getCubeType(getLocation()) == Terrain.Type.WORKSHOP &&
                        getUnit().getWorld().getTerrain().getLogs(getLocation()).size() >= 1 &&
                        getUnit().getWorld().getTerrain().getBoulders(getLocation()).size() >= 1) {
 
@@ -103,9 +103,9 @@ class WorkActivity extends Activity {
                 getUnit().pickUpBoulder(getUnit().getWorld().getTerrain().getBoulders(getLocation()).iterator().next());
             } else if (getUnit().getWorld().getTerrain().getLogs(getLocation()).size() >= 1) {
                 getUnit().pickUpLog(getUnit().getWorld().getTerrain().getLogs(getLocation()).iterator().next());
-            } else if (getUnit().getWorld().getTerrain().getCubeType(getLocation()) == Terrain.TREE) {
+            } else if (getUnit().getWorld().getTerrain().getCubeType(getLocation()) == Terrain.Type.TREE) {
                 getUnit().getWorld().getTerrain().breakCube(getLocation());
-            } else if (getUnit().getWorld().getTerrain().getCubeType(getLocation()) == Terrain.ROCK) {
+            } else if (getUnit().getWorld().getTerrain().getCubeType(getLocation()) == Terrain.Type.ROCK) {
                 getUnit().getWorld().getTerrain().breakCube(getLocation());
             }
             getUnit().addXp(10);

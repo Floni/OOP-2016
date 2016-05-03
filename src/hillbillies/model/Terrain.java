@@ -7,6 +7,7 @@ import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.vector.IntVector;
 import hillbillies.part2.listener.TerrainChangeListener;
 import hillbillies.util.ConnectedToBorder;
+import org.omg.CORBA.DynAnyPackage.Invalid;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -16,17 +17,20 @@ import java.util.stream.Stream;
 
 /**
  * Class managing terrain and cubes.
+ *
+ * @invar The TerrainChangeListener must be effective.
+ * @invar The world must be effective.
  */
 public class Terrain {
     /**
      * Class representing a cube in the world.
      */
     private static class Cube {
-        Cube(int type) {
+        Cube(Type type) {
             this.type = type;
             this.gameObjects = new HashSet<>();
         }
-        public int type;
+        public Type type;
 
         /**
          * Set of all GameObject laying on this cube.
@@ -37,13 +41,35 @@ public class Terrain {
         final Set<GameObject> gameObjects;
     }
 
-    public static final int AIR = 0;
-    public static final int WORKSHOP = 3;
-    public static final int ROCK = 1;
-    public static final int TREE = 2;
+    public enum Type {
+        AIR(0),
+        WORKSHOP(3),
+        ROCK(1),
+        TREE(2);
 
+        private final int id;
+        Type(int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return this.id;
+        }
+
+        public static Type fromId(int id) throws InvalidCubeTypeException {
+            for (Type type : Type.values()) {
+                if (type.getId() == id)
+                    return type;
+            }
+            throw new InvalidCubeTypeException(id);
+        }
+    }
+
+    //<editor-fold desc="Constants">
     public static final double Lc = 1.0;
+    //</editor-fold>
 
+    //<editor-fold desc="Variables">
     private final int maxX;
     private final int maxY;
     private final int maxZ;
@@ -61,9 +87,31 @@ public class Terrain {
     private final ConnectedToBorder connectedToBorder;
 
     private final World world;
+    //</editor-fold>
 
+    //<editor-fold desc="Constructor">
 
-    public Terrain(World world, int[][][] terrainTypes, TerrainChangeListener modelListener) throws IllegalArgumentException {
+    /**
+     * Create a new terrain.
+     * @param   world
+     *          The world this terrain belongs to.
+     * @param   terrainTypes
+     *          The initial types of the terrain.
+     * @param   modelListener
+     *          The listener for terrain changes.
+     *TODO
+     * @post    The X_MAX, Y_MAX and Z_MAX variables are set to the size of the terrain.
+     * @post    The cube types are set for each cube and checked if they are connected to the border,
+     *          if not they cave in.
+     *
+     * @throws  IllegalArgumentException
+     *          If the terrainTypes or the modelListener isn't effective.
+     * @throws  InvalidCubeTypeException
+     *          If any of the supplied terrainTypes are invalid.
+     */
+    public Terrain(World world, int[][][] terrainTypes, TerrainChangeListener modelListener)
+            throws IllegalArgumentException, InvalidCubeTypeException {
+
         if (terrainTypes == null|| modelListener == null)
             throw new IllegalArgumentException("no terrain types given");
         this.updateListener = modelListener;
@@ -81,10 +129,11 @@ public class Terrain {
         for (int x = 0; x < maxX; x++) {
             for (int y = 0; y < maxY; y++) {
                 for (int z = 0; z < maxZ; z++) {
-                    this.cubes[x][y][z] = new Cube(terrainTypes[x][y][z]);
-                    if (terrainTypes[x][y][z] == WORKSHOP)
+                    Type type = Type.fromId(terrainTypes[x][y][z]);
+                    this.cubes[x][y][z] = new Cube(type);
+                    if (type == Type.WORKSHOP)
                         this.getWorld().addWorkShop(new IntVector(x, y, z));
-                    if (!isSolid(terrainTypes[x][y][z]))
+                    if (!isSolid(type))
                         startCaveIn.addAll(connectedToBorder.changeSolidToPassable(x, y, z).stream().map(IntVector::new).collect(Collectors.toSet()));
                 }
             }
@@ -92,12 +141,14 @@ public class Terrain {
 
         startCaveIn.forEach(this::breakCube);
     }
+    //</editor-fold>
 
     /**
      * Checks whether the given position is valid in the world.
      *
      * @param   pos
      *          The position to be checked
+     *
      * @return  result is true if the position is within world bounds.
      */
     public boolean isValidPosition(IntVector pos) {
@@ -105,35 +156,51 @@ public class Terrain {
                 && pos.getY() < maxY && pos.getZ() >= 0 && pos.getZ() < maxZ;
     }
 
+    //<editor-fold desc="Getters">
     /**
-     * Checks whether the given cube type is solid.
-     *
-     * @param   type
-     *          The type to be checked.
-     * @return  true if the type is solid.
+     * Returns the world this terrain belongs to.
      */
-    public static boolean isSolid(int type) {
-        return type == ROCK || type == TREE;
-    }
-
-
+    @Basic @Immutable
     private World getWorld() {
         return world;
     }
 
+    /**
+     * Returns the number of cubes in the X direction.
+     */
     @Basic @Immutable
     public int getMaxX() {
         return this.maxX;
     }
 
+    /**
+     * Returns the number of cubes in the Y direction.
+     */
     @Basic @Immutable
     public int getMaxY() {
         return this.maxY;
     }
 
+    /**
+     * Returns the number of cubes in the Z direction.
+     */
     @Basic @Immutable
     public int getMaxZ() {
         return this.maxZ;
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="Cubes">
+    /**
+     * Checks whether the given cube type is solid.
+     *
+     * @param   type
+     *          The type to be checked.
+     *
+     * @return  true if the type is solid.
+     */
+    public static boolean isSolid(Type type) {
+        return type == Type.ROCK || type == Type.TREE;
     }
 
     /**
@@ -141,8 +208,10 @@ public class Terrain {
      *
      * @param   cubeLoc
      *          The location
-     * @return  The cube at the given location
-     * @throws InvalidPositionException
+     *
+     * @return  The cube at the given location.
+     *
+     * @throws  InvalidPositionException
      *          If the given position is invalid.
      */
     private Cube getCube(IntVector cubeLoc) throws InvalidPositionException {
@@ -156,7 +225,9 @@ public class Terrain {
      *
      * @param   pos
      *          The position of the cube to be checked.
+     *
      * @return  true of the cube is connected to the border.
+     *
      * @throws  InvalidPositionException
      *          If the given position is invalid.
      */
@@ -171,11 +242,13 @@ public class Terrain {
      *
      * @param   cube
      *          The location of the cube.
+     *
      * @return  An integer representing the type of the cube.
+     *
      * @throws  InvalidPositionException
      *          If the given position is invalid
      */
-    public int getCubeType(IntVector cube) throws InvalidPositionException {
+    public Type getCubeType(IntVector cube) throws InvalidPositionException {
         return getCube(cube).type;
     }
 
@@ -188,17 +261,17 @@ public class Terrain {
      *          The new type
      *
      * @post    The cube at position pos will have the given type and
-     *          any cubes that aren't connected to the border anymore will cave in (include the given cube).
+     *          any cubes that aren't connected to the border anymore will cave in (include the given cube TODO).
      *          When cubes cave in they may drop a boulder or a log.
+     *
+     * @effect  If the type is a workshop, the workshop is added to the world.
      *
      * @throws  InvalidPositionException
      *          If the given position is invalid.
      */
-    public void setCubeType(IntVector pos, int type) throws InvalidPositionException {
+    public void setCubeType(IntVector pos, Type type) throws InvalidPositionException {
         if (!isValidPosition(pos))
             throw new InvalidPositionException(pos);
-        if (!isValidCubeType(type))
-            throw new InvalidCubeTypeException(type);
 
         if (isSolid(getCubeType(pos)) && !isSolid(type)) {
             for (int[] cord : connectedToBorder.changeSolidToPassable(pos.getX(), pos.getY(), pos.getZ())) {
@@ -207,15 +280,11 @@ public class Terrain {
             }
         }
 
-        if (type == WORKSHOP)
+        if (type == Type.WORKSHOP)
             this.getWorld().addWorkShop(pos);
 
         cubes[pos.getX()][pos.getY()][pos.getZ()].type = type;
         updateListener.notifyTerrainChanged(pos.getX(), pos.getY(), pos.getZ());
-    }
-
-    private boolean isValidCubeType(int type) {
-        return type >= 0 && type < 4;
     }
 
     /**
@@ -230,8 +299,8 @@ public class Terrain {
      *          | this.dropChance(location, this.getCubeType(location))
      */
     public void breakCube(IntVector location) {
-        int type = getCubeType(location);
-        setCubeType(location, AIR);
+        Type type = getCubeType(location);
+        setCubeType(location, Type.AIR);
         this.getWorld().dropChance(location, type);
     }
 
@@ -239,7 +308,8 @@ public class Terrain {
      * Removes the given object from its cube.
      *
      * @param   object
-     *          The object to be removed
+     *          The object to be removed.
+     *
      * @post    The cube where the object was positioned won't contain the object anymore.
      */
     public void removeCubeObject(GameObject object) {
@@ -251,6 +321,7 @@ public class Terrain {
      *
      * @param   object
      *          The gameObject to add to its cube.
+     *
      * @post    The cube given by the gameObjects position will now contain the gameObject.
      */
     public void addCubeObject(GameObject object) {
@@ -259,8 +330,10 @@ public class Terrain {
 
     /**
      * Returns all the logs at the given location.
+     *
      * @param   cubeLoc
      *          The location of the cube.
+     *
      * @throws  InvalidPositionException
      *          If the given position is not valid.
      */
@@ -273,8 +346,10 @@ public class Terrain {
 
     /**
      * Returns all the boulders at the given location.
+     *
      * @param   cubeLoc
      *          The location of the cube.
+     *
      * @throws  InvalidPositionException
      *          If the given position is not valid.
      */
@@ -284,6 +359,7 @@ public class Terrain {
         return cube.gameObjects.stream().filter(o -> o instanceof Boulder)
                 .map(Boulder.class::cast).collect(Collectors.toSet());
     }
+    //</editor-fold>
 
     //<editor-fold desc="Neighbours">
     // TODO: move to some class? terrain or util?

@@ -56,7 +56,7 @@ import java.util.ArrayList;
 public class Unit {
 
     //<editor-fold desc="Constants">
-    static final double POS_EPS = 1e-3;
+    static final double POS_EPS = 1e-3; // TODO: move to util
 
     private static final double REST_MINUTE = 3*60;
 
@@ -64,22 +64,18 @@ public class Unit {
     private static final int MAX_ATTRIBUTE = 200;
 
     private static final double INIT_ORIENTATION = Math.PI / 2;
-
     //</editor-fold>
 
     //<editor-fold desc="Variables">
-
-    private Vector position;
-
     private String name;
-
-    private int weight, strength, agility, toughness;
+    private Vector position;
     private double orientation;
+    private int weight, strength, agility, toughness;
     private int hitPoints, stamina;
     private int xp, xpDiff;
+    private boolean defaultEnabled;
 
-
-    final Activity noneActivity = new NoneActivity(this);
+    private final Activity noneActivity = new NoneActivity(this);
     private final MoveActivity moveActivity = new MoveActivity(this);
     private final FallActivity fallActivity = new FallActivity(this);
     private final RestActivity restActivity = new RestActivity(this);
@@ -91,8 +87,6 @@ public class Unit {
     private Activity lastActivity = noneActivity;
 
     private double restMinuteTimer;
-
-    private boolean defaultEnabled;
 
     private Faction faction;
     private World world;
@@ -165,7 +159,7 @@ public class Unit {
      * @effect  Set the name to the given name.
      *          | new.setName(name)
      * @effect  Set the position to the middle of the given block.
-     *          | new.setPosition(x + Lc/2, y + Lc/2, z + Lc/2)
+     *          | new.setPosition(new Vector(x + Lc/2, y + Lc/2, z + Lc/2))
      * @effect  Sets the orientation to 90 degrees.
      *          | new.setOrientation(Math.PI/2)
      */
@@ -201,7 +195,7 @@ public class Unit {
         setAgility(agility);
         setWeight(weight);
 
-        this.xpDiff = 0;
+        this.xpDiff = 0; // TODO: getter & setter
         this.xp = 0;
 
         int maxPoints = getMaxPoints();
@@ -212,7 +206,6 @@ public class Unit {
 
         setRestMinuteTimer(REST_MINUTE);
     }
-
 
     /**
      * Terminates the current unit.
@@ -265,15 +258,18 @@ public class Unit {
     /**
      * Returns the world this unit belongs to.
      */
-    @Basic @Model
+    @Basic
     public World getWorld() {
         return this.world;
     }
 
     /**
      * Returns the pathfinder of the unit
+     *
+     * @return  The pathfinder of the world the unit is in.
+     *          | result == this.getWorld().getPathFinder()
      */
-    @Model @Basic
+    @Model // TODO: model?
     PathFinder<IntVector> getPathFinder() {
         return getWorld().getPathFinder();
     }
@@ -368,7 +364,6 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Activity">
-
     /**
      * Returns the current activity.
      */
@@ -379,6 +374,7 @@ public class Unit {
 
     /**
      * Set the current activity.
+     *
      * @param   newActivity
      *          The new Activity
      *
@@ -392,8 +388,8 @@ public class Unit {
     /**
      * Returns whether or not the unit can do the given Activity.
      */
-    @Basic
-    public boolean canSwitchActivity() {
+    @Basic @Model // TODO: model needed?
+    private boolean canSwitchActivity() {
         return getCurrentActivity().canSwitch();
     }
 
@@ -403,15 +399,15 @@ public class Unit {
      * @param   newActivity
      *          The new activity.
      *
-     * @post    If we are moving and the newActivity is not MOVE, we set the pendingActivity.
+     * TODO: we use private moveActivity, ... in comments
+     * @post    If we are moving and the newActivity is not moveActivity, we set the pendingActivity.
      *          Otherwise we set the currentActivity.
-     *          | if this.isMoving() && !newActivity.equalsClass(MoveActivity.class)
-     *          |   then new.pendingActivity == newActivity
-     *          | else new.getCurrentActivity() == newActivity
-     *
-     * @post    LastActivity is set to the current activity.
-     *          | if this.getCurrentActivity() != newActivity
-     *          |   then new.lastActivity == this.getCurrentActivity()
+     *          | if (getCurrentActivity == moveActivity && newActivity != moveActivity && newActivity != moveActivity.getPendingActivity())
+     *          |   then new.moveActivity.getPendingActivity() == newActivity
+     *          | else
+     *          |   (if this.getCurrentActivity() != newActivity
+     *          |       then new.lastActivity == this.getCurrentActivity()
+     *          |    new.getCurrentActivity() == newActivity)
      *
      * @throws  InvalidActionException
      *          If the unit can't switch activities
@@ -441,13 +437,13 @@ public class Unit {
     /**
      * Finishes the current activity.
      *
-     * @post    The new activity will be the last activity (in case of an interruption).
-     *          | new.getCurrentActivity() == this.lastActivity
+     * @post    The new activity will be the last activity.
+     *          | new.getCurrentActivity() == this.getLastActivity()
      * @post    The lastActivity is set to None.
-     *          | new.lastActivity == Unit.NONE
+     *          | new.getLastActivity() == this.noneActivity TODO
      *
      * @effect  The last activity will be resumed.
-     *          | this.lastActivity.reset()
+     *          | this.getLastActivity().reset()
      */
     void finishCurrentActivity() {
         setCurrentActivity(getLastActivity());
@@ -478,9 +474,9 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Position">
-
     /**
      * Check whether the cube is a stable position for unit's to be at.
+     * If the unit isn't on a stable position it will fall.
      *
      * @param   cube
      *          The cube to check.
@@ -504,7 +500,7 @@ public class Unit {
      *
      * @param   cube
      *          The cube to check.
-     * @return  TODO
+     * @return  Returns true if the position is stable in the current world.
      *          | result == Unit.isStablePosition(this.getWorld(), cube)
      */
     public boolean isStablePosition(IntVector cube) {
@@ -512,15 +508,18 @@ public class Unit {
     }
 
     /**
-     * Checks whether the given position is valid.
+     * Checks whether the given position is a valid position for the unit to be at.
      *
+     * @param   world
+     *          The world to check in.
      * @param   cubePos
-     *          The position to be checked
+     *          The position to be checked.
      *
      * @return  True if the given position is within the boundaries of the world and if it is not solid or
      *          if the world is null.
-     *          | result == ((getWorld().isValidPosition(cubePos)) && (!World.isSolid(world.getCubeType(cubePos))) ||
-     *          |           (this.getWorld() == null) TODO
+     *          | result == (world == null)
+     *          |           || ((world.isValidPosition(cubePos))
+     *          |               && (!Terrain.isSolid(world.getTerrain().getCubeType(cubePos)))
      */
     public static boolean isValidPosition(World world, IntVector cubePos) {
         return  world == null ||
@@ -528,6 +527,15 @@ public class Unit {
                     !Terrain.isSolid(world.getTerrain().getCubeType(cubePos)));
     }
 
+    /**
+     * Checks whether the given position is a valid position for the unit to be at.
+     *
+     * @param   pos
+     *          The position to be checked.
+     *
+     * @return  Check if the position is valid in the current world.
+     *          | result == Unit.isValidPosition(this.getWorld(), pos)
+     */
     public boolean isValidPosition(IntVector pos) {
         return Unit.isValidPosition(getWorld(), pos);
     }
@@ -619,7 +627,6 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Attributes">
-
     /**
      * Returns whether or not the weight is valid.
      * (only used in class invariant)
@@ -671,7 +678,6 @@ public class Unit {
         return (isCarryingBoulder() ? carryBoulder.getWeight() : (isCarryingLog() ? carryLog.getWeight() : 0));
     }
 
-
     /**
      * Sets the units weight to the new weight.
      *
@@ -707,19 +713,19 @@ public class Unit {
     }
 
     /**
-     * Returns whether the strength is valid.
+     * Checks whether the attribute is valid.
      * (only used in class invariant)
      *
-     * @param   strength
+     * @param   attribute
      *          The strength to be verified.
      *
-     * @return  Returns true if the strength is larger or equal to MIN_ATTRIBUTE
+     * @return  Returns true if the attribute is larger or equal to MIN_ATTRIBUTE
      *          and smaller or equal to MAX_ATTRIBUTE.
      *          | result == strength <= MAX_ATTRIBUTE && strength >= MIN_ATTRIBUTE
      */
     @SuppressWarnings("unused")
-    public static boolean isValidStrength(int strength) {
-        return strength <= MAX_ATTRIBUTE && strength >= MIN_ATTRIBUTE;
+    public static boolean isValidAttribute(int attribute) {
+        return attribute <= MAX_ATTRIBUTE && attribute >= MIN_ATTRIBUTE;
     }
 
     /**
@@ -764,23 +770,6 @@ public class Unit {
         setWeight(this.weight);
     }
 
-
-    /**
-     * Returns whether the agility is valid.
-     * (only used in class invariant)
-     *
-     * @param   agility
-     *          The agility to be verified.
-     *
-     * @return  Returns true if the agility is larger or equal to MIN_ATTRIBUTE,
-     *          and smaller or equal to MAX_ATTRIBUTE.
-     *          | result == agility <= MAX_ATTRIBUTE && agility >= MIN_ATTRIBUTE
-     */
-    @SuppressWarnings("unused")
-    public static boolean isValidAgility(int agility) {
-        return agility <= MAX_ATTRIBUTE && agility >= MIN_ATTRIBUTE;
-    }
-
     /**
      * Returns the agility of the unit.
      */
@@ -823,23 +812,6 @@ public class Unit {
         setWeight(this.weight);
     }
 
-
-    /**
-     * Returns whether the toughness is valid.
-     * (only used in class invariant)
-     *
-     * @param   toughness
-     *          The toughness to be verified.
-     *
-     * @return  Returns true if the toughness is larger or equal to MIN_ATTRIBUTE,
-     *          and smaller or equal to MAX_ATTRIBUTE.
-     *          | result == toughness <= MAX_ATTRIBUTE && toughness >= MIN_ATTRIBUTE
-     */
-    @SuppressWarnings("unused")
-    public static boolean isValidToughness(int toughness) {
-        return toughness <= MAX_ATTRIBUTE && toughness>= MIN_ATTRIBUTE;
-    }
-
     /**
      * Returns the toughness of the current unit
      */
@@ -875,7 +847,6 @@ public class Unit {
 
     /**
      * Returns whether the hitPoints are valid.
-     * (only used in class invariant)
      *
      * @param   hitPoints
      *          The hit points to be verified.
@@ -884,7 +855,6 @@ public class Unit {
      *          and smaller than or equal to the maximum amount of hitPoints.
      *          | result == (hitPoints <= getMaxPoints()) && (hitPoints >= 0)
      */
-    @SuppressWarnings("unused")
     public boolean canHaveAsHitPoints(int hitPoints) {
         return hitPoints <= getMaxPoints() && hitPoints >= 0;
     }
@@ -912,7 +882,7 @@ public class Unit {
      */
     @Raw @Model
     void setHitPoints(int hitPoints) {
-        assert hitPoints <= getMaxPoints() && hitPoints >= 0;
+        assert canHaveAsHitPoints(hitPoints);
         this.hitPoints = hitPoints;
     }
 
@@ -942,7 +912,6 @@ public class Unit {
         }
     }
 
-
     /**
      * Returns whether the unit is alive.
      *
@@ -953,10 +922,8 @@ public class Unit {
         return (this.getHitPoints() > 0);
     }
 
-
     /**
      * Returns whether the stamina is valid.
-     * (only used in class invariant)
      *
      * @param   stamina
      *          The stamina to be verified.
@@ -965,7 +932,6 @@ public class Unit {
      *          and smaller than or equal to the maximum amount of hitPoints.
      *          | result == (stamina <= getMaxPoints()) && (stamina >= 0)
      */
-    @SuppressWarnings("unused")
     public boolean canHaveAsStamina(int stamina) {
         return stamina <= getMaxPoints() && stamina >= 0;
     }
@@ -993,7 +959,7 @@ public class Unit {
      */
     @Raw @Model
     void setStamina(int stamina){
-        assert stamina <= getMaxPoints() && stamina >= 0;
+        assert canHaveAsStamina(stamina);
         this.stamina = stamina;
     }
 
@@ -1057,7 +1023,6 @@ public class Unit {
         return this.getCurrentActivity() == this.moveActivity || this.getCurrentActivity() == this.fallActivity || this.getCurrentActivity() == this.followActivity;
     }
 
-
     /**
      * Makes the unit move towards one of the adjacent cubes.
      *
@@ -1069,11 +1034,7 @@ public class Unit {
      *          the z direction
      *
      * @post    The unit will be moving
-     *          | new.isMoving() == True
-     * @post    The unit will move to the target when calling advanceTime()
-     *          | new.getPosition[0] == old.getPosition[0] + dx &&
-     *          | new.getPosition[1] == old.getPosition[1] + dy &&
-     *          | new.getPosition[2] == old.getPosition[2] + dz
+     *          | new.isMoving() == True TODO
      *
      * @effect  The unit will point to the target cube.
      *          | new.getOrientation() == Math.atan2(...)

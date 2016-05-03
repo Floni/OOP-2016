@@ -317,12 +317,12 @@ public class UnitTest {
 
     @Test
     public void testWorkAtLog() throws Exception {
-        world.getTerrain().setCubeType(new IntVector(0, 0, 0), Terrain.TREE);
+        world.getTerrain().setCubeType(new IntVector(0, 0, 0), Terrain.Type.TREE);
         unit.setPosition(new Vector(1.5, 1.5, 0.5));
         unit.workAt(new IntVector(0, 0, 0));
         advanceTimeFor(unit, 500.0 / unit.getStrength() + 1.0, 0.1);
         assertFalse(unit.isWorking());
-        assertEquals(Terrain.AIR, world.getTerrain().getCubeType(new IntVector(0, 0, 0)));
+        assertEquals(Terrain.Type.AIR, world.getTerrain().getCubeType(new IntVector(0, 0, 0)));
     }
 
 
@@ -384,7 +384,7 @@ public class UnitTest {
         world.addUnit(unit);
         unit.moveTo(new IntVector(4, 0, 0));
         advanceTimeFor(unit, 0.2, 0.1);
-        world.getTerrain().setCubeType(new IntVector(3, 0, 0), Terrain.ROCK);
+        world.getTerrain().setCubeType(new IntVector(3, 0, 0), Terrain.Type.ROCK);
         advanceTimeFor(unit, 10, 0.1);
         assertEquals(new Vector(4.5, 0.5, 0.5), unit.getPosition());
     }

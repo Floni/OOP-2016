@@ -40,10 +40,10 @@ public class WorldTest {
 
     @Test
     public void testIsSolid() throws Exception {
-        assertFalse(Terrain.isSolid(Terrain.AIR));
-        assertFalse(Terrain.isSolid(Terrain.WORKSHOP));
-        assertTrue(Terrain.isSolid(Terrain.ROCK));
-        assertTrue(Terrain.isSolid(Terrain.TREE));
+        assertFalse(Terrain.isSolid(Terrain.Type.AIR));
+        assertFalse(Terrain.isSolid(Terrain.Type.WORKSHOP));
+        assertTrue(Terrain.isSolid(Terrain.Type.ROCK));
+        assertTrue(Terrain.isSolid(Terrain.Type.TREE));
     }
 
     @Test
@@ -53,20 +53,20 @@ public class WorldTest {
 
     @Test
     public void testGetCubeType() throws Exception {
-        assertEquals(Terrain.AIR, world.getTerrain().getCubeType(new IntVector(1, 1, 1)));
+        assertEquals(Terrain.Type.AIR, world.getTerrain().getCubeType(new IntVector(1, 1, 1)));
     }
 
     @Test
     public void testSetCubeType() throws Exception {
-        world.getTerrain().setCubeType(new IntVector(1, 1, 1), Terrain.ROCK);
-        assertEquals(Terrain.ROCK, world.getTerrain().getCubeType(new IntVector(1, 1, 1)));
+        world.getTerrain().setCubeType(new IntVector(1, 1, 1), Terrain.Type.ROCK);
+        assertEquals(Terrain.Type.ROCK, world.getTerrain().getCubeType(new IntVector(1, 1, 1)));
     }
 
     @Test
     public void testBreakCube() throws Exception {
-        world.getTerrain().setCubeType(new IntVector(1, 1, 1), Terrain.ROCK);
+        world.getTerrain().setCubeType(new IntVector(1, 1, 1), Terrain.Type.ROCK);
         world.getTerrain().breakCube(new IntVector(1, 1, 1));
-        assertEquals(Terrain.AIR, world.getTerrain().getCubeType(new IntVector(1, 1, 1)));
+        assertEquals(Terrain.Type.AIR, world.getTerrain().getCubeType(new IntVector(1, 1, 1)));
     }
 
     @Test

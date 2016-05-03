@@ -1,6 +1,7 @@
 package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Model;
 import hillbillies.model.exceptions.InvalidCubeTypeException;
 import hillbillies.model.exceptions.InvalidPositionException;
@@ -22,7 +23,6 @@ import java.util.stream.Stream;
 /**
  * Class representing a world.
  *
- * @invar The TerrainChangeListener must be effective.
  * @invar The number of units must be less than MAX_UNITS.
  * @invar The number o factions must be less than MAX_FACTIONS
  *
@@ -74,13 +74,12 @@ public class World {
      * @param   modelListener
      *          A listener for terrain changes.
      *
-     * @post    The X_MAX, Y_MAX and Z_MAX variables are set to the size of the terrain.
-     * @post    The cube types are set for each cube and checked if they are connected to the border,
-     *          if not they cave in.
      * @post    The factions, units, logs and boulders are empty.
      *
-     * @throws  IllegalArgumentException
-     *          Thrown if terrainTypes or modelListener was null.
+     *
+     * @effect  Create a new terrain. TODO
+     *          | new Terrain(this, terrainTypes, modelListener)
+     *
      */
     public World(int[][][] terrainTypes, TerrainChangeListener modelListener) throws IllegalArgumentException {
         this.factions = new HashSet<>();
@@ -129,13 +128,23 @@ public class World {
     }
     //</editor-fold>
 
+    //<editor-fold desc="Getters">
+    /**
+     * Returns the pathfinder of this world.
+     */
+    @Basic @Immutable
     public PathFinder<IntVector> getPathFinder() {
         return pathFinder;
     }
 
+    /**
+     * Returns the terrain of this world.
+     */
+    @Basic @Immutable
     public Terrain getTerrain() {
         return terrain;
     }
+    //</editor-fold>
 
     //<editor-fold desc="Logs and Boulders">
     /**
@@ -148,6 +157,14 @@ public class World {
         return workshops.stream();
     }
 
+    /**
+     * Adds a workshop to the world.
+     *
+     * @param   position
+     *          The position of the workshop to add.
+     *
+     * @post    The workshop will be contained in the world.
+     */
     public void addWorkShop(IntVector position) {
         this.workshops.add(position);
     }
@@ -194,11 +211,11 @@ public class World {
      *
      * @post    If a drop occurs a boulder or log will be added at the given position.
      */
-    public void dropChance(IntVector location, int type) {
+    public void dropChance(IntVector location, Terrain.Type type) {
         if (Math.random() < 0.25) {
-            if (type == Terrain.ROCK) {
+            if (type == Terrain.Type.ROCK) {
                 this.addGameObject(new Boulder(this, location));
-            } else if (type == Terrain.TREE) {
+            } else if (type == Terrain.Type.TREE) {
                 this.addGameObject(new Log(this, location));
             }
         }
@@ -273,7 +290,6 @@ public class World {
     //</editor-fold>
 
     //<editor-fold desc="Units">
-
     /**
      *  Returns a random number between 25 and 100 inclusive.
      */
