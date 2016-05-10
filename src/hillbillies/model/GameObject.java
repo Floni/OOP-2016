@@ -76,13 +76,13 @@ public abstract class GameObject {
     public void advanceTime(double dt) {
         IntVector cubePos = getPosition().toIntVector();
         if (!(cubePos.getZ() == 0 || Terrain.isSolid(getWorld().getTerrain().getCubeType(cubePos.add(0, 0, -1))))
-                || (getPosition().getZ() - Math.floor(getPosition().getZ())) > Terrain.Lc/2) {
+                || (getPosition().getZ() - Math.floor(getPosition().getZ())) > Terrain.Lc / 2) {
             setPosition(getPosition().add(0, 0, FALL_SPEED * dt));
             falling = true;
             getWorld().getTerrain().removeCubeObject(this); // remove from terrain but keep in world.
         } else {
             if (falling) {
-                setPosition(new Vector(getPosition().getX(), getPosition().getY(), getPosition().toIntVector().getZ() + Terrain.Lc/2));
+                setPosition(new Vector(getPosition().getX(), getPosition().getY(), getPosition().toIntVector().getZ() + Terrain.Lc / 2));
                 getWorld().getTerrain().addCubeObject(this); // add to terrain.
             }
             falling = false;
