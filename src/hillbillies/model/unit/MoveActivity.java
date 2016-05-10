@@ -329,4 +329,8 @@ class MoveActivity extends Activity {
     private IntVector getTarget() {
         return this.target;
     }
+
+    public Vector getSpeed() {
+        return speed;
+    }
 }

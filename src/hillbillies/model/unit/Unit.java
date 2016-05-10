@@ -392,10 +392,15 @@ public class Unit {
         return this.noneActivity;
     }
 
+    @Basic @Immutable @Model
+    private FollowActivity getFollowActivity() {
+        return this.followActivity;
+    }
+
     /**
      * Returns the current activity.
      */
-    @Basic
+    @Basic @Model
     Activity getCurrentActivity() {
         return this.currentActivity;
     }
@@ -448,11 +453,11 @@ public class Unit {
         if (!canSwitchActivity())
             throw new InvalidActionException("can't change activity");
 
-        if (getCurrentActivity() == moveActivity &&
-                newActivity != moveActivity && newActivity != moveActivity.getPendingActivity()) {
-            if (moveActivity.getPendingActivity() != null)
-                moveActivity.getPendingActivity().reset();
-            moveActivity.setPendingActivity(newActivity);
+        if (getCurrentActivity() == this.getMoveActivity() &&
+                newActivity != this.getMoveActivity() && newActivity != this.getMoveActivity().getPendingActivity()) {
+            if (this.getMoveActivity().getPendingActivity() != null)
+                this.getMoveActivity().getPendingActivity().reset();
+            this.getMoveActivity().setPendingActivity(newActivity);
         } else {
             // don't do the same activity twice
             if (newActivity != this.getCurrentActivity()) {
@@ -471,11 +476,11 @@ public class Unit {
      * @effect  Switch to the last activity.
      *          | this.setCurrentActivity(this.getLastActivity())
      * @effect  Clear the lastActivity.
-     *          | this.setLastActivity(this.noneActivity)
+     *          | this.setLastActivity(this.getNoneActivity())
      */
     void finishCurrentActivity() {
         setCurrentActivity(getLastActivity());
-        setLastActivity(noneActivity);
+        setLastActivity(this.getNoneActivity());
     }
 
 
@@ -1046,10 +1051,16 @@ public class Unit {
     //<editor-fold desc="Movement">
     /**
      * Returns True if the unit is moving.
+     *
+     * @return  True if the unit is moving, falling or following.
+     *          | result == this.getCurrentActivity() == this.getMoveActivity() ||
+     *          |           this.getCurrentActivity() == this.getFallActivity() ||
+     *          |           this.getCurrentActivity() == this.getFollowActivity()
      */
-    @Basic
     public boolean isMoving() {
-        return this.getCurrentActivity() == this.moveActivity || this.getCurrentActivity() == this.fallActivity || this.getCurrentActivity() == this.followActivity;
+        return  this.getCurrentActivity() == this.getMoveActivity() ||
+                this.getCurrentActivity() == this.getFallActivity() ||
+                this.getCurrentActivity() == this.getFollowActivity();
     }
 
     /**
@@ -1085,8 +1096,8 @@ public class Unit {
         if (Math.abs(dx) > 1 || Math.abs(dy) > 1 || Math.abs(dz) > 1)
             throw new IllegalArgumentException("Illegal dx, dy and/or dz");
 
-        this.moveActivity.updateAdjacent(dx, dy, dz);
-        switchActivity(this.moveActivity);
+        this.getMoveActivity().updateAdjacent(dx, dy, dz);
+        this.switchActivity(this.getMoveActivity());
     }
 
 
@@ -1114,10 +1125,9 @@ public class Unit {
     public void moveTo(IntVector target)
             throws InvalidPositionException, InvalidActionException, UnreachableTargetException {
 
-        moveActivity.updateTarget(target);
-        switchActivity(this.moveActivity);
+        this.getMoveActivity().updateTarget(target);
+        this.switchActivity(this.getMoveActivity());
     }
-
     //</editor-fold>
 
     //<editor-fold desc="SpeedNSprint">
@@ -1135,11 +1145,14 @@ public class Unit {
      *          |   then result == 2 * g
      */
     public double getSpeedScalar() {
+        // TODO: add speed as property to unit?
+        // if not null -> calc new position in advance time?
+        // sprint?
         if (!isMoving())
             return 0;
         if (isFalling())
             return FallActivity.FALL_SPEED.norm();
-        double speedScalar = this.moveActivity.speed == null ? 0 : this.moveActivity.speed.norm();
+        double speedScalar = this.getMoveActivity().getSpeed() == null ? 0 : this.getMoveActivity().getSpeed().norm();
         return isSprinting() ? 2*speedScalar : speedScalar;
     }
 
@@ -1158,22 +1171,24 @@ public class Unit {
      *          | sprint && (getStamina() == 0 || !isMoving())
      */
     public void setSprint(boolean sprint) throws InvalidActionException {
-        if (sprint && (getStamina() == 0 || getCurrentActivity() != moveActivity))
+        if (sprint && (getStamina() == 0 || getCurrentActivity() != getMoveActivity()))
             throw new InvalidActionException("Can't sprint right now");
 
         // reset sprint timer
         // TODO: SPRINT_DELAY PRIVATE AND FIX THIS
         if (!moveActivity.sprinting && sprint)
             moveActivity.sprintStaminaTimer = MoveActivity.SPRINT_DELAY;
-        moveActivity.sprinting = sprint;
+        getMoveActivity().sprinting = sprint;
     }
 
     /**
      * Returns True if the unit is sprinting
+     *
+     * @return  True if the unit is moving & sprinting.
+     *          | this.getCurrentActivity() == this.getMoveActivity() && this.getMoveActivity().isSprinting()
      */
-    @Basic
     public boolean isSprinting() {
-        return getCurrentActivity() == moveActivity && moveActivity.sprinting;
+        return getCurrentActivity() == this.getMoveActivity() && this.getMoveActivity().sprinting; // TODO
     }
 
 
@@ -1203,8 +1218,8 @@ public class Unit {
      */
     public void follow(Unit other) throws InvalidActionException,
             InvalidPositionException, UnreachableTargetException, InvalidUnitException {
-        this.followActivity.setOther(other);
-        switchActivity(this.followActivity);
+        this.getFollowActivity().setOther(other);
+        this.switchActivity(this.getFollowActivity());
     }
 
     //</editor-fold>
@@ -1212,10 +1227,12 @@ public class Unit {
     //<editor-fold desc="Working">
     /**
      * Returns True if the unit is working
+     *
+     * @return  True if the unit is working.
+     *          | result == this.getCurrentActivity() == this.getWorkActivity()
      */
-    @Basic
     public boolean isWorking() {
-        return this.getCurrentActivity() == this.workActivity;
+        return this.getCurrentActivity() == this.getWorkActivity();
     }
 
     /**
@@ -1235,9 +1252,8 @@ public class Unit {
      *          | !this.getWorld().isValidPosition(location)
      */
     public void workAt(IntVector location) throws InvalidActionException, InvalidPositionException {
-        this.workActivity.workAt(location);
-        if (!isWorking())
-            switchActivity(this.workActivity);
+        this.getWorkActivity().workAt(location);
+        this.switchActivity(this.getWorkActivity());
     }
 
     /**
@@ -1272,11 +1288,11 @@ public class Unit {
     void dropCarry(IntVector workLoc) {
         if (isCarryingLog()) {
             carryLog.setPosition(workLoc.toVector().add(Terrain.Lc/2));
-            world.addGameObject(carryLog);
+            getWorld().addGameObject(carryLog); // TODO: getters for carryLog & carryBoulder
             carryLog = null;
         } else if (isCarryingBoulder()) {
             carryBoulder.setPosition(workLoc.toVector().add(Terrain.Lc/2));
-            world.addGameObject(carryBoulder);
+            getWorld().addGameObject(carryBoulder);
             carryBoulder = null;
         }
     }
@@ -1293,7 +1309,7 @@ public class Unit {
      */
     void pickUpLog(Log log) {
         carryLog = log;
-        world.removeGameObject(log);
+        getWorld().removeGameObject(log);
     }
 
     /**
@@ -1308,7 +1324,7 @@ public class Unit {
      */
     void pickUpBoulder(Boulder boulder) {
         carryBoulder = boulder;
-        world.removeGameObject(boulder);
+        getWorld().removeGameObject(boulder);
     }
 
     //</editor-fold>
@@ -1316,10 +1332,12 @@ public class Unit {
     //<editor-fold desc="Fighting">
     /**
      * Returns True if the unit is attacking.
+     *
+     * @return  True if the unit is attacking.
+     *          | result == this.getCurrentActivity() == this.getAttackActivity()
      */
-    @Basic
     public boolean isAttacking() {
-        return this.getCurrentActivity() == this.attackActivity;
+        return this.getCurrentActivity() == this.getAttackActivity();
     }
 
     /**
@@ -1350,8 +1368,8 @@ public class Unit {
      *          | (this.getFaction() == other.getFaction())
      */
     public void attack(Unit other) throws InvalidActionException, InvalidUnitException {
-        this.attackActivity.setTarget(other);
-        switchActivity(this.attackActivity);
+        this.getAttackActivity().setTarget(other);
+        this.switchActivity(this.getAttackActivity());
     }
 
     /**
@@ -1397,7 +1415,7 @@ public class Unit {
             setPosition(randPos);
             if (isMoving()) {
                 MoveActivity ca = ((MoveActivity)getCurrentActivity());
-                if (ca.target != null) {
+                if (ca.target != null) { // TODO: getter for target & better name than ca
                         ca.updateTarget(ca.target);
                 }
             }
@@ -1422,10 +1440,12 @@ public class Unit {
     //<editor-fold desc="Resting">
     /**
      * Returns True if the unit is resting.
+     *
+     * @return  True if the current activity is restActivity.
+     *          | result == this.getCurrentActivity() == this.getRestActivity()
      */
-    @Basic
     public boolean isResting() {
-        return this.getCurrentActivity() == this.restActivity;
+        return this.getCurrentActivity() == this.getRestActivity();
     }
 
     /**
@@ -1439,9 +1459,8 @@ public class Unit {
      *          | !this.canHaveAsActivity(REST_ACTIVITY_CLASS)
      */
     public void rest() throws InvalidActionException {
-        restActivity.reset();
-        if (!isResting())
-            switchActivity(restActivity);
+        this.getRestActivity().reset(); // TODO: why reset?
+        this.switchActivity(this.getRestActivity());
     }
 
     private void setRestMinuteTimer(double val) {
@@ -1510,10 +1529,10 @@ public class Unit {
         levelUp();
     }
 
-    @Basic
     /**
      * Returns the amount of xp.
      */
+    @Basic
     public int getXp() {
         return this.xp;
     }
@@ -1541,7 +1560,7 @@ public class Unit {
      */
     @Model
     private void levelUp() {
-        while (this.xpDiff >= 10) {
+        while (this.xpDiff >= 10) { // TODO: getter & setter?
             this.xpDiff -= 10;
 
             ArrayList<Integer> attributes = new ArrayList<>();
@@ -1618,7 +1637,7 @@ public class Unit {
     }
 
     public boolean isFalling() {
-        return this.getCurrentActivity() == this.fallActivity;
+        return this.getCurrentActivity() == this.getFallActivity();
     }
 
     public void setActivityTracker(ActivityTracker tracker) {
