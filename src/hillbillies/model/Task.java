@@ -219,12 +219,11 @@ public class Task implements Comparable<Task> {
      * @param   time
      *          | The time the task may run for.
      *
-     * TODO: formal?
      * @effect  The mainStatement is ran while we have time left, we are running and it hasn't finish'd yet.
-     * @effect  The task is ended when a fatal error occurs.
      * @effect  The task is interrupted when an other error occurs.
+     * @effect  The task is ended when a fatal error occurs.
      */
-    public void runFor(double time) {
+    public void advanceTime(double time) {
         this.running = true;
 
         try {
@@ -257,7 +256,7 @@ public class Task implements Comparable<Task> {
     }
 
     /**
-     * Stops the runFor loop and waits for the task to be run again.
+     * Stops the advanceTime loop and waits for the task to be run again.
      *
      * @post    The task will stop running
      *          | !new.isRunning()

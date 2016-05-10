@@ -1,7 +1,6 @@
 package hillbillies.model.unit;
 
 import hillbillies.model.Terrain;
-import hillbillies.model.World;
 import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.exceptions.UnreachableTargetException;
 import hillbillies.model.vector.IntVector;
@@ -50,7 +49,7 @@ class NoneActivity extends Activity {
             this.finishActivity(); // we still have an interrupted activity
         } else if (getUnit().isDefaultEnabled()) {
             if (getUnit().hasAssignedTask()) {
-                getUnit().getAssignedTask().runFor(dt);
+                getUnit().getAssignedTask().advanceTime(dt);
             } else if (getUnit().getFaction().getScheduler().isTaskAvailable()) {
                 getUnit().assignTask(getUnit().getFaction().getScheduler().getTask(getUnit()));
             } else  {
