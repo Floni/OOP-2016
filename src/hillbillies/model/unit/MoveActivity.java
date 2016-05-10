@@ -19,6 +19,7 @@ import java.util.List;
  */
 class MoveActivity extends Activity {
     static final double SPRINT_DELAY = 0.1;
+    private static final double SPRINT_CHANCE = 0.001;
 
     protected IntVector target; // the final target
     private Vector targetNeighbour; // the next neighbour to reach
@@ -79,8 +80,7 @@ class MoveActivity extends Activity {
                     this.sprinting = false;
             }
         } else if (getUnit().isDefaultEnabled()) {
-            // TODO: fix with timer? or just once while moving?
-            if (Math.random() >= 0.9999 && getUnit().getStamina() != 0)
+            if (Math.random() <= SPRINT_CHANCE && getUnit().getStamina() != 0)
                 this.sprinting = true;
         }
         Vector newPosition = getUnit().getPosition().add(this.speed.multiply(this.sprinting ? 2*dt : dt));
