@@ -261,7 +261,7 @@ public class Terrain {
      *          The new type
      *
      * @post    The cube at position pos will have the given type and
-     *          any cubes that aren't connected to the border anymore will cave in (include the given cube TODO).
+     *          any cubes that aren't connected to the border anymore will cave in.
      *          When cubes cave in they may drop a boulder or a log.
      *
      * @effect  If the type is a workshop, the workshop is added to the world.
