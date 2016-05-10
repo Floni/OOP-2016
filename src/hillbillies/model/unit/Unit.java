@@ -1,6 +1,7 @@
 package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 import hillbillies.model.*;
@@ -56,8 +57,6 @@ import java.util.ArrayList;
 public class Unit {
 
     //<editor-fold desc="Constants">
-    static final double POS_EPS = 1e-3; // TODO: move to util
-
     private static final double REST_MINUTE = 3*60;
 
     private static final int MIN_ATTRIBUTE = 1;
@@ -75,7 +74,7 @@ public class Unit {
     private int xp, xpDiff;
     private boolean defaultEnabled;
 
-    private final Activity noneActivity = new NoneActivity(this);
+    private final NoneActivity noneActivity = new NoneActivity(this);
     private final MoveActivity moveActivity = new MoveActivity(this);
     private final FallActivity fallActivity = new FallActivity(this);
     private final RestActivity restActivity = new RestActivity(this);
@@ -195,8 +194,7 @@ public class Unit {
         setAgility(agility);
         setWeight(weight);
 
-        this.xpDiff = 0; // TODO: getter & setter
-        this.xp = 0;
+        resetXp();
 
         int maxPoints = getMaxPoints();
         setHitPoints(maxPoints);
@@ -228,16 +226,16 @@ public class Unit {
     public void terminate() {
         if (this.isCarryingBoulder() || this.isCarryingLog())
             this.dropCarry(this.getPosition().toIntVector());
-        currentActivity = null;
-        lastActivity = null;
+        this.setCurrentActivity(null);
+        this.setLastActivity(null);
 
         if (getFaction() != null)
             this.stopTask();
 
         this.setHitPoints(0);
 
-        if (world != null)
-            world.removeUnit(this);
+        if (getWorld() != null)
+            getWorld().removeUnit(this);
         setWorld(null);
     }
 
@@ -269,7 +267,7 @@ public class Unit {
      * @return  The pathfinder of the world the unit is in.
      *          | result == this.getWorld().getPathFinder()
      */
-    @Model // TODO: model?
+    @Model // model for moveTo -> unreachable.
     PathFinder<IntVector> getPathFinder() {
         return getWorld().getPathFinder();
     }
@@ -352,11 +350,11 @@ public class Unit {
 
         if (!isStablePosition(getPosition().toIntVector()) && !isFalling()) {
             getCurrentActivity().reset();
-            fallActivity.startFalling();
-            setCurrentActivity(fallActivity);
+            this.getFallActivity().startFalling();
+            setCurrentActivity(this.getFallActivity());
 
             getLastActivity().reset();
-            setLastActivity(noneActivity);
+            setLastActivity(this.getNoneActivity());
         }
 
 
@@ -364,6 +362,36 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Activity">
+    @Basic @Immutable @Model
+    private MoveActivity getMoveActivity() {
+        return this.moveActivity;
+    }
+
+    @Basic @Immutable @Model
+    private WorkActivity getWorkActivity() {
+        return this.workActivity;
+    }
+
+    @Basic @Immutable @Model
+    private AttackActivity getAttackActivity() {
+        return this.attackActivity;
+    }
+
+    @Basic @Immutable @Model
+    private RestActivity getRestActivity() {
+        return this.restActivity;
+    }
+
+    @Basic @Immutable @Model
+    private FallActivity getFallActivity() {
+        return this.fallActivity;
+    }
+
+    @Basic @Immutable @Model
+    private NoneActivity getNoneActivity() {
+        return this.noneActivity;
+    }
+
     /**
      * Returns the current activity.
      */
@@ -381,6 +409,7 @@ public class Unit {
      * @post    The new Activity will be set
      *          | new.getCurrentActivity() == newActivity
      */
+    @Model
     private void setCurrentActivity(Activity newActivity) {
         this.currentActivity = newActivity;
     }
@@ -388,7 +417,7 @@ public class Unit {
     /**
      * Returns whether or not the unit can do the given Activity.
      */
-    @Basic @Model // TODO: model needed?
+    @Basic @Model // model for throws & stuff
     private boolean canSwitchActivity() {
         return getCurrentActivity().canSwitch();
     }
@@ -399,15 +428,17 @@ public class Unit {
      * @param   newActivity
      *          The new activity.
      *
-     * TODO: we use private moveActivity, ... in comments
      * @post    If we are moving and the newActivity is not moveActivity, we set the pendingActivity.
      *          Otherwise we set the currentActivity.
-     *          | if (getCurrentActivity == moveActivity && newActivity != moveActivity && newActivity != moveActivity.getPendingActivity())
-     *          |   then new.moveActivity.getPendingActivity() == newActivity
+     *          | if (this.getCurrentActivity() == this.getMoveActivity() &&
+     *          |     newActivity != this.getMoveActivity() &&
+     *          |     newActivity != this.getMoveActivity().getPendingActivity())
+     *          |   then new.getMoveActivity().getPendingActivity() == newActivity
      *          | else
-     *          |   (if this.getCurrentActivity() != newActivity
-     *          |       then new.lastActivity == this.getCurrentActivity()
-     *          |    new.getCurrentActivity() == newActivity)
+     *          |   ((if (this.getCurrentActivity() != newActivity
+     *          |       then new.lastActivity == this.getCurrentActivity())
+     *          |    then new.getLastActivity() == this.getCurrentActivity())
+     *          |  && new.getCurrentActivity() == newActivity)
      *
      * @throws  InvalidActionException
      *          If the unit can't switch activities
@@ -437,13 +468,10 @@ public class Unit {
     /**
      * Finishes the current activity.
      *
-     * @post    The new activity will be the last activity.
-     *          | new.getCurrentActivity() == this.getLastActivity()
-     * @post    The lastActivity is set to None.
-     *          | new.getLastActivity() == this.noneActivity TODO
-     *
-     * @effect  The last activity will be resumed.
-     *          | this.getLastActivity().reset()
+     * @effect  Switch to the last activity.
+     *          | this.setCurrentActivity(this.getLastActivity())
+     * @effect  Clear the lastActivity.
+     *          | this.setLastActivity(this.noneActivity)
      */
     void finishCurrentActivity() {
         setCurrentActivity(getLastActivity());
@@ -468,6 +496,7 @@ public class Unit {
      * @post    The lastActivity will be set.
      *          | new.getLastActivity() == lastActivity
      */
+    @Model
     private void setLastActivity(Activity lastActivity) {
         this.lastActivity = lastActivity;
     }
@@ -1034,20 +1063,21 @@ public class Unit {
      *          the z direction
      *
      * @post    The unit will be moving
-     *          | new.isMoving() == True TODO
+     *          | new.isMoving() == true
      *
      * @effect  The unit will point to the target cube.
-     *          | new.getOrientation() == Math.atan2(...)
+     *          | new.getOrientation() == Math.atan2(dy, dx)
      *
      * @throws  InvalidPositionException
      *          If the target cube is not within the world bounds
-     *          | !isValidPosition(this.getPosition()[0] + dx,this.getPosition()[1] + dy,this.getPosition()[2] + dz)
+     *          | !this.isValidPosition(this.getPosition().add(dx, dy, dz))
+     *          | || !this.isStablePosition(this.getPosition().add(dx, dy, dz))
      * @throws  IllegalArgumentException
      *          If the dx, dy or dz values aren't -1, 0 or +1
      *          | Math.abs(dx) > 1 || Math.abs(dy) > 1 || Math.abs(dz) > 1
      * @throws  InvalidActionException
      *          If the unit can't move right now
-     *          | !canHaveAsActivity(MOVE_ACTIVITY_CLASS)
+     *          | !this.canSwitchActivity()
      */
     public void moveToAdjacent(int dx, int dy, int dz)
             throws IllegalArgumentException, InvalidActionException, InvalidPositionException {
@@ -1079,7 +1109,7 @@ public class Unit {
      *          | !this.canHaveAsActivity(MOVE_ACTIVITY_CLASS)
      * @throws  UnreachableTargetException
      *          If the unit can't reach the target.
-     *          | this.getPathFinder(this.getPosition().toIntVector(), target.toIntVector()) == null
+     *          | !this.getPathFinder().isReachable(this.getPosition().toIntVector(), target)
      */
     public void moveTo(IntVector target)
             throws InvalidPositionException, InvalidActionException, UnreachableTargetException {
@@ -1454,6 +1484,13 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Leveling and Xp">
+
+
+    private void resetXp() {
+        this.xp = 0;
+        this.xpDiff = 0;
+    }
+
     /**
      * Adds the given xp to the Unit
      *

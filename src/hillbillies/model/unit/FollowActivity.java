@@ -45,7 +45,9 @@ class FollowActivity extends MoveActivity{
      */
     @Override
     void advanceTime(double dt) {
-        if (getOther() != null && getUnit().getPosition().subtract(getUnit().getPosition().toIntVector().toVector()).isEqualTo(new Vector(Terrain.Lc / 2, Terrain.Lc / 2, Terrain.Lc / 2), Unit.POS_EPS)) {
+        if (getOther() != null &&
+                getUnit().getPosition().subtract(getUnit().getPosition().toIntVector().toVector())
+                        .isEqualTo(new Vector(Terrain.Lc / 2, Terrain.Lc / 2, Terrain.Lc / 2), World.POS_EPS)) {
             if (this.getUnit().getPosition().isNextTo(getOther().getPosition()) || !other.isAlive()) {
                 this.finishActivity();
                 return;

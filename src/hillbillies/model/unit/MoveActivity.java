@@ -292,9 +292,9 @@ class MoveActivity extends Activity {
         diff = diff.divide(normDiff);
 
         double vw = 1.5*(getUnit().getStrength()+getUnit().getAgility())/(2*(getUnit().getWeight()));
-        if (diff.getZ() > Unit.POS_EPS)
+        if (diff.getZ() > World.POS_EPS)
             vw *= 0.5;
-        else if (diff.getZ() < -Unit.POS_EPS)
+        else if (diff.getZ() < -World.POS_EPS)
             vw *= 1.2;
         return diff.multiply(vw);
     }

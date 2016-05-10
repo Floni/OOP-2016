@@ -93,16 +93,17 @@ public class Terrain {
 
     /**
      * Create a new terrain.
+     *
      * @param   world
      *          The world this terrain belongs to.
      * @param   terrainTypes
      *          The initial types of the terrain.
      * @param   modelListener
      *          The listener for terrain changes.
-     *TODO
-     * @post    The X_MAX, Y_MAX and Z_MAX variables are set to the size of the terrain.
-     * @post    The cube types are set for each cube and checked if they are connected to the border,
-     *          if not they cave in.
+     *
+     * @post    The getMaxX(), getMaxY() and getMaxZ() functions will return the size of the terrain.
+     * @post    A new cube is created for each position in the terrain, the type is set to the supplied type.
+     * @post    Any cube that isn't connected to the border will cave in at start.
      *
      * @throws  IllegalArgumentException
      *          If the terrainTypes or the modelListener isn't effective.
@@ -261,7 +262,7 @@ public class Terrain {
      *          The new type
      *
      * @post    The cube at position pos will have the given type and
-     *          any cubes that aren't connected to the border anymore will cave in (include the given cube TODO).
+     *          any cubes that aren't connected to the border anymore will cave in.
      *          When cubes cave in they may drop a boulder or a log.
      *
      * @effect  If the type is a workshop, the workshop is added to the world.
@@ -362,7 +363,6 @@ public class Terrain {
     //</editor-fold>
 
     //<editor-fold desc="Neighbours">
-    // TODO: move to some class? terrain or util?
     private static final int[][] neighbourOffsets = new int[][] {
 
             { -1, 0, 0 },
