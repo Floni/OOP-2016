@@ -1162,6 +1162,7 @@ public class Unit {
             throw new InvalidActionException("Can't sprint right now");
 
         // reset sprint timer
+        // TODO: SPRINT_DELAY PRIVATE AND FIX THIS
         if (!moveActivity.sprinting && sprint)
             moveActivity.sprintStaminaTimer = MoveActivity.SPRINT_DELAY;
         moveActivity.sprinting = sprint;

@@ -7,7 +7,6 @@ import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.vector.IntVector;
 import hillbillies.part2.listener.TerrainChangeListener;
 import hillbillies.util.ConnectedToBorder;
-import org.omg.CORBA.DynAnyPackage.Invalid;
 
 import java.util.Arrays;
 import java.util.HashSet;
