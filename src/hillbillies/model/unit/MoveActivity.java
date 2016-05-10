@@ -72,23 +72,23 @@ class MoveActivity extends Activity {
             sprintStaminaTimer -= dt;
             if(sprintStaminaTimer <= 0) {
                 sprintStaminaTimer += SPRINT_DELAY;
-                int newStamina = unit.getStamina()  - 1;
+                int newStamina = getUnit().getStamina()  - 1;
                 if (newStamina >= 0)
-                    unit.setStamina(newStamina);
-                if (unit.getStamina() == 0)
+                    getUnit().setStamina(newStamina);
+                if (getUnit().getStamina() == 0)
                     this.sprinting = false;
             }
-        } else if (unit.isDefaultEnabled()) {
+        } else if (getUnit().isDefaultEnabled()) {
             // TODO: fix with timer? or just once while moving?
-            if (Math.random() >= 0.9999 && unit.getStamina() != 0)
+            if (Math.random() >= 0.9999 && getUnit().getStamina() != 0)
                 this.sprinting = true;
         }
-        Vector newPosition = unit.getPosition().add(this.speed.multiply(this.sprinting ? 2*dt : dt));
+        Vector newPosition = getUnit().getPosition().add(this.speed.multiply(this.sprinting ? 2*dt : dt));
         if (isAtNeighbour(newPosition)) {
-            unit.setPosition(this.targetNeighbour);
-            unit.addXp(1);
+            getUnit().setPosition(this.targetNeighbour);
+            getUnit().addXp(1);
             if (getPendingActivity() != null) {
-                unit.switchActivity(getPendingActivity());
+                getUnit().switchActivity(getPendingActivity());
                 setPendingActivity(null);
             } else if (this.target == null || isAtTarget()) {
                 this.finishActivity();
@@ -98,7 +98,7 @@ class MoveActivity extends Activity {
                 goToNextNeighbour();
             }
         } else {
-            unit.setPosition(newPosition);
+            getUnit().setPosition(newPosition);
         }
     }
 
@@ -138,11 +138,11 @@ class MoveActivity extends Activity {
     /**
      * Checks whether the unit has arrived at the target
      *
-     * @return  True if the unit's position equals the target position.
+     * @return  True if the getUnit()'s position equals the target position.
      *          | result == this.position.isEqualTo(this.target, POS_EPS)
      */
     private boolean isAtTarget() {
-        return unit.getPosition().toIntVector().isEqualTo(this.target);
+        return getUnit().getPosition().toIntVector().isEqualTo(this.target);
     }
 
     /**
@@ -156,7 +156,7 @@ class MoveActivity extends Activity {
      */
     private boolean isAtNeighbour(Vector newPosition) {
         double dist_new = newPosition.subtract(this.targetNeighbour).norm();
-        double dist_cur = unit.getPosition().subtract(this.targetNeighbour).norm();
+        double dist_cur = getUnit().getPosition().subtract(this.targetNeighbour).norm();
         return dist_new > dist_cur || dist_new == 0;
     }
 
@@ -168,7 +168,7 @@ class MoveActivity extends Activity {
      */
     private void goToNextNeighbour() {
         IntVector next = path.getFirst(); // examine next position
-        if (!unit.isStablePosition(next) || !unit.isValidPosition(next)) {
+        if (!getUnit().isStablePosition(next) || !getUnit().isValidPosition(next)) {
             this.updateTarget(this.target); // recalc path
             return;
         }
@@ -190,12 +190,12 @@ class MoveActivity extends Activity {
      *          Throws when the neighbour position is not a valid position.
      */
     private void moveToNeighbour(IntVector neighbour) throws InvalidPositionException {
-        if (!unit.isStablePosition(neighbour) || !unit.isValidPosition(neighbour))
+        if (!getUnit().isStablePosition(neighbour) || !getUnit().isValidPosition(neighbour))
             throw new InvalidPositionException("Invalid neighbour: ", neighbour);
 
         this.targetNeighbour = neighbour.toVector().add(Terrain.Lc/2);
         this.speed = calculateSpeed(this.targetNeighbour);
-        unit.setOrientation(Math.atan2(this.speed.getY(), this.speed.getX()));
+        getUnit().setOrientation(Math.atan2(this.speed.getY(), this.speed.getX()));
     }
 
     /**
@@ -205,7 +205,7 @@ class MoveActivity extends Activity {
      *          | moveToNeighbour(curPos.add(dx, dy, dz))
      */
     private void moveToNeighbour(int dx, int dy, int dz) throws InvalidPositionException {
-        IntVector curPos = unit.getPosition().toIntVector();
+        IntVector curPos = getUnit().getPosition().toIntVector();
         moveToNeighbour(curPos.add(dx, dy, dz));
     }
 
