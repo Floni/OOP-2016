@@ -7,7 +7,6 @@ import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.vector.IntVector;
 import hillbillies.part2.listener.TerrainChangeListener;
 import hillbillies.util.ConnectedToBorder;
-import org.omg.CORBA.DynAnyPackage.Invalid;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -93,16 +92,17 @@ public class Terrain {
 
     /**
      * Create a new terrain.
+     *
      * @param   world
      *          The world this terrain belongs to.
      * @param   terrainTypes
      *          The initial types of the terrain.
      * @param   modelListener
      *          The listener for terrain changes.
-     *TODO
-     * @post    The X_MAX, Y_MAX and Z_MAX variables are set to the size of the terrain.
+     *
+     * @post    The maxX, maxY and maxZ variables are set to the size of the terrain.
      * @post    The cube types are set for each cube and checked if they are connected to the border,
-     *          if not they cave in.
+     *          if they are not connected the cubes cave in.
      *
      * @throws  IllegalArgumentException
      *          If the terrainTypes or the modelListener isn't effective.
