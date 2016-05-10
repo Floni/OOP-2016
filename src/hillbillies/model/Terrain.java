@@ -100,9 +100,9 @@ public class Terrain {
      * @param   modelListener
      *          The listener for terrain changes.
      *
-     * @post    The maxX, maxY and maxZ variables are set to the size of the terrain.
-     * @post    The cube types are set for each cube and checked if they are connected to the border,
-     *          if they are not connected the cubes cave in.
+     * @post    The getMaxX(), getMaxY() and getMaxZ() functions will return the size of the terrain.
+     * @post    A new cube is created for each position in the terrain, the type is set to the supplied type.
+     * @post    Any cube that isn't connected to the border will cave in at start.
      *
      * @throws  IllegalArgumentException
      *          If the terrainTypes or the modelListener isn't effective.
@@ -362,7 +362,6 @@ public class Terrain {
     //</editor-fold>
 
     //<editor-fold desc="Neighbours">
-    // TODO: move to some class? terrain or util?
     private static final int[][] neighbourOffsets = new int[][] {
 
             { -1, 0, 0 },

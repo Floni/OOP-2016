@@ -29,6 +29,8 @@ import java.util.stream.Stream;
  */
 public class World {
     //<editor-fold desc="Constants">
+    public static final double POS_EPS = 1e-3;
+
     private static final int MAX_UNITS = 100;
     private static final int MAX_FACTIONS = 5;
     //</editor-fold>
@@ -76,10 +78,8 @@ public class World {
      *
      * @post    The factions, units, logs and boulders are empty.
      *
-     *
-     * @effect  Create a new terrain. TODO
-     *          | new Terrain(this, terrainTypes, modelListener)
-     *
+     * @post    The getTerrain() function will return a newly created terrain using the supplied terrainTypes.
+     *          | this.getTerrain() == (new Terrain(this, terrainTypes, modelListener))
      */
     public World(int[][][] terrainTypes, TerrainChangeListener modelListener) throws IllegalArgumentException {
         this.factions = new HashSet<>();
@@ -316,8 +316,9 @@ public class World {
             randPos = new IntVector(Math.random()*this.getTerrain().getMaxX(),
                     Math.random()*this.getTerrain().getMaxY(),
                     Math.random()*this.getTerrain().getMaxZ());
-        } while (!this.getTerrain().isValidPosition(randPos) || Terrain.isSolid(this.getTerrain().getCubeType(randPos))
-                || (randPos.getZ() != 0 && !Terrain.isSolid(this.getTerrain().getCubeType(randPos.add(0, 0, -1))))); // TODO: add getRandPos to terrain?
+        } while (!this.getTerrain().isValidPosition(randPos) // must be within world bounds
+                || (randPos.getZ() != 0 && !Terrain.isSolid(this.getTerrain().getCubeType(randPos.add(0, 0, -1)))) // floor must be solid.
+                || Terrain.isSolid(this.getTerrain().getCubeType(randPos))); // the randPos can't be solid.
 
         // shouldn't throw because name is valid & position is valid.
         Unit unit = new Unit("Spawn", randPos.getX(), randPos.getY(), randPos.getZ(), getRandomAttribute(), getRandomAttribute(),
