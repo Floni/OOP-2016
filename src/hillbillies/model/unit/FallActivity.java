@@ -36,6 +36,7 @@ class FallActivity extends Activity {
      */
     void startFalling() {
         this.setStartPosition(this.getUnit().getPosition()); // we use target as the starting position
+        this.getUnit().setSpeed(FALL_SPEED);
     }
 
     /**

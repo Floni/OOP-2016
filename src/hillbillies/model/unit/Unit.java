@@ -73,6 +73,7 @@ public class Unit {
     private int hitPoints, stamina;
     private int xp, xpDiff;
     private boolean defaultEnabled;
+    private Vector speed;
 
     private final NoneActivity noneActivity = new NoneActivity(this);
     private final MoveActivity moveActivity = new MoveActivity(this);
@@ -1131,6 +1132,29 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="SpeedNSprint">
+
+
+    /**
+     * Returns the speed of the unit.
+     */
+    @Basic @Model
+    Vector getSpeed() {
+        return speed;
+    }
+
+    /**
+     * Sets the speed of the unit to the given value.
+     *
+     * @param   speed
+     *          The value to set the speed to.
+     *
+     * @post    The new speed of the unit will equal the given speed.
+     *          | new.getSpeed() == speed
+     */
+    void setSpeed(Vector speed) {
+        this.speed = speed;
+    }
+
     /**
      * Gets the unit's movement speed.
      *
@@ -1145,15 +1169,7 @@ public class Unit {
      *          |   then result == 2 * g
      */
     public double getSpeedScalar() {
-        // TODO: add speed as property to unit?
-        // if not null -> calc new position in advance time?
-        // sprint?
-        if (!isMoving())
-            return 0;
-        if (isFalling())
-            return FallActivity.FALL_SPEED.norm();
-        double speedScalar = this.getMoveActivity().getSpeed() == null ? 0 : this.getMoveActivity().getSpeed().norm();
-        return isSprinting() ? 2*speedScalar : speedScalar;
+        return getSpeed() == null ? 0.0 : getSpeed().norm();
     }
 
     /**
@@ -1171,24 +1187,22 @@ public class Unit {
      *          | sprint && (getStamina() == 0 || !isMoving())
      */
     public void setSprint(boolean sprint) throws InvalidActionException {
-        if (sprint && (getStamina() == 0 || getCurrentActivity() != getMoveActivity()))
+        if (sprint && (getStamina() == 0 || !isMoving() || isFalling()))
             throw new InvalidActionException("Can't sprint right now");
 
         // reset sprint timer
         // TODO: SPRINT_DELAY PRIVATE AND FIX THIS
-        if (!moveActivity.sprinting && sprint)
-            moveActivity.sprintStaminaTimer = MoveActivity.SPRINT_DELAY;
-        getMoveActivity().sprinting = sprint;
+        ((MoveActivity)getCurrentActivity()).setSprinting(sprint);
     }
 
     /**
      * Returns True if the unit is sprinting
      *
      * @return  True if the unit is moving & sprinting.
-     *          | this.getCurrentActivity() == this.getMoveActivity() && this.getMoveActivity().isSprinting()
+     *          | result == (isMoving() && !isFalling()) && ((MoveActivity) getCurrentActivity()).getSprinting()
      */
     public boolean isSprinting() {
-        return getCurrentActivity() == this.getMoveActivity() && this.getMoveActivity().sprinting; // TODO
+        return (isMoving() && !isFalling()) && ((MoveActivity) getCurrentActivity()).getSprinting();
     }
 
 
@@ -1643,5 +1657,7 @@ public class Unit {
     public void setActivityTracker(ActivityTracker tracker) {
         getCurrentActivity().setTracker(tracker);
     }
+
+
     //</editor-fold>
 }

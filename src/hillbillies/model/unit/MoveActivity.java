@@ -23,10 +23,9 @@ class MoveActivity extends Activity {
 
     protected IntVector target; // the final target
     private Vector targetNeighbour; // the next neighbour to reach
-    protected Vector speed; // the speed at which we're going, doesn't use sprinting
 
     double sprintStaminaTimer; // timer for sprinting
-    boolean sprinting; // true if we are sprinting
+    private boolean sprinting;
 
     /**
      * A stack containing the current path, may be null.
@@ -69,7 +68,7 @@ class MoveActivity extends Activity {
      */
     @Override
     void advanceTime(double dt) {
-        if (this.sprinting) {
+        if (getSprinting()) {
             sprintStaminaTimer -= dt;
             if(sprintStaminaTimer <= 0) {
                 sprintStaminaTimer += SPRINT_DELAY;
@@ -77,13 +76,13 @@ class MoveActivity extends Activity {
                 if (newStamina >= 0)
                     getUnit().setStamina(newStamina);
                 if (getUnit().getStamina() == 0)
-                    this.sprinting = false;
+                    setSprinting(false);
             }
         } else if (getUnit().isDefaultEnabled()) {
             if (Math.random() <= SPRINT_CHANCE && getUnit().getStamina() != 0)
-                this.sprinting = true;
+                setSprinting(true);
         }
-        Vector newPosition = getUnit().getPosition().add(this.speed.multiply(this.sprinting ? 2*dt : dt));
+        Vector newPosition = getUnit().getPosition().add(this.getUnit().getSpeed().multiply(dt));
         if (isAtNeighbour(newPosition)) {
             getUnit().setPosition(this.targetNeighbour);
             getUnit().addXp(1);
@@ -124,7 +123,6 @@ class MoveActivity extends Activity {
     void reset() {
         this.target = null;
         this.targetNeighbour = null;
-        this.speed = null;
         sprintStaminaTimer = 0;
         sprinting = false;
         this.path = null;
@@ -194,8 +192,8 @@ class MoveActivity extends Activity {
             throw new InvalidPositionException("Invalid neighbour: ", neighbour);
 
         this.targetNeighbour = neighbour.toVector().add(Terrain.Lc/2);
-        this.speed = calculateSpeed(this.targetNeighbour);
-        getUnit().setOrientation(Math.atan2(this.speed.getY(), this.speed.getX()));
+        this.getUnit().setSpeed(calculateSpeed(this.targetNeighbour));
+        getUnit().setOrientation(Math.atan2(this.getUnit().getSpeed().getY(), this.getUnit().getSpeed().getX()));
     }
 
     /**
@@ -330,7 +328,37 @@ class MoveActivity extends Activity {
         return this.target;
     }
 
-    public Vector getSpeed() {
-        return speed;
+    /**
+     * Returns whether sprinting is enabled.
+     */
+    @Basic
+    boolean getSprinting() {
+        return this.sprinting;
     }
+
+    /**
+     * Sets sprinting to the given boolean.
+     *
+     * @param   b
+     *          The boolean to set sprinting to.
+     *
+     * @post    Update the speed if the unit starts to sprint or stops sprinting.
+     *          | if (b && !getSprinting())
+     *          |   then new.getUnit().getSpeed() == this.getUnit().getSpeed().multiply(2.0)
+     *          | else if (!b && getSprinting())
+     *          |   then new.getUnit().getSpeed() == this.getUnit().getSpeed().divide(2.0)
+     * @post    The new value of sprinting will equal the given value.
+     *          | new.getSprinting() == b
+     */
+    void setSprinting(boolean b) {
+        if (b && !getSprinting()) {
+            this.sprintStaminaTimer = SPRINT_DELAY;
+            this.getUnit().setSpeed(this.getUnit().getSpeed().multiply(2.0));
+        } else if (!b && getSprinting()) {
+            this.getUnit().setSpeed(this.getUnit().getSpeed().divide(2.0));
+        }
+
+        this.sprinting = b;
+    }
+
 }
