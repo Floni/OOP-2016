@@ -107,6 +107,16 @@ class NoneActivity extends Activity {
         return true;
     }
 
+    @Override
+    void pause() {
+        // NOP
+    }
+
+    @Override
+    void resume() {
+        // NOP
+    }
+
 
     /**
      * Resets the activity, which does nothing.

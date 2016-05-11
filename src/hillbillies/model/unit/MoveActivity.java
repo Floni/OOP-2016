@@ -21,6 +21,7 @@ class MoveActivity extends Activity {
     static final double SPRINT_DELAY = 0.1;
     private static final double SPRINT_CHANCE = 0.001;
 
+    // TODO: getter & setter
     protected IntVector target; // the final target
     private Vector targetNeighbour; // the next neighbour to reach
 
@@ -110,6 +111,21 @@ class MoveActivity extends Activity {
     @Override
     boolean canSwitch() {
         return this.getTarget() != null;
+    }
+
+    @Override
+    void pause() {
+        this.getUnit().setSpeed(null);
+    }
+
+    @Override
+    void resume() {
+        if (this.getTarget() != null)
+            this.updateTarget(this.getTarget());
+
+        Vector speed = this.calculateSpeed(this.targetNeighbour);
+        this.getUnit().setSpeed(speed);
+        this.getUnit().setOrientation(Math.atan2(speed.getY(), speed.getX()));
     }
 
     /**
@@ -294,6 +310,10 @@ class MoveActivity extends Activity {
             vw *= 0.5;
         else if (diff.getZ() < -World.POS_EPS)
             vw *= 1.2;
+
+        if (getSprinting())
+            vw *= 2;
+
         return diff.multiply(vw);
     }
 

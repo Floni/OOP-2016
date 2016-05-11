@@ -350,10 +350,12 @@ public class Unit {
         }
 
         if (!isStablePosition(getPosition().toIntVector()) && !isFalling()) {
+            getCurrentActivity().pause();
             getCurrentActivity().reset();
             this.getFallActivity().startFalling();
             setCurrentActivity(this.getFallActivity());
 
+            getLastActivity().pause();
             getLastActivity().reset();
             setLastActivity(this.getNoneActivity());
         }
@@ -454,20 +456,19 @@ public class Unit {
         if (!canSwitchActivity())
             throw new InvalidActionException("can't change activity");
 
-        if (getCurrentActivity() == this.getMoveActivity() &&
-                newActivity != this.getMoveActivity() && newActivity != this.getMoveActivity().getPendingActivity()) {
-            if (this.getMoveActivity().getPendingActivity() != null)
-                this.getMoveActivity().getPendingActivity().reset();
-            this.getMoveActivity().setPendingActivity(newActivity);
-        } else {
-            // don't do the same activity twice
-            if (newActivity != this.getCurrentActivity()) {
-                getLastActivity().reset();
-                setLastActivity(getCurrentActivity());
-            } else {
-                getCurrentActivity().reset();
+        if (getCurrentActivity() == getMoveActivity() && newActivity != getMoveActivity().getPendingActivity()) {
+            if (newActivity != getMoveActivity()) {
+                if (getMoveActivity().getPendingActivity() != null)
+                    getMoveActivity().getPendingActivity().reset();
+                getMoveActivity().setPendingActivity(newActivity);
             }
+        } else if (newActivity != getCurrentActivity()) {
+            if (getLastActivity() != newActivity)
+                getLastActivity().reset();
+            setLastActivity(getCurrentActivity());
+            getLastActivity().pause();
             setCurrentActivity(newActivity);
+            getCurrentActivity().resume();
         }
     }
 
@@ -480,7 +481,12 @@ public class Unit {
      *          | this.setLastActivity(this.getNoneActivity())
      */
     void finishCurrentActivity() {
+        getCurrentActivity().pause();
+        getCurrentActivity().reset();
+
         setCurrentActivity(getLastActivity());
+        getCurrentActivity().resume();
+
         setLastActivity(this.getNoneActivity());
     }
 
@@ -1416,6 +1422,8 @@ public class Unit {
      *          | this.addXp()
      * @effect  Turns the units towards each other.
      *          | this.setOrientation()
+     * @efect   Resumes the current activity
+     *          | getCurrentActivity().resume() TODO: resume model?
      */
     void defend(Unit attacker) {
         double probabilityDodge = 0.20 * (this.getAgility() / attacker.getAgility());
@@ -1427,12 +1435,6 @@ public class Unit {
                         getPosition().getZ());
             } while (!isValidPosition(randPos.toIntVector()));
             setPosition(randPos);
-            if (isMoving()) {
-                MoveActivity ca = ((MoveActivity)getCurrentActivity());
-                if (ca.target != null) { // TODO: getter for target & better name than ca
-                        ca.updateTarget(ca.target);
-                }
-            }
             // update orientation:
             Vector diff = attacker.getPosition().subtract(this.position);
             this.setOrientation(Math.atan2(diff.getY(), diff.getX()));
@@ -1448,6 +1450,7 @@ public class Unit {
                 this.addXp(20);
             }
         }
+        getCurrentActivity().resume();
     }
     //</editor-fold>
 

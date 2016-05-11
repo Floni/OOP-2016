@@ -125,6 +125,15 @@ class WorkActivity extends Activity {
         return true;
     }
 
+    @Override
+    void pause() {
+    }
+
+    @Override
+    void resume() {
+        this.workTimer  = 500.0 / getUnit().getStrength();
+    }
+
 
     /**
      * Resets the work activity.

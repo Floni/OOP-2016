@@ -102,6 +102,16 @@ class AttackActivity extends Activity {
         return false;
     }
 
+    @Override
+    void pause() {
+        // can't happen -> NOP
+    }
+
+    @Override
+    void resume() {
+        // can't happen -> nop
+    }
+
     /**
      * Resets the activity.
      *

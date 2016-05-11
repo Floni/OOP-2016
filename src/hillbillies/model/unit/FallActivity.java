@@ -84,6 +84,16 @@ class FallActivity extends Activity {
         return false;
     }
 
+    @Override
+    void pause() {
+        // NOP
+    }
+
+    @Override
+    void resume() {
+        // NOP
+    }
+
     /**
      * Resets the fall activity.
      *
