@@ -1333,7 +1333,7 @@ public class Unit {
      *          | (other == null || other == this || other.getCurrentActivity.equalsClass(FALL_ACTIVITY_CLASS))
      * @throws  InvalidActionException
      *          Throws if the unit can't attack.
-     *          | !canHaveAsActivity(ATTACK_ACTIVITY_CLASS)
+     *          | !this.canSwitchActivity()
      * @throws  InvalidUnitException
      *          Throws if the other unit is not in attack range.
      *          | (!this.canAttack(other))
@@ -1431,28 +1431,40 @@ public class Unit {
      *
      * @throws  InvalidActionException
      *          Throws if the unit is moving or attacking TODOs.
-     *          | !this.canHaveAsActivity(REST_ACTIVITY_CLASS)
+     *          | !this.canSwitchActivity()
      */
     public void rest() throws InvalidActionException {
         this.switchActivity(this.getRestActivity());
     }
 
+    /**
+     * Sets the rest timer.
+     *
+     * @param   val
+     *          The new Value of the timer.
+     *
+     * @post    The timer will be set.
+     *          | new.getRestMinuteTimer() == val
+     */
     private void setRestMinuteTimer(double val) {
         this.restMinuteTimer = val;
     }
 
+    /**
+     * Returns the time left until the unit has to rest.
+     */
+    @Basic
     private double getRestMinuteTimer() {
         return this.restMinuteTimer;
     }
     //</editor-fold>
 
     //<editor-fold desc="Default behaviour">
-
     /**
      * Starts the default behavior.
      *
      * @post    The default behavior is enabled.
-     *          | new.isDefaultEnabled == True
+     *          | new.isDefaultEnabled() == true
      */
     public void startDefaultBehaviour() {
         this.defaultEnabled = true;
@@ -1462,7 +1474,7 @@ public class Unit {
      * Stops the default behavior.
      *
      * @post    The default behavior has stopped.
-     *          | new.isDefaultEnabled == False
+     *          | new.isDefaultEnabled() == false
      */
     public void stopDefaultBehaviour() {
         this.defaultEnabled = false;
@@ -1478,6 +1490,15 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Leveling and Xp">
+
+    /**
+     * Rests the xp and xpDiff
+     *
+     * @post    The xp will be set to zero.
+     *          | new.getXp() == 0
+     * @post    The xp difference will be set to zero.
+     *          | new.getXpDiff() == 0
+     */
     @Model
     private void resetXp() {
         this.xp = 0;
@@ -1485,20 +1506,20 @@ public class Unit {
     }
 
     /**
-     * Adds the given xp to the Unit
+     * Adds the given xp to the xp counter and xp difference.
      *
      * @param   xp
-     *          The xp to be added
+     *          The xp to add
      *
-     * @post    The new xp will match
-     *          | new.getXp() == this.getXp() + xp
-     *
-     * @effect  The unit will level up
-     *          | this.levelUp()
+     * @post    The units xp will be increased with xp.
+     *          | new.getXp() == xp + this.getXp()
+     * @post    XpDiff will be increased with xp.
+     *          | new.getXpDiff() == xp + this.getXpDiff()
      */
     void addXp(int xp) {
-        this.xp += xp;
-        this.xpDiff += xp;
+        int oldXp = this.getXp();
+        this.setXp(oldXp + xp);
+        this.setXpDiff(oldXp + xp);
         levelUp();
     }
 
@@ -1510,17 +1531,38 @@ public class Unit {
         return this.xp;
     }
 
-    public int getXpDiff() {
+    /**
+     * Sets the units xp.
+     *
+     * @param   xp
+     *          The new xp value.
+     *
+     * @post    The xp will be set.
+     *          | new.getXp() == xp
+     */
+    private void setXp(int xp) {
+        this.xp = xp;
+    }
+
+    /**
+     * Returns the xp difference.
+     */
+    @Basic @Model
+    private int getXpDiff() {
         return xpDiff;
     }
 
-    public void setXpDiff(int xpDiff) {
+    /**
+     * Sets the Xp difference.
+     * @param xpDiff
+     */
+    private void setXpDiff(int xpDiff) {
         this.xpDiff = xpDiff;
     }
 
     /**
      * Levels the unit.
-     *
+     * TODO
      * @post    While the xpDiff is larger than or equal to 10, increase a random attribute that is not yet the maximum by 1.
      *          | while xpDiff >= 10
      *          | if (this.getStrength() < 200)
@@ -1569,15 +1611,13 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Faction">
-
     /**
      * Returns the faction of the unit.
      */
     @Basic
     public Faction getFaction() {
-        return faction;
+        return this.faction;
     }
-
 
     /**
      * Sets the faction of the unit.
@@ -1586,7 +1626,7 @@ public class Unit {
      *          The faction to which the unit should be added.
      *
      * @post    The unit's faction is the given faction.
-     *          |new.getFaction == faction
+     *          | new.getFaction() == faction
      */
     public void setFaction(Faction faction) {
         this.faction = faction;
@@ -1594,37 +1634,78 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Tasks">
+
+    /**
+     * Returns whether the unit has an assigned task.
+     *
+     * @return  ...
+     *          | result == this.getAssignedTask() != null
+     */
     public boolean hasAssignedTask() {
-        return this.task != null;
+        return this.getAssignedTask() != null;
     }
 
+    /**
+     * Returns the unit's assigned task.
+     */
+    @Basic
     public Task getAssignedTask() {
         return this.task;
     }
 
+    /**
+     * Assigns a task to the unit.
+     *
+     * @param   task
+     *          The task to assign.
+     *
+     * @post    The units task will be assigned.
+     *          | new.getAssignedTask() == task
+     */
     public void assignTask(Task task) {
         this.task = task;
     }
 
-    public void finishTask() {
+
+    public void finishTask() { // TODO: remove?
         if (hasAssignedTask())
             getAssignedTask().finish();
     }
 
-    public void stopTask() {
+    /**
+     * Stops the assigned task
+     *
+     * @effect  Stop the assigned task if effective.
+     *          | if (this.hasAssignedTask()) then this.getAssignedTask().interrupt()
+     */
+    private void stopTask() {
         if (hasAssignedTask())
             getAssignedTask().interrupt();
 
     }
 
+    /**
+     * Returns whether the unit is falling.
+     *
+     * @return  True if the unit is falling.
+     *          | result == (this.getCurrentActivity() == this.getFallActivity())
+     */
     public boolean isFalling() {
         return this.getCurrentActivity() == this.getFallActivity();
     }
 
+    /**
+     * Sets the tracker of the current activity.
+     *
+     * @param   tracker
+     *          The tracker to set.
+     *
+     * @effect  Set the currentActivity's tracker.
+     *          | this.getCurrentActivity().setTracker(tracker)
+     */
     public void setActivityTracker(ActivityTracker tracker) {
         getCurrentActivity().setTracker(tracker);
     }
-
 
     //</editor-fold>
 }
