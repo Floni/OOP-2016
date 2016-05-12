@@ -80,13 +80,13 @@ class RestActivity extends Activity {
 
     @Override
     void pause() {
-        this.setRestTimer(REST_DELAY);
-        this.restDiff = 0;
+        // NOP
     }
 
     @Override
     void resume() {
-        // NOP
+        this.setRestTimer(REST_DELAY);
+        this.restDiff = 0;
     }
 
 

@@ -1275,19 +1275,65 @@ public class Unit {
     }
 
     /**
-     *  Returns whether the unit is carrying a log.
+     * Returns the log the unit is carrying or null.
      */
     @Basic
-    public boolean isCarryingLog() {
-        return this.carryLog != null;
+    private Log getCarryLog() {
+        return carryLog;
     }
 
     /**
-     *  Returns whether the unit is carrying a boulder.
+     * Sets the log the unit is carrying.
+     *
+     * @param   carryLog
+     *          The log to carry
+     *
+     * @post    The unit will be carrying carryLog
+     *          | new.getCarryLog() == carryLog
+     */
+    private void setCarryLog(Log carryLog) {
+        this.carryLog = carryLog;
+    }
+
+    /**
+     * Returns the Boulder the unit is carrying or null.
      */
     @Basic
+    private Boulder getCarryBoulder() {
+        return carryBoulder;
+    }
+
+    /**
+     * Sets the boulder the unit is carrying.
+     *
+     * @param   carryBoulder
+     *          The boulder to carry
+     *
+     * @post    The unit will be carrying carryBoulder
+     *          | new.getCarryBoulder() == carryBoulder
+     */
+    private void setCarryBoulder(Boulder carryBoulder) {
+        this.carryBoulder = carryBoulder;
+    }
+
+    /**
+     *  Returns whether the unit is carrying a log.
+     *
+     *  @return     True if the unit is carrying a log.
+     *              | result == (this.getCarryLog() == null)
+     */
+    public boolean isCarryingLog() {
+        return this.getCarryLog() != null;
+    }
+
+    /**
+     * Returns whether the unit is carrying a boulder.
+     *
+     * @return      True if the unit is carrying a boulder.
+     *              | result == (this.getCarryBoulder() == null)
+     */
     public boolean isCarryingBoulder()  {
-        return this.carryBoulder != null;
+        return this.getCarryBoulder() != null;
     }
 
     /**
@@ -1305,13 +1351,13 @@ public class Unit {
      */
     void dropCarry(IntVector workLoc) {
         if (isCarryingLog()) {
-            carryLog.setPosition(workLoc.toVector().add(Terrain.Lc/2));
-            getWorld().addGameObject(carryLog); // TODO: getters for carryLog & carryBoulder
-            carryLog = null;
+            this.getCarryLog().setPosition(workLoc.toVector().add(Terrain.Lc/2));
+            getWorld().addGameObject(this.getCarryLog());
+            this.setCarryLog(null);
         } else if (isCarryingBoulder()) {
-            carryBoulder.setPosition(workLoc.toVector().add(Terrain.Lc/2));
-            getWorld().addGameObject(carryBoulder);
-            carryBoulder = null;
+            this.getCarryBoulder().setPosition(workLoc.toVector().add(Terrain.Lc/2));
+            getWorld().addGameObject(this.getCarryBoulder());
+            this.setCarryBoulder(null);
         }
     }
 
@@ -1326,7 +1372,7 @@ public class Unit {
      *          | world.removeGameObject(log)
      */
     void pickUpLog(Log log) {
-        carryLog = log;
+        this.setCarryLog(log);
         getWorld().removeGameObject(log);
     }
 
@@ -1341,7 +1387,7 @@ public class Unit {
      *          | world.removeGameObject(boulder)
      */
     void pickUpBoulder(Boulder boulder) {
-        carryBoulder = boulder;
+        this.setCarryBoulder(boulder);
         getWorld().removeGameObject(boulder);
     }
 
@@ -1417,14 +1463,17 @@ public class Unit {
      * @effect  Deduces the given amount of hit points from the unit's hp.
      *          | this.deduceHitPoints()
      * @effect  Adds xp for dodge, block and successful attack.
-     *          | if (...)  TODO
+     *          | if (...)
      *          | this.addXp(...)
      * @effect  Turns the units towards each other.
      *          | this.setOrientation()
-     * @efect   Resumes the current activity
-     *          | getCurrentActivity().resume() TODO: resume model?
+     * @effect  Pauses the current activity.
+     *          | this.getCurrentActivity().pause()
+     * @efect   Resumes the current activity.
+     *          | this.getCurrentActivity().resume()
      */
     void defend(Unit attacker) {
+        getCurrentActivity().pause();
         double probabilityDodge = 0.20 * (this.getAgility() / attacker.getAgility());
         if (Math.random() < probabilityDodge) {
             Vector randPos;
@@ -1475,7 +1524,6 @@ public class Unit {
      *          | !this.canHaveAsActivity(REST_ACTIVITY_CLASS)
      */
     public void rest() throws InvalidActionException {
-        this.getRestActivity().reset(); // TODO: why reset?
         this.switchActivity(this.getRestActivity());
     }
 
@@ -1520,8 +1568,6 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Leveling and Xp">
-
-
     private void resetXp() {
         this.xp = 0;
         this.xpDiff = 0;
@@ -1553,6 +1599,14 @@ public class Unit {
         return this.xp;
     }
 
+    public int getXpDiff() {
+        return xpDiff;
+    }
+
+    public void setXpDiff(int xpDiff) {
+        this.xpDiff = xpDiff;
+    }
+
     /**
      * Levels the unit.
      *
@@ -1576,8 +1630,8 @@ public class Unit {
      */
     @Model
     private void levelUp() {
-        while (this.xpDiff >= 10) { // TODO: getter & setter?
-            this.xpDiff -= 10;
+        while (this.getXpDiff() >= 10) {
+            this.setXpDiff(this.getXpDiff() - 10);
 
             ArrayList<Integer> attributes = new ArrayList<>();
             if (this.getStrength() < 200)
