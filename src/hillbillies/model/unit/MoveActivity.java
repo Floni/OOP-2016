@@ -311,9 +311,6 @@ class MoveActivity extends Activity {
         else if (diff.getZ() < -World.POS_EPS)
             vw *= 1.2;
 
-        if (getUnit().isSprinting())
-            vw *= 2;
-
         return diff.multiply(vw);
     }
 

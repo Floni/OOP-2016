@@ -439,6 +439,7 @@ public class Unit {
      *          If the unit can't switch activities
      *          | !this.canSwitchActivity()
      */
+    @Model
     void switchActivity(Activity newActivity) throws InvalidActionException {
         if (!canSwitchActivity())
             throw new InvalidActionException("can't change activity");
@@ -723,8 +724,6 @@ public class Unit {
         this.weight = weight;
     }
 
-    //TODO: comments from here:
-
     /**
      * Checks whether the attribute is valid.
      * (only used in class invariant)
@@ -755,32 +754,16 @@ public class Unit {
      * @param   strength
      *          The new strength for the unit.
      *
-     * @post    If the given strength is less than MIN_ATTRIBUTE, the new strength is MIN_ATTRIBUTE.
-     *          | if strength < MIN_ATTRIBUTE
-     *          |   then new.getStrength() == MIN_ATTRIBUTE
+     * @post    The strength is set to strength clamped between MIN_ATTRIBUTE and MAX_ATTRIBUTE.
+     *          | new.getStrength() == Util.clamp(strength, MIN_ATTRIBUTE, MAX_ATTRIBUTE);
      *
-     *          If the given strength is more then MAX_ATTRIBUTE, the new strength is MAX_ATTRIBUTE.
-     *          | else if strength > MAX_ATTRIBUTE
-     *          |   then new.getStrength() == MAX_ATTRIBUTE
-     *
-     *          Otherwise the new strength is the given strength
-     *          | else
-     *          |   new.getStrength() == strength
-     *
-     * @post    The weight is adapted to match the new strength.
-     *          | if this.getWeight < (strength + this.agility)/2
-     *          |   then new.getWeight() == (strength + this.agility)/2
-     *          | else
-     *          |   new.getWeight() == this.getWeight()
+     * @effect  The weight is corrected.
+     *          | this.setWeight(this.getBasicWeight())
      */
     @Raw
     public void setStrength(int strength) {
-        if (strength < MIN_ATTRIBUTE)
-            strength = MIN_ATTRIBUTE;
-        else if (strength > MAX_ATTRIBUTE)
-            strength = MAX_ATTRIBUTE;
-        this.strength = strength;
-        setWeight(this.weight);
+        this.strength = Util.clamp(strength, MIN_ATTRIBUTE, MAX_ATTRIBUTE);
+        setWeight(getBasicWeight());
     }
 
     /**
@@ -798,31 +781,15 @@ public class Unit {
      *          The new agility.
      *
      * @post    If the given agility is less then MIN_ATTRIBUTE, the new agility is MIN_ATTRIBUTE.
-     *          | if agility < MIN_ATTRIBUTE
-     *          |   then new.getAgility() == MIN_ATTRIBUTE
+     *          | new.getAgility() == Util.clamp(agility, MIN_ATTRIBUTE, MAX_ATTRIBUTE)
      *
-     *          If the given agility is more then MAX_ATTRIBUTE, the new agility is MAX_ATTRIBUTE.
-     *          | else if agility > MAX_ATTRIBUTE
-     *          |   then new.getAgility() == MAX_ATTRIBUTE
-     *
-     *          Otherwise the new agility is the given agility.
-     *          | else
-     *          |   new.getAgility() == agility
-     *
-     * @post    The weight is adapted to match the new agility.
-     *          | if this.getWeight < (this.strength + agility)/2
-     *          |   then new.getWeight() == (this.strength + agility)/2
-     *          | else
-     *          |   new.getWeight() == this.getWeight()
+     * @effect  The weight is corrected.
+     *          | this.setWeight(this.getBasicWeight())
      */
     @Raw
     public void setAgility(int agility) {
-        if (agility < MIN_ATTRIBUTE)
-            agility = MIN_ATTRIBUTE;
-        else if (agility > MAX_ATTRIBUTE)
-            agility = MAX_ATTRIBUTE;
-        this.agility = agility;
-        setWeight(this.weight);
+        this.agility = Util.clamp(agility, MIN_ATTRIBUTE, MAX_ATTRIBUTE);
+        setWeight(getBasicWeight());
     }
 
     /**
@@ -840,22 +807,11 @@ public class Unit {
      *          The new toughness.
      *
      * @post    If the given toughness is less then MIN_ATTRIBUTE, the new toughness is MIN_ATTRIBUTE.
-     *          | if toughness < MIN_ATTRIBUTE
-     *          |   then new.getToughness() == MIN_ATTRIBUTE
-     *          If the given toughness is more then MAX_ATTRIBUTE, the new toughness is MAX_ATTRIBUTE.
-     *          | else if toughness > MAX_ATTRIBUTE
-     *          |   then new.getToughness() == MAX_ATTRIBUTE
-     *          Otherwise the new toughness is the given toughness.
-     *          | else
-     *          |   new.getToughness() == toughness
+     *          | new.getToughness() == Util.clamp(toughness, MIN_ATTRIBUTE, MAX_ATTRIBUTE)
      */
     @Raw
     public void setToughness(int toughness) {
-        if (toughness > MAX_ATTRIBUTE)
-            toughness = MAX_ATTRIBUTE;
-        else if (toughness < MIN_ATTRIBUTE)
-            toughness = MIN_ATTRIBUTE;
-        this.toughness = toughness;
+        this.toughness = Util.clamp(toughness, MIN_ATTRIBUTE, MAX_ATTRIBUTE);
     }
 
     /**
@@ -1044,7 +1000,7 @@ public class Unit {
 
     /**
      * Makes the unit move towards one of the adjacent cubes.
-     *
+     *TODO
      * @param   dx
      *          the x direction
      * @param   dy
@@ -1082,7 +1038,7 @@ public class Unit {
 
     /**
      * Starts the units movement to the given target cube.
-     *
+     *TODO
      * @param   target
      *          The coordinates of the target cubes.
      *
@@ -1106,77 +1062,6 @@ public class Unit {
 
         this.getMoveActivity().updateTarget(target);
         this.switchActivity(this.getMoveActivity());
-    }
-    //</editor-fold>
-
-    //<editor-fold desc="SpeedNSprint">
-
-
-    /**
-     * Returns the speed of the unit.
-     */
-    @Basic @Model
-    Vector getSpeed() {
-        if (this.isSprinting())
-            return this.speed.multiply(2);
-        else
-            return this.speed;
-    }
-
-    /**
-     * Sets the speed of the unit to the given value.
-     *
-     * @param   speed
-     *          The value to set the speed to.
-     *
-     * @post    The new speed of the unit will equal the given speed.
-     *          | new.getSpeed() == speed
-     */
-    void setSpeed(Vector speed) {
-        this.speed = speed;
-    }
-
-    /**
-     * Gets the unit's movement speed.
-     *
-     * @return  Returns the base speed if the unit is moving and not sprinting.
-     *          Returns 0 if the unit is not moving.
-     *          Returns twice the base speed if the unit is sprinting.
-     *          | if (isMoving() && !isSprinting())
-     *          |   then result == speed.norm()
-     *          | if (!this.isMoving())
-     *          |   then result == 0
-     *          | if (isMoving() && isSprinting())
-     *          |   then result == 2 * g
-     */
-    public double getSpeedScalar() {
-        return getSpeed() == null ? 0.0 : getSpeed().norm();
-    }
-
-    /**
-     * Returns True if the unit is sprinting
-     *
-     * @return  True if the unit is moving & sprinting.
-     *          | result == (isMoving() && !isFalling()) && ((MoveActivity) getCurrentActivity()).getSprinting()
-     */
-    public boolean isSprinting() {
-        return this.sprinting;
-    }
-
-    /**
-     * Sets sprinting to the given boolean.
-     *
-     * @param   newSprint
-     *          The boolean to set sprinting to.
-     *
-     * @post    Sprinting will equal the given boolean
-     *          | new.isSprinting() == newSprint
-     */
-    public void setSprinting(boolean newSprint) {
-        if (newSprint && (getStamina() == 0 || !isMoving() || isFalling()))
-            throw new InvalidActionException("Can't sprint right now");
-
-        this.sprinting = newSprint;
     }
 
 
@@ -1209,7 +1094,71 @@ public class Unit {
         this.getFollowActivity().setOther(other);
         this.switchActivity(this.getFollowActivity());
     }
+    //</editor-fold>
 
+    //<editor-fold desc="SpeedNSprint">
+    /**
+     * Returns the speed of the unit. (if the unit is sprinting, the speed is doubled)
+     */
+    @Basic @Model
+    Vector getSpeed() {
+        if (this.isSprinting())
+            return this.speed.multiply(2);
+        else
+            return this.speed;
+    }
+
+    /**
+     * Sets the speed of the unit to the given value.
+     *
+     * @param   speed
+     *          The value to set the speed to.
+     *
+     * @post    The new speed of the unit will equal the given speed.
+     *          | new.getSpeed() == speed
+     */
+    void setSpeed(Vector speed) {
+        this.speed = speed;
+    }
+
+    /**
+     * Gets the unit's movement speed.
+     *
+     * @return  Returns the norm of the speed or zero if the speed is null.
+     *          | if (this.getSpeed() == null) then result == 0
+     *          | else result == this.getSpeed().norm()
+     */
+    public double getSpeedScalar() {
+        return getSpeed() == null ? 0.0 : getSpeed().norm();
+    }
+
+    /**
+     * Returns True if the unit is sprinting
+     */
+    @Basic
+    public boolean isSprinting() {
+        return this.sprinting;
+    }
+
+    /**
+     * Sets sprinting to the given boolean.
+     *
+     * @param   newSprint
+     *          The boolean to set sprinting to.
+     *
+     * @post    Sprinting will equal the given boolean
+     *          | new.isSprinting() == newSprint
+     *
+     * @throws  InvalidActionException
+     *          Thrown if the unit can't sprint
+     *          | newSprint && (this.getStamina() == 0 || !this.isMoving() || this.isFalling())
+     */
+    public void setSprinting(boolean newSprint) throws InvalidActionException {
+        if (newSprint && (getStamina() == 0 || !isMoving() || isFalling()))
+            throw new InvalidActionException("Can't sprint right now");
+
+        this.sprinting = newSprint;
+    }
     //</editor-fold>
 
     //<editor-fold desc="Working">
@@ -1312,12 +1261,7 @@ public class Unit {
      * @param   workLoc
      *          The location to drop the object.
      *
-     * @post    If the unit is carrying a log, drop it on the given location.
-     *          | world.addGameObject(workLoc, carryLog)
-     *          | carryLog = null
-     * @post    Else if the unit is carrying a boulder, drop it on the given location.
-     *          | world.addGameObject(workLoc, carryBoulder)
-     *          | carryBoulder = null
+     *TODO
      */
     void dropCarry(IntVector workLoc) {
         if (isCarryingLog()) {
@@ -1337,9 +1281,7 @@ public class Unit {
      * @param   log
      *          The log to pick up.
      *
-     * @post    The log will be picked up and carried by the unit.
-     *          | carryLog = log
-     *          | world.removeGameObject(log)
+     * TODO
      */
     void pickUpLog(Log log) {
         this.setCarryLog(log);
@@ -1352,9 +1294,7 @@ public class Unit {
      * @param   boulder
      *          The boulder to pick up.
      *
-     * @post    The boulder will be picked up and carried by the unit.
-     *          | carryBoulder = boulder
-     *          | world.removeGameObject(boulder)
+     * TODO
      */
     void pickUpBoulder(Boulder boulder) {
         this.setCarryBoulder(boulder);
