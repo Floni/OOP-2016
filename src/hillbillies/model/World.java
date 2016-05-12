@@ -289,7 +289,6 @@ public class World {
     //</editor-fold>
 
     //<editor-fold desc="Units">
-
     /**
      * Returns the total number of units in the world.
      *
