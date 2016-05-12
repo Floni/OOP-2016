@@ -272,14 +272,15 @@ public class World {
 
     /**
      * Adds a new faction to the world.
-     * @return  The new faction
      *
-     * @pre     The number of active factions must be less than World.MAX_FACTIONS
-     *          TODO: may use nominal here?
+     * @return  The new faction.
+     *
+     * @throws  IllegalStateException
+     *          Throws if the amount of factions tries to exceed the maximum amount of factions.
      */
-    private Faction addFaction() {
-        assert factions.size() < MAX_FACTIONS;
-
+    private Faction addFaction() throws IllegalStateException {
+        if (factions.size() >= MAX_FACTIONS)
+            throw new IllegalStateException("No more factions allowed");
         Faction faction = new Faction();
         factions.add(faction);
         return faction;
@@ -357,6 +358,7 @@ public class World {
      *
      * @effect  The world of the unit is set to this world
      *          | unit.setWorld(this)
+     *
      */
     public void addUnit(Unit unit) {
         if (this.getTotalUnits() >= MAX_UNITS)
