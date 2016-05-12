@@ -18,14 +18,15 @@ import java.util.List;
  * The activity for moving to either a distant cube or a neighbour.
  */
 class MoveActivity extends Activity {
-    static final double SPRINT_DELAY = 0.1;
+    private static final double SPRINT_DELAY = 0.1;
     private static final double SPRINT_CHANCE = 0.001;
 
-    // TODO: getter & setter
+
     protected IntVector target; // the final target
+
     private Vector targetNeighbour; // the next neighbour to reach
 
-    double sprintStaminaTimer; // timer for sprinting
+    private double sprintStaminaTimer; // timer for sprinting
 
     /**
      * A stack containing the current path, may be null.
@@ -84,12 +85,12 @@ class MoveActivity extends Activity {
         }
         Vector newPosition = getUnit().getPosition().add(this.getUnit().getSpeed().multiply(dt));
         if (isAtNeighbour(newPosition)) {
-            getUnit().setPosition(this.targetNeighbour);
+            getUnit().setPosition(this.getTargetNeighbour());
             getUnit().addXp(1);
             if (getPendingActivity() != null) {
                 getUnit().switchActivity(getPendingActivity());
                 setPendingActivity(null);
-            } else if (this.target == null || isAtTarget()) {
+            } else if (this.getTarget() == null || isAtTarget()) {
                 this.finishActivity();
             } else {
                 if (path == null)
@@ -155,7 +156,7 @@ class MoveActivity extends Activity {
      *          | result == this.position.isEqualTo(this.target, POS_EPS)
      */
     private boolean isAtTarget() {
-        return getUnit().getPosition().toIntVector().isEqualTo(this.target);
+        return getUnit().getPosition().toIntVector().isEqualTo(this.getTarget());
     }
 
     /**
@@ -168,8 +169,8 @@ class MoveActivity extends Activity {
      *          | result == dist(newPosition, targetNeighbour) > dist(position, targetNeighbour)
      */
     private boolean isAtNeighbour(Vector newPosition) {
-        double dist_new = newPosition.subtract(this.targetNeighbour).norm();
-        double dist_cur = getUnit().getPosition().subtract(this.targetNeighbour).norm();
+        double dist_new = newPosition.subtract(this.getTargetNeighbour()).norm();
+        double dist_cur = getUnit().getPosition().subtract(this.getTargetNeighbour()).norm();
         return dist_new > dist_cur || dist_new == 0;
     }
 
@@ -182,7 +183,7 @@ class MoveActivity extends Activity {
     private void goToNextNeighbour() {
         IntVector next = path.getFirst(); // examine next position
         if (!getUnit().isStablePosition(next) || !getUnit().isValidPosition(next)) {
-            this.updateTarget(this.target); // recalc path
+            this.updateTarget(this.getTarget()); // recalc path
             return;
         }
         moveToNeighbour(path.pop());
@@ -263,10 +264,10 @@ class MoveActivity extends Activity {
         if (!getUnit().isValidPosition(newTarget))
             throw new InvalidPositionException(newTarget);
 
-        this.target = newTarget;
+        this.setTarget(newTarget);
 
         // get path:
-        this.path = getUnit().getPathFinder().getPath(getUnit().getPosition().toIntVector(), newTarget);
+        this.path = getUnit().getPathFinder().getPath(getUnit().getPosition().toIntVector(), this.getTarget());
         if (path == null) {
             this.finishActivity();
             throw new UnreachableTargetException();
@@ -345,5 +346,39 @@ class MoveActivity extends Activity {
     @Basic @Model
     private IntVector getTarget() {
         return this.target;
+    }
+
+    /**
+     * Sets the target to move to.
+     *
+     * @param   target
+     *          The target to move to.
+     *
+     * @post    The given target will be the new target.
+     *          | new.getTarget() == target
+     */
+    private void setTarget(IntVector target) {
+        this.target = target;
+    }
+
+    /**
+     * Returns the neighbour target the unit is moving towards.
+     */
+    @Basic @Model
+    private Vector getTargetNeighbour() {
+        return targetNeighbour;
+    }
+
+    /**
+     *  Sets the target neighbour to move to.
+     *
+     * @param   targetNeighbour
+     *          The neighbour target to move to.
+     *
+     * @post    The new neighbour target will equal the given neighbour target.
+     *          | new.getTargetNeighbour() == targetNeighbour
+     */
+    private void setTargetNeighbour(Vector targetNeighbour) {
+        this.targetNeighbour = targetNeighbour;
     }
 }
