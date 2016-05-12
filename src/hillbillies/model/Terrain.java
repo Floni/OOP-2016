@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+// TODO: check comments
+
 /**
  * Class managing terrain and cubes.
  *
@@ -42,9 +44,9 @@ public class Terrain {
 
     public enum Type {
         AIR(0),
-        WORKSHOP(3),
         ROCK(1),
-        TREE(2);
+        TREE(2),
+        WORKSHOP(3);
 
         private final int id;
         Type(int id) {
