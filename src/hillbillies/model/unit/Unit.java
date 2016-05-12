@@ -1147,7 +1147,10 @@ public class Unit {
      */
     @Basic @Model
     Vector getSpeed() {
-        return speed;
+        if (this.isSprinting())
+            return this.speed.multiply(2);
+        else
+            return this.speed;
     }
 
     /**
@@ -1191,18 +1194,18 @@ public class Unit {
     }
 
     /**
+     * Sets sprinting to the given boolean.
      *
-     * @param newSprint
+     * @param   newSprint
+     *          The boolean to set sprinting to.
+     *
+     * @post    Sprinting will equal the given boolean
+     *          | new.isSprinting() == newSprint
      */
     public void setSprinting(boolean newSprint) {
         if (newSprint && (getStamina() == 0 || !isMoving() || isFalling()))
             throw new InvalidActionException("Can't sprint right now");
 
-        if (newSprint && !this.isSprinting()) { // TODO: don't set speed
-            this.setSpeed(this.getSpeed().multiply(2));
-        } else if (!newSprint && this.isSprinting()) {
-            this.setSpeed(this.getSpeed().divide(2));
-        }
         this.sprinting = newSprint;
     }
 
