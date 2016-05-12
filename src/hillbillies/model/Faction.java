@@ -80,6 +80,7 @@ public class Faction {
             units.remove(unit);
             unit.setFaction(null);
         }
+
     }
 
     public Scheduler getScheduler() {

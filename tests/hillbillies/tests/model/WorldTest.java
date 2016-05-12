@@ -148,7 +148,7 @@ public class WorldTest {
         IntVector pos = new IntVector(1, 1, 1);
         GameObject object = new Log(world, pos);
         world.addGameObject(object);
-        world.getTerrain().removeCubeObject(object);
+        world.getTerrain().removeObjectFromCube(object);
         assertNotEquals(0, world.getLogs().size());
         assertEquals(0, world.getTerrain().getLogs(pos).size());
     }
@@ -157,7 +157,7 @@ public class WorldTest {
     public void testAddCubeObject() throws Exception {
         IntVector pos = new IntVector(1, 1, 1);
         GameObject object = new Log(world, pos);
-        world.getTerrain().addCubeObject(object);
+        world.getTerrain().addObjectToCube(object);
         assertEquals(0, world.getLogs().size());
         assertNotEquals(0, world.getTerrain().getLogs(pos).size());
     }

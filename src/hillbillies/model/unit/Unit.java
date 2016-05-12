@@ -74,6 +74,7 @@ public class Unit {
     private int xp, xpDiff;
     private boolean defaultEnabled;
     private Vector speed;
+    private boolean sprinting;
 
     private final NoneActivity noneActivity = new NoneActivity(this);
     private final MoveActivity moveActivity = new MoveActivity(this);
@@ -227,16 +228,17 @@ public class Unit {
     public void terminate() {
         if (this.isCarryingBoulder() || this.isCarryingLog())
             this.dropCarry(this.getPosition().toIntVector());
+
         this.setCurrentActivity(null);
         this.setLastActivity(null);
 
-        if (getFaction() != null)
+        if (this.getFaction() != null) {
             this.stopTask();
+        }
 
         this.setHitPoints(0);
-
-        if (getWorld() != null)
-            getWorld().removeUnit(this);
+        if (this.getWorld() != null)
+            this.getWorld().removeUnit(this);
         setWorld(null);
     }
 
@@ -1179,36 +1181,29 @@ public class Unit {
     }
 
     /**
-     * Enables or disables sprint mode for this unit.
-     *
-     * @param   sprint
-     *          Declares if the unit wants to sprint or stop sprinting.
-     *
-     * @post    Sets whether the unit is sprinting or not.
-     *          | new.isSprinting == sprint
-     *
-     * @throws  InvalidActionException
-     *          Throws if the unit wants to sprint and the unit has no stamina
-     *          or the unit is not moving.
-     *          | sprint && (getStamina() == 0 || !isMoving())
-     */
-    public void setSprint(boolean sprint) throws InvalidActionException {
-        if (sprint && (getStamina() == 0 || !isMoving() || isFalling()))
-            throw new InvalidActionException("Can't sprint right now");
-
-        // reset sprint timer
-        // TODO: SPRINT_DELAY PRIVATE AND FIX THIS
-        ((MoveActivity)getCurrentActivity()).setSprinting(sprint);
-    }
-
-    /**
      * Returns True if the unit is sprinting
      *
      * @return  True if the unit is moving & sprinting.
      *          | result == (isMoving() && !isFalling()) && ((MoveActivity) getCurrentActivity()).getSprinting()
      */
     public boolean isSprinting() {
-        return (isMoving() && !isFalling()) && ((MoveActivity) getCurrentActivity()).getSprinting();
+        return this.sprinting;
+    }
+
+    /**
+     *
+     * @param newSprint
+     */
+    public void setSprinting(boolean newSprint) {
+        if (newSprint && (getStamina() == 0 || !isMoving() || isFalling()))
+            throw new InvalidActionException("Can't sprint right now");
+
+        if (newSprint && !this.isSprinting()) { // TODO: don't set speed
+            this.setSpeed(this.getSpeed().multiply(2));
+        } else if (!newSprint && this.isSprinting()) {
+            this.setSpeed(this.getSpeed().divide(2));
+        }
+        this.sprinting = newSprint;
     }
 
 
@@ -1419,7 +1414,8 @@ public class Unit {
      * @effect  Deduces the given amount of hit points from the unit's hp.
      *          | this.deduceHitPoints()
      * @effect  Adds xp for dodge, block and successful attack.
-     *          | this.addXp()
+     *          | if (...)  TODO
+     *          | this.addXp(...)
      * @effect  Turns the units towards each other.
      *          | this.setOrientation()
      * @efect   Resumes the current activity

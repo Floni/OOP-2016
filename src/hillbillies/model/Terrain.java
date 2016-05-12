@@ -132,7 +132,7 @@ public class Terrain {
                     Type type = Type.fromId(terrainTypes[x][y][z]);
                     this.cubes[x][y][z] = new Cube(type);
                     if (type == Type.WORKSHOP)
-                        this.getWorld().addWorkShop(new IntVector(x, y, z));
+                        this.getWorld().addWorkshop(new IntVector(x, y, z));
                     if (!isSolid(type))
                         startCaveIn.addAll(connectedToBorder.changeSolidToPassable(x, y, z).stream().map(IntVector::new).collect(Collectors.toSet()));
                 }
@@ -281,7 +281,7 @@ public class Terrain {
         }
 
         if (type == Type.WORKSHOP)
-            this.getWorld().addWorkShop(pos);
+            this.getWorld().addWorkshop(pos);
 
         cubes[pos.getX()][pos.getY()][pos.getZ()].type = type;
         updateListener.notifyTerrainChanged(pos.getX(), pos.getY(), pos.getZ());
@@ -312,7 +312,7 @@ public class Terrain {
      *
      * @post    The cube where the object was positioned won't contain the object anymore.
      */
-    public void removeCubeObject(GameObject object) {
+    public void removeObjectFromCube(GameObject object) {
         getCube(object.getPosition().toIntVector()).gameObjects.remove(object);
     }
 
@@ -324,7 +324,7 @@ public class Terrain {
      *
      * @post    The cube given by the gameObjects position will now contain the gameObject.
      */
-    public void addCubeObject(GameObject object) {
+    public void addObjectToCube(GameObject object) {
         getCube(object.getPosition().toIntVector()).gameObjects.add(object);
     }
 
@@ -337,7 +337,6 @@ public class Terrain {
      * @throws  InvalidPositionException
      *          If the given position is not valid.
      */
-    @Basic
     public Set<Log> getLogs(IntVector cubeLoc) throws InvalidPositionException {
         Cube cube = getCube(cubeLoc);
         return cube.gameObjects.stream().filter(o -> o instanceof Log)
@@ -353,7 +352,6 @@ public class Terrain {
      * @throws  InvalidPositionException
      *          If the given position is not valid.
      */
-    @Basic
     public Set<Boulder> getBoulders(IntVector cubeLoc) throws InvalidPositionException {
         Cube cube = getCube(cubeLoc);
         return cube.gameObjects.stream().filter(o -> o instanceof Boulder)

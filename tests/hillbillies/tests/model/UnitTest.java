@@ -230,7 +230,7 @@ public class UnitTest {
     @Test(expected = InvalidActionException.class)
     public void testSetSprintFail() throws Exception {
         unit.rest();
-        unit.setSprint(true);
+        unit.setSprinting(true);
     }
 
     @Test
@@ -238,7 +238,7 @@ public class UnitTest {
         unit.setPosition(new Vector(25, 25, 0));
         unit.moveToAdjacent(1, 0, 0);
         double oldSpeed = unit.getSpeedScalar();
-        unit.setSprint(true);
+        unit.setSprinting(true);
         assertTrue(unit.isSprinting());
         assertEquals(2*oldSpeed, unit.getSpeedScalar(), Util.DEFAULT_EPSILON);
     }
@@ -271,7 +271,7 @@ public class UnitTest {
     public void testRestRegenStamina() throws Exception {
         unit.setPosition(Vector.ZERO);
         unit.moveTo(new IntVector(15, 15, 0));
-        unit.setSprint(true);
+        unit.setSprinting(true);
         advanceTimeFor(unit, 20, 0.1);
         unit.rest();
         advanceTimeFor(unit, 60, 0.1);

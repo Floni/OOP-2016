@@ -26,7 +26,6 @@ class MoveActivity extends Activity {
     private Vector targetNeighbour; // the next neighbour to reach
 
     double sprintStaminaTimer; // timer for sprinting
-    private boolean sprinting;
 
     /**
      * A stack containing the current path, may be null.
@@ -69,7 +68,7 @@ class MoveActivity extends Activity {
      */
     @Override
     void advanceTime(double dt) {
-        if (getSprinting()) {
+        if (getUnit().isSprinting()) {
             sprintStaminaTimer -= dt;
             if(sprintStaminaTimer <= 0) {
                 sprintStaminaTimer += SPRINT_DELAY;
@@ -77,11 +76,11 @@ class MoveActivity extends Activity {
                 if (newStamina >= 0)
                     getUnit().setStamina(newStamina);
                 if (getUnit().getStamina() == 0)
-                    setSprinting(false);
+                    getUnit().setSprinting(false);
             }
         } else if (getUnit().isDefaultEnabled()) {
             if (Math.random() <= SPRINT_CHANCE && getUnit().getStamina() != 0)
-                setSprinting(true);
+                getUnit().setSprinting(true);
         }
         Vector newPosition = getUnit().getPosition().add(this.getUnit().getSpeed().multiply(dt));
         if (isAtNeighbour(newPosition)) {
@@ -116,6 +115,7 @@ class MoveActivity extends Activity {
     @Override
     void pause() {
         this.getUnit().setSpeed(null);
+        getUnit().setSprinting(false);
     }
 
     @Override
@@ -140,7 +140,6 @@ class MoveActivity extends Activity {
         this.target = null;
         this.targetNeighbour = null;
         sprintStaminaTimer = 0;
-        sprinting = false;
         this.path = null;
         this.pendingActivity = null;
 
@@ -311,7 +310,7 @@ class MoveActivity extends Activity {
         else if (diff.getZ() < -World.POS_EPS)
             vw *= 1.2;
 
-        if (getSprinting())
+        if (getUnit().isSprinting())
             vw *= 2;
 
         return diff.multiply(vw);
@@ -347,38 +346,4 @@ class MoveActivity extends Activity {
     private IntVector getTarget() {
         return this.target;
     }
-
-    /**
-     * Returns whether sprinting is enabled.
-     */
-    @Basic
-    boolean getSprinting() {
-        return this.sprinting;
-    }
-
-    /**
-     * Sets sprinting to the given boolean.
-     *
-     * @param   b
-     *          The boolean to set sprinting to.
-     *
-     * @post    Update the speed if the unit starts to sprint or stops sprinting.
-     *          | if (b && !getSprinting())
-     *          |   then new.getUnit().getSpeed() == this.getUnit().getSpeed().multiply(2.0)
-     *          | else if (!b && getSprinting())
-     *          |   then new.getUnit().getSpeed() == this.getUnit().getSpeed().divide(2.0)
-     * @post    The new value of sprinting will equal the given value.
-     *          | new.getSprinting() == b
-     */
-    void setSprinting(boolean b) {
-        if (b && !getSprinting()) {
-            this.sprintStaminaTimer = SPRINT_DELAY;
-            this.getUnit().setSpeed(this.getUnit().getSpeed().multiply(2.0));
-        } else if (!b && getSprinting()) {
-            this.getUnit().setSpeed(this.getUnit().getSpeed().divide(2.0));
-        }
-
-        this.sprinting = b;
-    }
-
 }

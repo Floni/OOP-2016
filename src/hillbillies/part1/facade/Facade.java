@@ -144,7 +144,7 @@ public class Facade implements IFacade {
     @Override
     public void startSprinting(Unit unit) throws ModelException {
         try {
-            unit.setSprint(true);
+            unit.setSprinting(true);
         } catch (InvalidActionException err) {
             throw new ModelException(err.getMessage(), err);
         }
@@ -153,7 +153,7 @@ public class Facade implements IFacade {
     @Override
     public void stopSprinting(Unit unit) throws ModelException {
         try {
-            unit.setSprint(false);
+            unit.setSprinting(false);
         } catch (InvalidActionException err) {
             throw new ModelException(err.getMessage(), err);
         }

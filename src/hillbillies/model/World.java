@@ -3,16 +3,13 @@ package hillbillies.model;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Model;
-import hillbillies.model.exceptions.InvalidCubeTypeException;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.util.PathFinder;
 import hillbillies.model.vector.IntVector;
 import hillbillies.part2.listener.TerrainChangeListener;
-import hillbillies.util.ConnectedToBorder;
 
 import java.util.AbstractCollection;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,7 +35,6 @@ public class World {
     //<editor-fold desc="Variables">
     private final Terrain terrain;
 
-    private int totalUnits;
     /**
      * The set of factions of this world.
      * @invar   The set must be effective.
@@ -146,12 +142,12 @@ public class World {
     }
     //</editor-fold>
 
-    //<editor-fold desc="Logs and Boulders">
+    //<editor-fold desc="GameObjects">
     /**
      * Returns a stream of all locations where a workshop is.
      *
      * @return  A stream of positions of all workshops in the world.
-     *          | result.allMatch(p -> getCube(p) == WORKSHOP)
+     *          | result.allMatch(p -> this.getTerrain().getCubeType(p) == Terrain.Type.WORKSHOP)
      */
     public Stream<IntVector> getAllWorkshops() {
         return workshops.stream();
@@ -165,14 +161,15 @@ public class World {
      *
      * @post    The workshop will be contained in the world.
      */
-    public void addWorkShop(IntVector position) {
+    public void addWorkshop(IntVector position) {
         this.workshops.add(position);
     }
 
     /**
      * Returns all the logs in the world.
+     *
+     * @return  A set of all logs which exist in the world.
      */
-    @Basic
     public  Set<Log> getLogs() {
         return this.gameObjects.stream().filter(o -> o instanceof Log)
                 .map(Log.class::cast).collect(Collectors.toSet());
@@ -180,8 +177,9 @@ public class World {
 
     /**
      * Returns all the boulders in the world.
+     *
+     * @return  A set of all boulders which exist in the world.
      */
-    @Basic
     public Set<Boulder> getBoulders() {
         return this.gameObjects.stream().filter(o -> o instanceof Boulder)
                 .map(Boulder.class::cast).collect(Collectors.toSet());
@@ -198,7 +196,22 @@ public class World {
      */
     public void addGameObject(GameObject gameObject) throws InvalidPositionException {
         this.gameObjects.add(gameObject);
-        this.getTerrain().addCubeObject(gameObject);
+        this.getTerrain().addObjectToCube(gameObject);
+    }
+
+    /**
+     * Removes a gameObject from the world.
+     *
+     * @param   object
+     *          The gameObject to be removed
+     *
+     * @post    The gameObject is removed from the world.
+     * @effect  The gameObject is removed from its cube.
+     *          | removeObjectFromCube(object)
+     */
+    public void removeGameObject (GameObject object) {
+        this.getTerrain().removeObjectFromCube(object);
+        gameObjects.remove(object);
     }
 
     /**
@@ -246,25 +259,9 @@ public class World {
         if (boulders.size() >= 1)
             removeGameObject(boulders.iterator().next());
     }
-
-    /**
-     * Removes a gameObject from the world.
-     *
-     * @param   object
-     *          The gameObject to be removed
-     *
-     * @post    The gameObject is removed from the world.
-     * @effect  The gameObject is removed from its cube.
-     *          | removeCubeObject(object)
-     */
-    public void removeGameObject (GameObject object) {
-        this.getTerrain().removeCubeObject(object);
-        gameObjects.remove(object);
-    }
     //</editor-fold>
 
     //<editor-fold desc="Factions">
-
     /**
      * Returns all the active factions of the world.
      */
@@ -278,6 +275,7 @@ public class World {
      * @return  The new faction
      *
      * @pre     The number of active factions must be less than World.MAX_FACTIONS
+     *          TODO: may use nominal here?
      */
     private Faction addFaction() {
         assert factions.size() < MAX_FACTIONS;
@@ -290,11 +288,23 @@ public class World {
     //</editor-fold>
 
     //<editor-fold desc="Units">
+
+    /**
+     * Returns the total number of units in the world.
+     *
+     * @return  The sum of the size of each faction.
+     */
+    private int getTotalUnits() {
+        return this.getFactions().stream().mapToInt(Faction::getFactionSize).sum();
+    }
     /**
      *  Returns a random number between 25 and 100 inclusive.
+     *
+     *  @return     A random integer between 25 and 100
+     *              | result >= 25 && result <= 100
      */
-    @Basic @Model
-    private int getRandomAttribute() {
+    @Model
+    private static int getRandomAttribute() {
         return (int)Math.floor(25 + 76*Math.random());
     }
 
@@ -326,9 +336,10 @@ public class World {
         if (defaultBehaviour)
             unit.startDefaultBehaviour();
 
-        if (totalUnits >= MAX_UNITS)
+        if (this.getTotalUnits() >= MAX_UNITS)
             unit.terminate();
-        addUnit(unit);
+        else
+            this.addUnit(unit);
 
         return unit;
     }
@@ -348,21 +359,20 @@ public class World {
      *          | unit.setWorld(this)
      */
     public void addUnit(Unit unit) {
-        if (totalUnits >= MAX_UNITS)
+        if (this.getTotalUnits() >= MAX_UNITS)
             return;
 
         unit.setWorld(this);
         if (factions.size() < MAX_FACTIONS) {
-            Faction newFaction = addFaction();
+            Faction newFaction = this.addFaction();
             newFaction.addUnit(unit);
         } else {
-            Faction minFaction = factions.stream().filter(f -> f.getFactionSize() < Faction.MAX_UNITS)
+            Faction minFaction = this.factions.stream().filter(f -> f.getFactionSize() < Faction.MAX_UNITS)
                     .min((f1, f2) -> Integer.compare(f1.getFactionSize(), f2.getFactionSize())).orElse(null);
             if (minFaction != null) {
                 minFaction.addUnit(unit);
-            }
+            } // there always should be a faction.
         }
-        totalUnits += 1;
     }
 
     /**
