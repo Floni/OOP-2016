@@ -11,6 +11,7 @@ import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.exceptions.UnreachableTargetException;
 import hillbillies.model.programs.statement.ActivityTracker;
 import hillbillies.model.util.PathFinder;
+import hillbillies.model.util.Util;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
 
@@ -32,7 +33,7 @@ import java.util.ArrayList;
 
 /**
  * The unit class, this class keeps tracks of the unit's position, speed and other attributes.
- * It provides methods to move, to attack or to rest.
+ * It provides methods to move, to attack and to rest.
  *
  * @invar   The position of the unit must be valid.
  *          | isValidPosition(this.getPosition())
@@ -76,6 +77,16 @@ public class Unit {
     private Vector speed;
     private boolean sprinting;
 
+    private Faction faction;
+    private World world;
+
+    private Log carryLog;
+    private Boulder carryBoulder;
+
+    private Task task;
+
+    private double restMinuteTimer;
+
     private final NoneActivity noneActivity = new NoneActivity(this);
     private final MoveActivity moveActivity = new MoveActivity(this);
     private final FallActivity fallActivity = new FallActivity(this);
@@ -86,16 +97,6 @@ public class Unit {
 
     private Activity currentActivity = noneActivity;
     private Activity lastActivity = noneActivity;
-
-    private double restMinuteTimer;
-
-    private Faction faction;
-    private World world;
-
-    private Log carryLog;
-    private Boulder carryBoulder;
-
-    private Task task;
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
@@ -119,50 +120,26 @@ public class Unit {
      * @param   toughness
      *          The initial toughness of the unit.
      *
-     * @post    If the given strength is less then 25 then the initial strength is set to 25.
-     *          If the given strength is more then 100 then the initial strength is set to 100.
-     *          Otherwise the initial strength is set to the given strength.
-     *          | if strength > 100
-     *          | then new.getStrength() == 100
-     *          | else if strength < 25
-     *          | then new.getStrength() == 25
-     *          | else new.getStrength() == strength
-     * @post    If the given agility is less then 25 then the initial agility is set to 25.
-     *          If the given agility is more then 100 then the initial agility is set to 100.
-     *          Otherwise the initial agility is set to the given agility.
-     *          | if agility > 100
-     *          | then new.getAgility() == 100
-     *          | else if agility < 25
-     *          | then new.getAgility() == 25
-     *          | else new.getAgility() == agility
-     * @post    If the given weight is less then 25 then the initial weight is set to 25.
-     *          If the given weight is more then 100 then the initial weight is set to 100.
-     *          Otherwise the initial weight is set to the given weight.
-     *          | if weight > 100
-     *          | then new.getWeight() == 100
-     *          | else if weight < 25
-     *          | then new.getWeight() == 25
-     *          | else new.getWeight() == weight
-     * @post    If the given toughness is less then 25 then the initial toughness is set to 25.
-     *          If the given toughness is more then 100 then the initial toughness is set to 100.
-     *          Otherwise the initial toughness is set to the given toughness.
-     *          | if toughness > 100
-     *          | then new.getToughness() == 100
-     *          | else if toughness < 25
-     *          | then new.getToughness() == 25
-     *          | else new.getToughness() == toughness
      * @post    Sets the hit points to their maximum value.
      *          | new.getHitPoints() == new.getMaxPoints()
      *          | && new.getStamina() == new.getMaxPoints()
-     * @post    Sets the current xp to 0.
-     *          | new.getXp == 0
      *
      * @effect  Set the name to the given name.
      *          | new.setName(name)
      * @effect  Set the position to the middle of the given block.
      *          | new.setPosition(new Vector(x + Lc/2, y + Lc/2, z + Lc/2))
      * @effect  Sets the orientation to 90 degrees.
-     *          | new.setOrientation(Math.PI/2)
+     *          | new.setOrientation(Unit.INIT_ORIENTATION)
+     * @effect  Sets the toughness to toughness clamped between 25 and 100
+     *          | new.setToughness(Util.clamp(toughness, 25, 100))
+     * @effect  Sets the agility to agility clamped between 25 and 100
+     *          | new.setAgility(Util.clamp(agility, 25, 100))
+     * @effect  Sets the weight to weight clamped between 25 and 100
+     *          | new.setWeight(Util.clamp(weight, 25, 100))
+     * @effect  Sets the strength to strength clamped between 25 and 100
+     *          | new.setStrength(Util.clamp(strength, 25, 100))
+     * @effect  Resets the XP.
+     *          | new.resetXp()
      */
     @Raw
     public Unit(String name, int x, int y, int z, int weight, int strength, int agility, int toughness)
@@ -170,31 +147,12 @@ public class Unit {
         setName(name);
         Vector position = new Vector(x, y, z).add(Terrain.Lc/2);
         setPosition(position);
+        setOrientation(INIT_ORIENTATION);
 
-        if (toughness < 25)
-            toughness = 25;
-        else if (toughness > 100)
-            toughness = 100;
-
-        if (agility < 25)
-            agility = 25;
-        else if (agility > 100)
-            agility = 100;
-
-        if (weight < 25)
-            weight = 25;
-        else if (weight > 100)
-            weight = 100;
-
-        if (strength < 25)
-            strength = 25;
-        else if (strength > 100)
-            strength = 100;
-
-        setToughness(toughness);
-        setStrength(strength);
-        setAgility(agility);
-        setWeight(weight);
+        setToughness(Util.clamp(toughness, 25, 100));
+        setAgility(Util.clamp(agility, 25, 100));
+        setWeight(Util.clamp(weight, 25, 100));
+        setStrength(Util.clamp(strength, 25, 100));
 
         resetXp();
 
@@ -202,7 +160,6 @@ public class Unit {
         setHitPoints(maxPoints);
         setStamina(maxPoints);
 
-        setOrientation(INIT_ORIENTATION);
 
         setRestMinuteTimer(REST_MINUTE);
     }
@@ -215,13 +172,15 @@ public class Unit {
      * @post    The unit's hit points will be 0.
      *          | new.getHitPoints() == 0
      * @post    The unit is not alive.
-     *          | new.isAlive() == False
+     *          | new.isAlive() == false
      * @post    The unit is removed from the world.
      *          | !this.getWorld().getUnits().contains(this)
      * @post    The unit's world will be set to null
      *          | new.getWorld() == null
      *
-     * @effect  If the unit is carrying an item, drop it
+     * @effect  Stop the task the unit is running, if applicable.
+     *          | if (this.getFaction() != null) then this.stopTask()
+     * @effect  If the unit is carrying an item, drop it.
      *          | if (this.isCarryingBoulder() || this.isCarryingLog())
      *          |   this.dropCarry(this.getPosition().toIntVector())
      */
@@ -279,6 +238,7 @@ public class Unit {
     //<editor-fold desc="advanceTime">
     /**
      * Updates the units state.
+     * TODO
      *
      * @param   dt
      *          The time step taken between frames.
@@ -367,36 +327,57 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Activity">
+    /**
+     * Returns the MoveActivity for this unit.
+     */
     @Basic @Immutable @Model
     private MoveActivity getMoveActivity() {
         return this.moveActivity;
     }
 
+    /**
+     * Returns the WorkActivity for this unit.
+     */
     @Basic @Immutable @Model
     private WorkActivity getWorkActivity() {
         return this.workActivity;
     }
 
+    /**
+     * Returns the AttackActivity for this unit.
+     */
     @Basic @Immutable @Model
     private AttackActivity getAttackActivity() {
         return this.attackActivity;
     }
 
+    /**
+     * Returns the RestActivity for this unit.
+     */
     @Basic @Immutable @Model
     private RestActivity getRestActivity() {
         return this.restActivity;
     }
 
+    /**
+     * Returns the FallActivity for this unit.
+     */
     @Basic @Immutable @Model
     private FallActivity getFallActivity() {
         return this.fallActivity;
     }
 
+    /**
+     * Returns the NoneActivity for this unit.
+     */
     @Basic @Immutable @Model
     private NoneActivity getNoneActivity() {
         return this.noneActivity;
     }
 
+    /**
+     * Returns the FollowActivity for this unit.
+     */
     @Basic @Immutable @Model
     private FollowActivity getFollowActivity() {
         return this.followActivity;
@@ -426,8 +407,11 @@ public class Unit {
 
     /**
      * Returns whether or not the unit can do the given Activity.
+     *
+     * @return  True if the current activity can switch.
+     *          | result == this.getCurrentActivity().canSwitch() TODO: canSwitch model?
      */
-    @Basic @Model // model for throws & stuff
+    @Model // model for throws & stuff
     private boolean canSwitchActivity() {
         return getCurrentActivity().canSwitch();
     }
@@ -438,8 +422,9 @@ public class Unit {
      * @param   newActivity
      *          The new activity.
      *
+     * TODO
      * @post    If we are moving and the newActivity is not moveActivity, we set the pendingActivity.
-     *          Otherwise we set the currentActivity.
+     *          Otherwise we set the currentActivity and update the lastActivity.
      *          | if (this.getCurrentActivity() == this.getMoveActivity() &&
      *          |     newActivity != this.getMoveActivity() &&
      *          |     newActivity != this.getMoveActivity().getPendingActivity())
@@ -476,9 +461,10 @@ public class Unit {
 
     /**
      * Finishes the current activity.
-     *
-     * @effect  Switch to the last activity.
-     *          | this.setCurrentActivity(this.getLastActivity())
+     * @effect  Pauses and resets the currentActivity.
+     *          | this.getCurrentActivity().pause() && this.getCurrentActivity().reset()
+     * @effect  Switch to the last activity and resume it.
+     *          | this.setCurrentActivity(this.getLastActivity()) && this.getLastActivity().resume()
      * @effect  Clear the lastActivity.
      *          | this.setLastActivity(this.getNoneActivity())
      */
@@ -525,13 +511,12 @@ public class Unit {
      *          The cube to check.
      *
      * @return  True if the cube is next to a border of the world or if it has any solid neighbours.
-     *          | result == (cube.getX() == 0 || cube.getX() == world.X_MAX - 1 ||
-     *          |           cube.getY() == 0 || cube.getY() == world.Y_MAX - 1 ||
-     *          |           cube.getZ() == 0 || cube.getZ() == world.Z_MAX - 1 ||
-     *          |           World.getNeighbours(cube).anyMatch(p -> World.isSolid(world.getCubeType(p))))
+     *          | result == (cube.getX() == 0 || cube.getX() == world.getTerrain().getMaxX() - 1 ||
+     *          |            cube.getY() == 0 || cube.getY() == world.getTerrain().getMaxY() - 1 ||
+     *          |            cube.getZ() == 0 || cube.getZ() == world.getTerrain().getMaxX() - 1 ||
+     *          |            Terrain.getNeighbours(cube).anyMatch(p -> World.isSolid(world.getCubeType(p))))
      */
     public static boolean isStablePosition(World world, IntVector cube) {
-        // next to edges or a neighbour is solid
         return  cube.getX() == 0 || cube.getX() == world.getTerrain().getMaxX() - 1 ||
                 cube.getY() == 0 || cube.getY() == world.getTerrain().getMaxY() - 1 ||
                 cube.getZ() == 0 || cube.getZ() == world.getTerrain().getMaxZ() - 1 ||
@@ -543,6 +528,7 @@ public class Unit {
      *
      * @param   cube
      *          The cube to check.
+     *
      * @return  Returns true if the position is stable in the current world.
      *          | result == Unit.isStablePosition(this.getWorld(), cube)
      */
@@ -607,7 +593,7 @@ public class Unit {
      *          | new.getPosition() == position
      *
      * @throws  InvalidPositionException
-     *          When the given position is not valid or not effective
+     *          When the given position is not valid or not effective.
      *          | !isValidPosition(position) || !isEffectivePosition(position)
      */
     public void setPosition(Vector position) throws InvalidPositionException {
@@ -709,16 +695,16 @@ public class Unit {
      * Returns the weight of the gameObject which the unit is carrying.
      *
      * @return  Returns the weight which the unit is carrying.
-     *          | if (isCarryingBoulder())
-     *          |   then result == boulder.getWeight()
+     *          | if (this.isCarryingBoulder())
+     *          |   then result == this.getCarryBoulder().getWeight()
      *          | else if (isCarryingLog())
-     *          |   then result == log.getWeight()
+     *          |   then result == this.getCarryLog().getWeight()
      *          | else
      *          |   result == 0
      */
-    @Model
+    @Model // TODO: cascade model?
     private int getCarryWeight() {
-        return (isCarryingBoulder() ? carryBoulder.getWeight() : (isCarryingLog() ? carryLog.getWeight() : 0));
+        return (isCarryingBoulder() ? getCarryBoulder().getWeight() : (isCarryingLog() ? getCarryBoulder().getWeight() : 0));
     }
 
     /**
@@ -727,33 +713,17 @@ public class Unit {
      * @param   weight
      *          The new weight.
      *
-     * @post    If the weight is less then (strength+agility)/2, it's set to this value.
-     *          | if weight < (this.getStrength + this.getAgility)/2
-     *          |   then new.getWeight() == (this.getStrength + this.getAgility)/2
-     *
-     *          Otherwise if the weight is more then MAX_ATTRIBUTE, it's set to MAX_ATTRIBUTE.
-     *          | else if weight > MAX_ATTRIBUTE
-     *          |   then new.getWeight() == MAX_ATTRIBUTE
-     *
-     *          If the weight is still less than MIN_ATTRIBUTE, it's set to MIN_ATTRIBUTE.
-     *          | else if weight < MIN_ATTRIBUTE
-     *          |   then new.getWeight == min(1, (this.getStrength + this.getAgility)/2)
-     *
-     *          Otherwise the weight is set to the given weight.
-     *          | else
-     *          |   new.getWeight() == weight
+     * @post    The new weight is weight clamped between (strength + agility / 2) and MAX_ATTRIBUTE
+     *          | new.getBasicWeight() == Util.clamp(((this.getStrength() + this.getAgility()) / 2), MAX_ATTRIBUTE)
      */
     @Model
     public void setWeight(int weight) {
-        if (weight < MIN_ATTRIBUTE)
-            weight = MIN_ATTRIBUTE;
-        else if (weight > MAX_ATTRIBUTE)
-            weight = MAX_ATTRIBUTE;
         int min = (this.getStrength() + this.getAgility()) / 2;
-        if (weight < min)
-            weight = min;
+        weight = Util.clamp(weight, min, MAX_ATTRIBUTE);
         this.weight = weight;
     }
+
+    //TODO: comments from here:
 
     /**
      * Checks whether the attribute is valid.
@@ -1568,6 +1538,7 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Leveling and Xp">
+    @Model
     private void resetXp() {
         this.xp = 0;
         this.xpDiff = 0;
