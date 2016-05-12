@@ -3,6 +3,7 @@ package hillbillies.model;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Model;
+import hillbillies.model.exceptions.InvalidCubeTypeException;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.util.PathFinder;
@@ -15,13 +16,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-// TODO: check everything
+
+// TODO; check RAW's in every constructor
 
 /**
  * Class representing a world.
  *
- * @invar The number of units must be less than MAX_UNITS.
- * @invar The number o factions must be less than MAX_FACTIONS
+ * @invar The number of units must be less than or equal to MAX_UNITS.
+ * @invar The number of factions must be less than or equal to MAX_FACTIONS
  *
  */
 public class World {
@@ -30,6 +32,8 @@ public class World {
 
     private static final int MAX_UNITS = 100;
     private static final int MAX_FACTIONS = 5;
+
+    private static final double DROP_CHANCE = 0.25;
     //</editor-fold>
 
     //<editor-fold desc="Variables">
@@ -39,9 +43,9 @@ public class World {
      * The set of factions of this world.
      * @invar   The set must be effective.
      * @invar   Each faction in the set must be effective.
-     * @invar   The size of the set must be less than MAX_FACTIONS.
-     * @invar   Each factions size must be less than Faction.MAX_UNITS.
-     * @invar   The sum of the size of all factions must be less than MAX_UNITS.
+     * @invar   The size of the set must be less than or equal to MAX_FACTIONS.
+     * @invar   Each factions size must be less than or equal to Faction.MAX_UNITS.
+     * @invar   The sum of the size of all factions must be less than or equal to MAX_UNITS.
      */
     private final Set<Faction> factions;
     /**
@@ -76,8 +80,13 @@ public class World {
      *
      * @post    The getTerrain() function will return a newly created terrain using the supplied terrainTypes.
      *          | this.getTerrain() == (new Terrain(this, terrainTypes, modelListener))
+     *
+     * @throws  IllegalArgumentException
+     *          Throws if terrainTypes is null or modelListener is null.
+     * @throws  InvalidCubeTypeException
+     *          Throws if the cube id is not valid.
      */
-    public World(int[][][] terrainTypes, TerrainChangeListener modelListener) throws IllegalArgumentException {
+    public World(int[][][] terrainTypes, TerrainChangeListener modelListener) throws IllegalArgumentException, InvalidCubeTypeException {
         this.factions = new HashSet<>();
         this.gameObjects = new HashSet<>();
         this.workshops = new HashSet<>();
@@ -106,10 +115,14 @@ public class World {
 
     //<editor-fold desc="advanceTime">
     /**
-     * Calls advanceTime on all Unit, Boulders and logs.
+     * Updates the status of all objects in the world with the given dt.
      *
      * @param   dt
-     *          The passed time between the last call to advanceTime
+     *          The passed time between the last call to advanceTime.
+     *
+     * @effect  Executes advanceTime() on all Units and GameObjects of the World.
+     *
+     *
      * @throws  IllegalArgumentException
      *          If the dt is less than 0.2 or smaller than 0.
      */
@@ -144,7 +157,7 @@ public class World {
 
     //<editor-fold desc="GameObjects">
     /**
-     * Returns a stream of all locations where a workshop is.
+     * Returns a stream of all workshop positions.
      *
      * @return  A stream of positions of all workshops in the world.
      *          | result.allMatch(p -> this.getTerrain().getCubeType(p) == Terrain.Type.WORKSHOP)
@@ -154,7 +167,7 @@ public class World {
     }
 
     /**
-     * Adds a workshop to the world.
+     * Adds a workshop to the world at the given position.
      *
      * @param   position
      *          The position of the workshop to add.
@@ -193,19 +206,21 @@ public class World {
      *
      * @post    The position of the gameObject is set to the given cube.
      * @post    The world contains the gameObject and the cube at the given locations will contain the gameObject.
+     *
      */
-    public void addGameObject(GameObject gameObject) throws InvalidPositionException {
+    public void addGameObject(GameObject gameObject) {
         this.gameObjects.add(gameObject);
         this.getTerrain().addObjectToCube(gameObject);
     }
 
     /**
-     * Removes a gameObject from the world.
+     * Removes the given gameObject from the world.
      *
      * @param   object
-     *          The gameObject to be removed
+     *          The gameObject to be removed.
      *
      * @post    The gameObject is removed from the world.
+     *
      * @effect  The gameObject is removed from its cube.
      *          | removeObjectFromCube(object)
      */
@@ -215,7 +230,7 @@ public class World {
     }
 
     /**
-     * Drops an GameObject at the given position with a chance of 0.25.
+     * Drops an GameObject at the given position with a chance of DROP_CHANCE.
      *
      * @param   location
      *          The location to drop.
@@ -225,7 +240,7 @@ public class World {
      * @post    If a drop occurs a boulder or log will be added at the given position.
      */
     public void dropChance(IntVector location, Terrain.Type type) {
-        if (Math.random() < 0.25) {
+        if (Math.random() < DROP_CHANCE) {
             if (type == Terrain.Type.ROCK) {
                 this.addGameObject(new Boulder(this, location));
             } else if (type == Terrain.Type.TREE) {
@@ -237,8 +252,10 @@ public class World {
     /**
      * Removes one Log from the cube at the given position.
      *
-     * @param cubeLoc The position of the cube.
-     * @post If the cube at the given position has Logs, one is removed.
+     * @param   cubeLoc
+     *          The position of the cube.
+     *
+     * @post    If the cube at the given position has Logs, one log is removed.
      */
     public void consumeLog(IntVector cubeLoc) {
         Set<Log> cubeLogs = this.getTerrain().getLogs(cubeLoc);
@@ -252,7 +269,7 @@ public class World {
      * @param   cubeLoc
      *          The position of the cube.
      *
-     * @post    If the cube at the given position has Boulders, one is removed.
+     * @post    If the cube at the given position has Boulders, one boulder is removed.
      */
     public void consumeBoulder(IntVector cubeLoc) {
         Set<Boulder> boulders = this.getTerrain().getBoulders(cubeLoc);
@@ -297,11 +314,12 @@ public class World {
     private int getTotalUnits() {
         return this.getFactions().stream().mapToInt(Faction::getFactionSize).sum();
     }
+
     /**
      *  Returns a random number between 25 and 100 inclusive.
      *
-     *  @return     A random integer between 25 and 100
-     *              | result >= 25 && result <= 100
+     *  @return A random integer between 25 and 100
+     *          | result >= 25 && result <= 100
      */
     @Model
     private static int getRandomAttribute() {
@@ -313,10 +331,12 @@ public class World {
      *
      * @param   defaultBehaviour
      *          Determines whether or not the default behaviour of the unit will be enabled.
+     *
      * @return  If the number of units exceeds MAX_UNITS
      *          then a dead unit is returned.
      *          Otherwise a new unit with a random position above a solid position with random attributes (see getRandomAttribute).
      *          The new unit will have its default behaviour activated depending on the defaultBehaviour argument.
+     *
      * @effect  The unit is added to the world
      *          | this.addUnit(result)
      */
@@ -390,6 +410,7 @@ public class World {
      *
      * @param   unit
      *          The unit to be removed.
+     *
      * @post    The unit is removed from its faction and if the faction is empty, the faction is removed from the world.
      */
     public void removeUnit (Unit unit) {
