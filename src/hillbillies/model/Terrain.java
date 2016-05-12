@@ -17,12 +17,13 @@ import java.util.stream.Stream;
 // TODO: check comments
 
 /**
- * Class managing terrain and cubes.
+ * Class managing terrain and cubes of a World.
  *
  * @invar The TerrainChangeListener must be effective.
  * @invar The world must be effective.
  */
 public class Terrain {
+
     /**
      * Class representing a cube in the world.
      */
@@ -42,6 +43,9 @@ public class Terrain {
         final Set<GameObject> gameObjects;
     }
 
+    /**
+     * Enum representing cube types.
+     */
     public enum Type {
         AIR(0),
         ROCK(1),
@@ -93,7 +97,7 @@ public class Terrain {
     //<editor-fold desc="Constructor">
 
     /**
-     * Create a new terrain.
+     * Constructs a new terrain.
      *
      * @param   world
      *          The world this terrain belongs to.
@@ -107,7 +111,7 @@ public class Terrain {
      * @post    Any cube that isn't connected to the border will cave in at start.
      *
      * @throws  IllegalArgumentException
-     *          If the terrainTypes or the modelListener isn't effective.
+     *          If the terrainTypes or the modelListener aren't effective.
      * @throws  InvalidCubeTypeException
      *          If any of the supplied terrainTypes are invalid.
      */
@@ -115,7 +119,7 @@ public class Terrain {
             throws IllegalArgumentException, InvalidCubeTypeException {
 
         if (terrainTypes == null|| modelListener == null)
-            throw new IllegalArgumentException("no terrain types given");
+            throw new IllegalArgumentException("no terrain types or model listener given");
         this.updateListener = modelListener;
         this.world = world;
 
@@ -214,7 +218,7 @@ public class Terrain {
      * @return  The cube at the given location.
      *
      * @throws  InvalidPositionException
-     *          If the given position is invalid.
+     *          Throws if the given position is invalid.
      */
     private Cube getCube(IntVector cubeLoc) throws InvalidPositionException {
         if (!isValidPosition(cubeLoc))
@@ -228,16 +232,18 @@ public class Terrain {
      * @param   pos
      *          The position of the cube to be checked.
      *
-     * @return  true of the cube is connected to the border.
+     * @return  True if the cube is connected to the border.
      *
      * @throws  InvalidPositionException
-     *          If the given position is invalid.
+     *          Throws if the given position is invalid.
      */
     public boolean isCubeConnected(IntVector pos) throws InvalidPositionException {
         if (!isValidPosition(pos))
             throw new InvalidPositionException(pos);
         return connectedToBorder.isSolidConnectedToBorder(pos.getX(), pos.getY(), pos.getZ());
     }
+
+    //TODO: comments from here
 
     /**
      * Gets the type of the cube at the given position.
