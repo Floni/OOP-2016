@@ -76,7 +76,7 @@ public class Scheduler {
     }
 
     /**
-     * Finishes a task.
+     * Removes a task.
      *
      * @param   task
      *          The task that must be removed from the scheduler.
@@ -84,7 +84,7 @@ public class Scheduler {
      * @post    The task will be removed from the scheduler.
      *          | !new.getAllTasks().contains(task)
      */
-    public void finishTask(Task task) {
+    public void removeTask(Task task) {
         allTasks.remove(task);
     }
 
@@ -153,7 +153,7 @@ public class Scheduler {
      * @effect  If the original is assigned, it's interrupted.
      *          | if (original.isAssigned()) original.interrupt()
      * @effect  The original is removed.
-     *          | this.finishTask(original)
+     *          | this.removeTask(original)
      * @effect  The replacement is added.
      *          | this.schedule(replacement)
      */
@@ -161,7 +161,18 @@ public class Scheduler {
         if (original.isAssigned())
             original.interrupt();
 
-        this.finishTask(original);
+        this.removeTask(original);
         this.schedule(replacement);
+    }
+
+    /**
+     * Terminates this scheduler.
+     *
+     * @post    This scheduler won't contain any tasks.
+     *          | new.getAllTasks().isEmpty()
+     */
+    public void terminate() {
+        this.allTasks.forEach(task -> task.removeScheduler(this));
+        this.allTasks.clear();
     }
 }

@@ -10,7 +10,6 @@ import hillbillies.model.programs.statement.BreakChecker;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.programs.statement.Statement;
-import ogp.framework.util.internal.Options;
 
 import java.util.*;
 
@@ -132,6 +131,19 @@ public class Task implements Comparable<Task> {
      */
     public void addScheduler(Scheduler scheduler) {
         this.schedulers.add(scheduler);
+    }
+
+    /**
+     * Removes a scheduler.
+     *
+     * @param   scheduler
+     *          The scheduler to remove.
+     *
+     * @post    The task won't contain the scheduler.
+     *          | !new.getSchedulers().contains(scheduler)
+     */
+    public void removeScheduler(Scheduler scheduler) {
+        this.schedulers.remove(scheduler);
     }
 
     /**
@@ -288,7 +300,7 @@ public class Task implements Comparable<Task> {
      *          | this.await()
      * @effect  All schedulers will have this task finished.
      *          | for (Scheduler s : this.getSchedulers())
-     *          |   s.finishTask(this)
+     *          |   s.removeTask(this)
      */
     public void finish() {
         if (this.isAssigned()) {
@@ -299,7 +311,7 @@ public class Task implements Comparable<Task> {
         this.await();
         this.reset();
 
-        schedulers.forEach(s -> s.finishTask(this));
+        schedulers.forEach(s -> s.removeTask(this));
         this.schedulers.clear();
     }
 

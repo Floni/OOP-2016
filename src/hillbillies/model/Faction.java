@@ -86,4 +86,10 @@ public class Faction {
     public Scheduler getScheduler() {
         return scheduler;
     }
+
+    public void terminate() {
+        this.units.forEach(Unit::terminate);
+        this.units.clear();
+        this.scheduler.terminate();
+    }
 }

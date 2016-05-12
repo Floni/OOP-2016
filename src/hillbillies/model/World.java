@@ -394,8 +394,10 @@ public class World {
     public void removeUnit (Unit unit) {
         Faction unitFac = unit.getFaction();
         unitFac.removeUnit(unit);
-        if (unitFac.getFactionSize() <= 0)
-            factions.remove(unitFac); //TODO: destructor for faction + scheduler
+        if (unitFac.getFactionSize() <= 0) {
+            unitFac.terminate();
+            factions.remove(unitFac);
+        }
     }
     //</editor-fold>
 }
