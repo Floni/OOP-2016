@@ -89,7 +89,7 @@ class WorkActivity extends Activity {
                 if (!Terrain.isSolid(getUnit().getWorld().getTerrain().getCubeType(getLocation()))) {
                     getUnit().dropCarry(getLocation());
                 } else {
-                    this.finishActivity();
+                    getUnit().finishCurrentActivity();
                     return; // no xp may be added because no job is completed
                 }
             } else if (getUnit().getWorld().getTerrain().getCubeType(getLocation()) == Terrain.Type.WORKSHOP &&
@@ -110,12 +110,12 @@ class WorkActivity extends Activity {
             } else if (getUnit().getWorld().getTerrain().getCubeType(getLocation()) == Terrain.Type.ROCK) {
                 getUnit().getWorld().getTerrain().breakCube(getLocation());
             } else {
-                this.finishActivity();
+                getUnit().finishCurrentActivity();
                 return; // no xp may be added because no job is completed
             }
             getUnit().addXp(10);
 
-            this.finishActivity();
+            getUnit().finishCurrentActivity();
         }
     }
 
@@ -155,7 +155,6 @@ class WorkActivity extends Activity {
     void reset() {
         this.location = null;
         this.workTimer = 0;
-        this.interruptTracker();
     }
 
     /**

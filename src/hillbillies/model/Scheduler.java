@@ -70,7 +70,7 @@ public class Scheduler {
      *          | !this.isTaskAvailable()
      */
     public Task getTask(Unit unit) throws NoSuchElementException {
-        Task ret = this.allTasks.stream().filter(t -> !t.isAssigned()).findFirst().orElseThrow(NoSuchElementException::new);
+        Task ret = this.getAllTasksStream().filter(t -> !t.isAssigned()).findFirst().orElseThrow(NoSuchElementException::new);
         ret.setAssignedUnit(unit);
         return ret;
     }

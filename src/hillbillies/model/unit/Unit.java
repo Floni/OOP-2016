@@ -9,7 +9,6 @@ import hillbillies.model.exceptions.InvalidActionException;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.exceptions.UnreachableTargetException;
-import hillbillies.model.programs.statement.ActivityTracker;
 import hillbillies.model.util.PathFinder;
 import hillbillies.model.util.Util;
 import hillbillies.model.vector.IntVector;
@@ -1533,6 +1532,7 @@ public class Unit {
         int nLeveLUps = this.getXpDiff() / 10;
         this.setXpDiff(this.getXpDiff() % 10);
 
+        // TODO: fix
         for (int i = 0; i < nLeveLUps; i++) {
             ArrayList<Integer> attributes = new ArrayList<>();
             if (this.getStrength() < MAX_ATTRIBUTE)
@@ -1623,19 +1623,5 @@ public class Unit {
     public boolean isFalling() {
         return this.getCurrentActivity() == this.getFallActivity();
     }
-
-    /**
-     * Sets the tracker of the current activity.
-     *
-     * @param   tracker
-     *          The tracker to set.
-     *
-     * @effect  Set the currentActivity's tracker.
-     *          | this.getCurrentActivity().setTracker(tracker)
-     */
-    public void setActivityTracker(ActivityTracker tracker) {
-        getCurrentActivity().setTracker(tracker);
-    }
-
     //</editor-fold>
 }

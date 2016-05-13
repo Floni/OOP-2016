@@ -37,7 +37,6 @@ public class FactionTest {
             addUnit();
         }
         assertEquals(50, this.faction.getFactionSize());
-
     }
 
     @Test

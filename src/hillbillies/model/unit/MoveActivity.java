@@ -91,7 +91,7 @@ class MoveActivity extends Activity {
                 getUnit().switchActivity(getPendingActivity());
                 setPendingActivity(null);
             } else if (this.getTarget() == null || isAtTarget()) {
-                this.finishActivity();
+                getUnit().finishCurrentActivity();
             } else {
                 if (path == null)
                     updateTarget(this.target);
@@ -143,10 +143,6 @@ class MoveActivity extends Activity {
         sprintStaminaTimer = 0;
         this.path = null;
         this.pendingActivity = null;
-
-        if (this.hasTracker())
-            this.getTracker().setInterrupt();
-        this.resetTracker();
     }
 
     /**
@@ -269,7 +265,8 @@ class MoveActivity extends Activity {
         // get path:
         this.path = getUnit().getPathFinder().getPath(getUnit().getPosition().toIntVector(), this.getTarget());
         if (path == null) {
-            this.finishActivity();
+            if (getUnit().getCurrentActivity() == this)
+                getUnit().finishCurrentActivity();
             throw new UnreachableTargetException();
         }
 

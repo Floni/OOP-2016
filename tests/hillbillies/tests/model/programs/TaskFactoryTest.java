@@ -15,6 +15,7 @@ import static org.junit.Assert.*;
  * Test for factory
  */
 public class TaskFactoryTest {
+    // TODO: more tests
     @Before
     public void setUp() throws Exception {
 

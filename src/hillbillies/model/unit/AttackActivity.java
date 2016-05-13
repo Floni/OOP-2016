@@ -87,7 +87,7 @@ class AttackActivity extends Activity {
     void advanceTime(double dt) {
         this.attackTimer -= dt;
         if (this.getAttackTimer() <= 0) {
-            this.finishActivity();
+            getUnit().finishCurrentActivity();
         }
     }
 
@@ -104,12 +104,12 @@ class AttackActivity extends Activity {
 
     @Override
     void pause() {
-        // can't happen -> NOP
+
     }
 
     @Override
     void resume() {
-        // can't happen -> nop
+
     }
 
     /**
@@ -124,7 +124,6 @@ class AttackActivity extends Activity {
     @Override
     void reset() {
         this.attackTimer = 0; // reset attack timer
-        this.interruptTracker();
     }
 
     /**

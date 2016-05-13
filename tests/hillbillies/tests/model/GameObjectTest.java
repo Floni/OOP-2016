@@ -56,4 +56,5 @@ public class GameObjectTest {
             object.advanceTime(step);
         object.advanceTime(time - n * step);
     }
+    // TODO: test falling
 }

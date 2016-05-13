@@ -51,7 +51,7 @@ class FollowActivity extends MoveActivity{
                 getUnit().getPosition().subtract(getUnit().getPosition().toIntVector().toVector())
                         .isEqualTo(new Vector(Terrain.Lc / 2, Terrain.Lc / 2, Terrain.Lc / 2), World.POS_EPS)) {
             if (this.getUnit().getPosition().isNextTo(getOther().getPosition()) || !other.isAlive()) {
-                this.finishActivity();
+                getUnit().finishCurrentActivity();
                 return;
             } else if (!other.getPosition().toIntVector().equals(this.target)) {
                 this.updateTarget(other.getPosition().toIntVector());

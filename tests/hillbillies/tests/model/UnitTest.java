@@ -55,6 +55,15 @@ public class UnitTest {
         unit.setPosition(new Vector(50.5, 0.5, 0.5));
     }
 
+    @Test(expected = InvalidPositionException.class)
+    public void testSetPositionSolid() {
+        int[][][] terrain = new int[][][] { {{Terrain.Type.AIR.getId(), Terrain.Type.ROCK.getId()}}};
+        World world = new World(terrain, (x, y, z) -> {});
+        Unit unit = new Unit("Test", 0, 0, 0, 50, 50, 50, 50);
+        world.addUnit(unit);
+        unit.setPosition(new IntVector(0, 0, 1).toVector());
+    }
+
     @Test
     public void testSetPosition1() throws Exception {
         double[] legalPosition = new double[] {0.5, 0.5, 0.5};
@@ -276,6 +285,7 @@ public class UnitTest {
         unit.rest();
         advanceTimeFor(unit, 60, 0.1);
         assertEquals(unit.getMaxPoints(), unit.getStamina());
+        // TODO: test rest minute.
     }
 
     @Test
@@ -313,6 +323,8 @@ public class UnitTest {
         test.terminate();
         assertFalse(test.isAlive());
         assertFalse(world.getUnits().contains(test));
+        // TODO: test drop carry
+        // TODO:
     }
 
     @Test
@@ -323,6 +335,7 @@ public class UnitTest {
         advanceTimeFor(unit, 500.0 / unit.getStrength() + 1.0, 0.1);
         assertFalse(unit.isWorking());
         assertEquals(Terrain.Type.AIR, world.getTerrain().getCubeType(new IntVector(0, 0, 0)));
+        // TODO: check Xp gains
     }
 
 
@@ -344,6 +357,10 @@ public class UnitTest {
         unit.workAt(log.getPosition().toIntVector());
         advanceTimeFor(unit,  500.0 / unit.getStrength() + 1.0, 0.1);
         assertTrue(unit.isCarryingLog());
+        // TODO: test drop
+        // TODO: test drop when dead
+        // TODO: test speed when carrying
+        // TODO: test weight when carrying.
     }
 
     @Test
@@ -372,9 +389,11 @@ public class UnitTest {
         unit.setPosition(new Vector(2.5, 2.5, 2.5));
         advanceTimeFor(unit, 0.2, 0.1);
         assertTrue(unit.isMoving()); // we are falling
+        assertTrue(unit.isFalling());
         assertEquals(3.0, unit.getSpeedScalar(), 1e-6);
         advanceTimeFor(unit, 10, 0.1);
         assertEquals(new Vector(2.5, 2.5, 0.5), unit.getPosition());
+        // TODO: test HitPoints
     }
 
     @Test
@@ -388,4 +407,6 @@ public class UnitTest {
         advanceTimeFor(unit, 10, 0.1);
         assertEquals(new Vector(4.5, 0.5, 0.5), unit.getPosition());
     }
+    // TODO: test constructor clamp
+    // TODO: test change activity
 }

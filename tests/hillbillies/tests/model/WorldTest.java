@@ -180,6 +180,19 @@ public class WorldTest {
     }
 
     @Test
+    public void testAdvanceTimeObject() {
+        final boolean[] succeeded = {false};
+        world.addGameObject(new GameObject(world, IntVector.ZERO) {
+            @Override
+            public void advanceTime(double dt) {
+                succeeded[0] = true;
+            }
+        });
+        world.advanceTime(0.1);
+        assertTrue(succeeded[0]);
+    }
+
+    @Test
     public void testSpawnUnit() throws Exception {
         Unit unit1 = world.spawnUnit(false);
         assertFalse(unit1.isDefaultEnabled());
@@ -201,6 +214,7 @@ public class WorldTest {
                 assertFalse(unit.isAlive());
         }
         assertEquals(100, world.getUnits().size());
+        assertEquals(5, world.getFactions().size());
     }
 
     @Test
@@ -209,6 +223,7 @@ public class WorldTest {
         world.addUnit(unit);
         assertTrue(world.getFactions().contains(unit.getFaction()));
         assertTrue(world.getUnits().contains(unit));
+        // TODO: test faction and min faction.
     }
 
     @Test

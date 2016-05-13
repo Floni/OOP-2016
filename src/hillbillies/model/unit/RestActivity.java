@@ -61,7 +61,7 @@ class RestActivity extends Activity {
                     unit.setStamina(unit.getStamina() + 1);
                 }
             } else {
-                this.finishActivity();
+                getUnit().finishCurrentActivity();
             }
         }
     }
