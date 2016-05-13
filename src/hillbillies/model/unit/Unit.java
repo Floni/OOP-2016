@@ -237,61 +237,19 @@ public class Unit {
     //<editor-fold desc="advanceTime">
     /**
      * Updates the units state.
-     * TODO: make Activity.advanceTime() model -> use in this comment block.
+     *
      *
      * @param   dt
      *          The time step taken between frames.
      *
-     * @post    If the unit isn't alive then this method has no effect.
-     * @post    If the unit is moving then:
-     *          0: If default behaviour is enabled, the unit has a small chance to start sprinting.
-     *          1: If the unit is sprinting the unit's stamina is decreased with one:
-     *              1.1: if the stamina timer is smaller than 0, the unit's stamina is decreased with 1.
-     *              1.2: if the unit's stamina is zero, the unit stops sprinting.
-     *          2: If the unit isn't sprinting and the default behaviour is enabled,
-     *                  the unit has a small change to start sprinting.
-     *          3: The next position is calculated as position + v*dt.
-     *          4: If the next position is further away from the target neighbour the unit has arrived
-     *                  and the unit's position is set to the position of the target neighbour.
-     *                  3.1: If we have a pendingActivity we switch to that activity.
-     *                  3.2: If the unit is at the target or the unit has no other target, the unit stops moving.
-     *                  3.3: Otherwise the unit moves to the next neighbour.
-     *          5: Otherwise we set the position to the next position.
-     *          6: The unit gains 1 xp for each cube he moved.
-     * @post    If the unit is working then the workTimer is decreased.
-     *          If the work is finished then the unit does the following:
-     *              If the unit carries a boulder or log, the boulder or log is dropped at the centre
-     *              of the cube targeted by the labour action.
-     *              Else if the target cube is a workshop and one boulder and one log are available on
-     *              that cube, the unit will improve their equipment, consuming one boulder and one log
-     *              (from the workshop cube), and increasing the unit's weight and toughness.
-     *              Else if a boulder is present on the target cube, the unit shall pick up the boulder.
-     *              Else if a log is present on the target cube, the unit shall pick up the log.
-     *              Else if the target cube is wood, the cube collapses leaving a log.
-     *              Else if the target cube is rock, the cube collapses leaving a boulder.
-     * @post    The attack timer decreases and if the timer is 0 then the unit can attack again.
-     * @post    If the unit is resting, the restTimer is decreased. If the timer runs out the timer is first reset.
-     *              If the unit can heal HP, we heal HP otherwise the unit heals stamina,
-     *              if neither can be increased the unit stops resting.
-     * @post    If the unit is currently not conducting an activity,
-     *              the unit continues an interrupted activity if it exists.
-     *              If it doesn't exist and the default behaviour is enabled, the unit will conduct a random activity.
+     * @post    We also check if three minutes have past, if so we start resting and reset this timer.
      * @post    If the unit is not standing on a passable position, the unit falls.
      *          Falling moves the unit down with the falling speed, if the new position is above a solid cube or the world ground,
      *          the unit will take damage equal to 10 times the amount off cubes he has traveled.
      *          Else the unit will keep falling and his position will be set to the new position.
-     * @post    We also check if three minutes have past, if so we start resting and reset this timer.
      *
-     * @effect  Stops sprinting if the unit's stamina is depleted or if the unit arrived at the target.
-     *          Also starts sprinting randomly when default behavior is enabled.
-     *          | this.setSprint(false)
-     * @effect  If the unit passes the centre of the target neighbouring cube this dt, the position of the unit
-     *          is set to the centre of this neighbouring cube.
-     *          | this.setPosition()
-     * @effect  If work is done, the unit receives 10 xp.
-     *          | this.addXp()
-     * @effect  A unit will take falling damage.
-     *          | this.deduceHitPoints()
+     * @effect  Calls the advanceTime() of the current activity.
+     *          | this.getCurrentActivity().advanceTime()
      *
      * @throws  IllegalArgumentException
      *          The given time step was to big or negative.

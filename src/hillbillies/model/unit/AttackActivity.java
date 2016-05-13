@@ -79,11 +79,11 @@ class AttackActivity extends Activity {
      * @post    The attackTimer is decreased with dt.
      *          | new.getAttackTimer() == this.getAttackTimer() - dt
      *
-     * @effect  If the attack is completed, finishActivity the attack activity
+     * @effect  If the attack is completed, finish the attack activity
      *          | if (new.getAttackTimer() <= 0)
      *          |   this.finishActivity()
      */
-    @Override
+    @Override @Model
     void advanceTime(double dt) {
         this.attackTimer -= dt;
         if (this.getAttackTimer() <= 0) {

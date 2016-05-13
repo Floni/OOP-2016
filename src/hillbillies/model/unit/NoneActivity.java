@@ -1,5 +1,6 @@
 package hillbillies.model.unit;
 
+import be.kuleuven.cs.som.annotate.Model;
 import hillbillies.model.Terrain;
 import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.exceptions.UnreachableTargetException;
@@ -34,16 +35,16 @@ class NoneActivity extends Activity {
      *          The time step to update the activity with.
      *
      * @post    If the unit still has an unfinished activity, he will reset this activity.
-     * @post    Else if default behavior is enabled and the unit has an assigned task, the task will be updated with timestep dt.
-     * @posta   Else if default behavior is enabled and the unit has no assigned task, the unit will get the task with the highest
+     * @post    Else if default behavior is enabled and the unit has an assigned task, the task will be updated with time step dt.
+     * @post    Else if default behavior is enabled and the unit has no assigned task, the unit will get the task with the highest
      *          priority from the scheduler of his faction.
      * @post    Else if default behavior is enabled and there are no tasks available, the unit does with an equal chance one of the following things.
-     *          - The unit moves to a random valid position in the world which the unit can reach.
      *          - The unit works on a neighbouring cube.
      *          - The unit starts resting.
      *          - The unit attacks an enemy unit that is in range.
+     *          - The unit moves to a random valid position in the world which the unit can reach.
      */
-    @Override
+    @Override @Model
     void advanceTime(double dt) {
         if (getUnit().getLastActivity() != this) {
             this.finishActivity(); // we still have an interrupted activity
@@ -55,22 +56,6 @@ class NoneActivity extends Activity {
             } else  {
                 int random = (int)Math.floor(Math.random()*4);
                 switch (random) {
-                    case 3: // move
-                        IntVector randPos;
-                        do {
-                            randPos = new IntVector(
-                                        Math.random()*getUnit().getWorld().getTerrain().getMaxX(),
-                                        Math.random()*getUnit().getWorld().getTerrain().getMaxY(),
-                                        Math.random()*getUnit().getWorld().getTerrain().getMaxZ()
-                                      );
-                            if (getUnit().isValidPosition(randPos)) {
-                                try {
-                                    getUnit().moveTo(randPos);
-                                    break;
-                                } catch (UnreachableTargetException ignored) {}
-                            }
-                        } while (true);
-                        break;
                     case 0: // work
                         List<IntVector> neighbours = Terrain.getNeighbours(getUnit().getPosition().toIntVector())
                                 .filter(v -> getUnit().getWorld().getTerrain().isValidPosition(v)).collect(Collectors.toList());
@@ -90,7 +75,22 @@ class NoneActivity extends Activity {
                             }
                         }
                         break;
-
+                    case 3: // move
+                        IntVector randPos;
+                        do {
+                            randPos = new IntVector(
+                                    Math.random()*getUnit().getWorld().getTerrain().getMaxX(),
+                                    Math.random()*getUnit().getWorld().getTerrain().getMaxY(),
+                                    Math.random()*getUnit().getWorld().getTerrain().getMaxZ()
+                            );
+                            if (getUnit().isValidPosition(randPos)) {
+                                try {
+                                    getUnit().moveTo(randPos);
+                                    break;
+                                } catch (UnreachableTargetException ignored) {}
+                            }
+                        } while (true);
+                        break;
                 }
             }
         }

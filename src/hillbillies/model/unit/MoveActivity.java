@@ -61,13 +61,13 @@ class MoveActivity extends Activity {
      * @post    If default behavior is enabled the unit has a small chance to start sprinting.
      * @post    If the unit is sprinting, his stamina will drain by 1 point every .1 seconds and his speed will be doubled.
      * @post    If the unit arrives at the centre of a new cube he will receive 1 xp.
-     * @post    The new position is equal to the old position + the speed multiplied by the time step.
-     * @post    If the new new position is equal to the target the unit stops moving, otherwise he will continue moving.
+     * @post    The new position is equal to the old position + the speed vector multiplied by the time step.
+     * @post    If the new position is equal to the target the unit stops moving, otherwise he will continue moving.
      *
      * @effect  Sets the units new position
      *          | unit.setPosition(newPosition)
      */
-    @Override
+    @Override @Model
     void advanceTime(double dt) {
         if (getUnit().isSprinting()) {
             sprintStaminaTimer -= dt;

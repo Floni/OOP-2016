@@ -243,7 +243,6 @@ public class Terrain {
         return connectedToBorder.isSolidConnectedToBorder(pos.getX(), pos.getY(), pos.getZ());
     }
 
-    //TODO: comments from here
 
     /**
      * Gets the type of the cube at the given position.
@@ -254,7 +253,7 @@ public class Terrain {
      * @return  An integer representing the type of the cube.
      *
      * @throws  InvalidPositionException
-     *          If the given position is invalid
+     *          If the given position is invalid.
      */
     public Type getCubeType(IntVector cube) throws InvalidPositionException {
         return getCube(cube).type;
@@ -304,7 +303,7 @@ public class Terrain {
      * @post    The type of the cube at the given location will be AIR.
      *
      * @effect  There is a chance to drop an boulder or log.
-     *          | this.dropChance(location, this.getCubeType(location))
+     *          | this.getWorld().dropChance(location, getCubeType(location))
      */
     public void breakCube(IntVector location) {
         Type type = getCubeType(location);
@@ -325,7 +324,7 @@ public class Terrain {
     }
 
     /**
-     * Adds an gameObject to its cube.
+     * Adds a gameObject to its cube.
      *
      * @param   object
      *          The gameObject to add to its cube.
@@ -368,6 +367,10 @@ public class Terrain {
     //</editor-fold>
 
     //<editor-fold desc="Neighbours">
+
+    /**
+     * All neighbouring offsets of a cube.
+     */
     private static final int[][] neighbourOffsets = new int[][] {
 
             { -1, 0, 0 },
@@ -404,22 +407,24 @@ public class Terrain {
     };
 
     /**
-     * Returns a stream of all neighbours to the given position.
+     * Returns a stream of all neighbours of the given position.
      *
      * @param   pos
      *          The position to get all neighbours from.
-     * @return  an stream gotten by adding each offset [-1, 0, 1] to the position.
+     *
+     * @return  A stream obtained by adding each offset [-1, 0, 1] to the position.
      */
     public static Stream<IntVector> getNeighbours(IntVector pos) {
         return Arrays.stream(neighbourOffsets).map(offset -> pos.add(offset[0], offset[1], offset[2]));
     }
 
     /**
-     * Returns a stream of all neighbours to the given position.
+     * Returns a stream of all neighbours of the given position.
      *
      * @param   pos
      *          The position to get all neighbours from.
-     * @return  an stream gotten by adding each offset [-1, 0, 1] to the position but no diagonal positions.
+     *
+     * @return  A stream gotten by adding each offset [-1, 0, 1] to the position without any diagonal positions.
      */
     public static Stream<IntVector> getDirectlyAdjacent(IntVector pos) {
         return Arrays.stream(neighbourOffsets).limit(6).map(offset -> pos.add(offset[0], offset[1], offset[2]));

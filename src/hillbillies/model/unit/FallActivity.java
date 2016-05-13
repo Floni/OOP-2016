@@ -52,7 +52,7 @@ class FallActivity extends Activity {
      * @effect  Sets the position of the unit to the new position.
      *          | unit.setPosition(newPosition)
      */
-    @Override
+    @Override @Model
     void advanceTime(double dt) {
         Vector newPosition = getUnit().getPosition().add(FALL_SPEED.multiply(dt));
 
