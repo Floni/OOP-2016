@@ -29,7 +29,7 @@ import java.util.ArrayList;
  *
  */
 
-// TODO: redo all comments in Unit & World
+// TODO: reread model chapter. (canSwitch, getWeight)
 
 /**
  * The unit class, this class keeps tracks of the unit's position, speed and other attributes.
@@ -179,7 +179,7 @@ public class Unit {
      *          | new.getWorld() == null
      *
      * @effect  Stop the task the unit is running, if applicable.
-     *          | if (this.getFaction() != null) then this.stopTask()
+     *          | if (this.hasAssignedTask()) then this.getAssignedTask().interrupt()
      * @effect  If the unit is carrying an item, drop it.
      *          | if (this.isCarryingBoulder() || this.isCarryingLog())
      *          |   this.dropCarry(this.getPosition().toIntVector())
@@ -191,9 +191,8 @@ public class Unit {
         this.setCurrentActivity(null);
         this.setLastActivity(null);
 
-        if (this.getFaction() != null) {
-            this.stopTask();
-        }
+        if (hasAssignedTask())
+            getAssignedTask().interrupt();
 
         this.setHitPoints(0);
         if (this.getWorld() != null)
@@ -411,7 +410,7 @@ public class Unit {
      * Returns whether or not the unit can do the given Activity.
      *
      * @return  True if the current activity can switch.
-     *          | result == this.getCurrentActivity().canSwitch() TODO: canSwitch model?
+     *          | result == this.getCurrentActivity().canSwitch()
      */
     @Model // model for throws & stuff
     private boolean canSwitchActivity() {
@@ -705,7 +704,7 @@ public class Unit {
      *          | else
      *          |   result == 0
      */
-    @Model // TODO: cascade model?
+    @Model
     private int getCarryWeight() {
         return (isCarryingBoulder() ? getCarryBoulder().getWeight() : (isCarryingLog() ? getCarryBoulder().getWeight() : 0));
     }
@@ -1002,7 +1001,7 @@ public class Unit {
 
     /**
      * Makes the unit move towards one of the adjacent cubes.
-     *TODO
+     *
      * @param   dx
      *          the x direction
      * @param   dy
@@ -1010,22 +1009,16 @@ public class Unit {
      * @param   dz
      *          the z direction
      *
-     * @post    The unit will be moving
-     *          | new.isMoving() == true
+     * @effect  Change the activity to MoveActivity.
+     *          | this.switchActivity(this.getMoveActivity())
      *
-     * @effect  The unit will point to the target cube.
-     *          | new.getOrientation() == Math.atan2(dy, dx)
-     *
+     * @throws  IllegalArgumentException
+     *          If the dx, dy or dz values aren't -1, 0 or +1
+     *          | Math.abs(dx) > 1 || Math.abs(dy) > 1 || Math.abs(dz) > 1
      * @throws  InvalidPositionException
      *          If the target cube is not within the world bounds
      *          | !this.isValidPosition(this.getPosition().add(dx, dy, dz))
      *          | || !this.isStablePosition(this.getPosition().add(dx, dy, dz))
-     * @throws  IllegalArgumentException
-     *          If the dx, dy or dz values aren't -1, 0 or +1
-     *          | Math.abs(dx) > 1 || Math.abs(dy) > 1 || Math.abs(dz) > 1
-     * @throws  InvalidActionException
-     *          If the unit can't move right now
-     *          | !this.canSwitchActivity()
      */
     public void moveToAdjacent(int dx, int dy, int dz)
             throws IllegalArgumentException, InvalidActionException, InvalidPositionException {
@@ -1033,28 +1026,23 @@ public class Unit {
         if (Math.abs(dx) > 1 || Math.abs(dy) > 1 || Math.abs(dz) > 1)
             throw new IllegalArgumentException("Illegal dx, dy and/or dz");
 
-        this.getMoveActivity().updateAdjacent(dx, dy, dz);
+        this.getMoveActivity().updateAdjacent(dx, dy, dz); // TODO: comment?
         this.switchActivity(this.getMoveActivity());
     }
 
 
     /**
      * Starts the units movement to the given target cube.
-     *TODO
+     *
      * @param   target
      *          The coordinates of the target cubes.
      *
-     * @post    The unit starts moving.
-     *          | new.isMoving() == true
-     * @post    The unit will move to the target when calling advanceTime().
-     *          | new.getPosition == target.add(Lc/2)
+     * @effect  Change the current activity to MoveActivity.
+     *          | this.switchActivity(this.getMoveActivity())
      *
      * @throws  InvalidPositionException
      *          If the given target is not valid.
      *          | !isValidPosition(target[0], target[1], target[2])
-     * @throws  InvalidActionException
-     *          If the unit can't move.
-     *          | !this.canHaveAsActivity(MOVE_ACTIVITY_CLASS)
      * @throws  UnreachableTargetException
      *          If the unit can't reach the target.
      *          | !this.getPathFinder().isReachable(this.getPosition().toIntVector(), target)
@@ -1062,7 +1050,7 @@ public class Unit {
     public void moveTo(IntVector target)
             throws InvalidPositionException, InvalidActionException, UnreachableTargetException {
 
-        this.getMoveActivity().updateTarget(target);
+        this.getMoveActivity().updateTarget(target); // TODO: comment?
         this.switchActivity(this.getMoveActivity());
     }
 
@@ -1073,16 +1061,9 @@ public class Unit {
      * @param   other
      *          The unit to be followed.
      *
-     * @post    The unit starts moving.
-     *          | new.isMoving() == true
-     * @post    The unit will move to a position next to the other unit when calling advanceTime().
-     *          | new.getPosition().toIntVector.().isNextTo(new.other.getPosition)
-     * @post    The unit will stop moving if the other unit is dead.
-     *          | if (!new.other.isAlive())
-     *          |   then new.getPosition() == current.getPosition()
+     * @effect  The current activity will be set to FollowActivity.
+     *          | this.switchActivity(this.getFollowActivity())
      *
-     * @throws  InvalidActionException
-     *          Never throws this exception.
      * @throws  InvalidPositionException
      *          Throws if the other's unit position is not a valid position.
      *          | !((getWorld().isValidPosition(cubePos)) && (!World.isSolid(world.getCubeType(cubePos))) ||
@@ -1093,7 +1074,8 @@ public class Unit {
      */
     public void follow(Unit other) throws InvalidActionException,
             InvalidPositionException, UnreachableTargetException, InvalidUnitException {
-        this.getFollowActivity().setOther(other);
+
+        this.getFollowActivity().setOther(other); // TODO: comment?
         this.switchActivity(this.getFollowActivity());
     }
     //</editor-fold>
@@ -1195,10 +1177,12 @@ public class Unit {
         this.switchActivity(this.getWorkActivity());
     }
 
+    // TODO: either throw or unify Log & Boulder
+
     /**
      * Returns the log the unit is carrying or null.
      */
-    @Basic
+    @Basic @Model
     private Log getCarryLog() {
         return carryLog;
     }
@@ -1219,7 +1203,7 @@ public class Unit {
     /**
      * Returns the Boulder the unit is carrying or null.
      */
-    @Basic
+    @Basic @Model
     private Boulder getCarryBoulder() {
         return carryBoulder;
     }
@@ -1263,7 +1247,14 @@ public class Unit {
      * @param   workLoc
      *          The location to drop the object.
      *
-     *TODO
+     * @effect  If the unit is carrying a log, set it position to the workLoc and add it to the world.
+     *          | if (this.isCarryingLog()) then
+     *          |   this.getCarryLog().setPosition(workLoc.toVector().add(Terrain.Lc/2)) &&
+     *          |   this.getWorld().addGameObject(this.getCarryLog()) && this.setCarryLog(null)
+     *          Otherwise, if the unit is carrying a boulder, do the same with the boulder.
+     *          | else if (this.isCarryingBoulder()) then
+     *          |   this.getCarryBoulder().setPosition(workLoc.toVector().add(Terrain.Lc/2)) &&
+     *          |   this.getWorld().addGameObject(this.getCarryBoulder()) && this.setCarryBoulder(null)
      */
     void dropCarry(IntVector workLoc) {
         if (isCarryingLog()) {
@@ -1283,7 +1274,11 @@ public class Unit {
      * @param   log
      *          The log to pick up.
      *
-     * TODO
+     * @post    The unit will carry the log.
+     *          | new.getCarryLog() == log
+     *
+     * @effect  Remove The log from the world.
+     *          | this.getWorld().removeGameObject(log)
      */
     void pickUpLog(Log log) {
         this.setCarryLog(log);
@@ -1296,13 +1291,15 @@ public class Unit {
      * @param   boulder
      *          The boulder to pick up.
      *
-     * TODO
+     * @post    The unit will carry the boulder.
+     *          | new.getCarryBoulder() == boulder
+     * @effect  Remove the Boulder from the world.
+     *          | this.getWorld().removeGameObject(boulder)
      */
     void pickUpBoulder(Boulder boulder) {
         this.setCarryBoulder(boulder);
         getWorld().removeGameObject(boulder);
     }
-
     //</editor-fold>
 
     //<editor-fold desc="Fighting">
@@ -1564,36 +1561,27 @@ public class Unit {
 
     /**
      * Levels the unit.
-     * TODO
-     * @post    While the xpDiff is larger than or equal to 10, increase a random attribute that is not yet the maximum by 1.
-     *          | while xpDiff >= 10
-     *          | if (this.getStrength() < 200)
-     *          |   attributes.add(0)
-     *          | if (this.getAgility() < 200)
-     *          |   attributes.add(1)
-     *          | if (this.getStrength() < 200)
-     *          |   attributes.add(2)
-     *          | if (attributes.get(random) == 0)
-     *          |   new.getStrength == old.getStrength + 1
-     *          | if (attributes.get(random) == 1)
-     *          |   new.getAgility == old.getAgility + 1
-     *          | if (attributes.get(random) == 2)
-     *          |   new.getToughness = old.getToughness + 1
      *
-     * @effect  Update the weight of the unit if necessary.
-     *          | this.setWeight(old.getWeight)
+     *
+     * @effect  A random attribute will be updated xpDiff / 10 times.
+     *          | for (i from 0 .. this.getXpDiff() / 10):
+     *          |   this.set...(this.get...() + 1) TODO
+     *
+     * @effect  Set the new xp difference to less than 10.
+     *          | this.setXpDiff(this.getXpDiff() % 10)
      */
     @Model
     private void levelUp() {
-        while (this.getXpDiff() >= 10) {
-            this.setXpDiff(this.getXpDiff() - 10);
+        int nLeveLUps = this.getXpDiff() / 10;
+        this.setXpDiff(this.getXpDiff() % 10);
 
+        for (int i = 0; i < nLeveLUps; i++) {
             ArrayList<Integer> attributes = new ArrayList<>();
-            if (this.getStrength() < 200)
+            if (this.getStrength() < MAX_ATTRIBUTE)
                 attributes.add(0);
-            if (this.getAgility() < 200)
+            if (this.getAgility() < MAX_ATTRIBUTE)
                 attributes.add(1);
-            if (this.getToughness() < 200)
+            if (this.getToughness() < MAX_ATTRIBUTE)
                 attributes.add(2);
 
             if (attributes.isEmpty())
@@ -1666,24 +1654,6 @@ public class Unit {
      */
     public void assignTask(Task task) {
         this.task = task;
-    }
-
-
-    public void finishTask() { // TODO: remove?
-        if (hasAssignedTask())
-            getAssignedTask().finish();
-    }
-
-    /**
-     * Stops the assigned task
-     *
-     * @effect  Stop the assigned task if effective.
-     *          | if (this.hasAssignedTask()) then this.getAssignedTask().interrupt()
-     */
-    private void stopTask() {
-        if (hasAssignedTask())
-            getAssignedTask().interrupt();
-
     }
 
     /**
