@@ -76,4 +76,37 @@ public class TaskFactoryTest {
 
     }
 
+    @Test
+    public void invalidProgramTestVar() {
+        List<Task> tasks = TaskParser.parseTasksFromString(
+                "name: \"work task\"\npriority: 1\nactivities: w := true; w := workshop; moveTo w;",
+                new TaskFactory(), new ArrayList<>());
+        assertNull(tasks);
+
+    }
+
+    @Test
+    public void invalidProgramTestAssign() {
+        List<Task> tasks = TaskParser.parseTasksFromString(
+                "name: \"work task\"\npriority: 1\nactivities: moveTo w; w := workshop;",
+                new TaskFactory(), new ArrayList<>());
+        assertNull(tasks);
+
+    }
+
+    @Test
+    public void invalidProgramTestMulti() {
+        TaskFactory factory = new TaskFactory();
+        List<Task> tasks = TaskParser.parseTasksFromString(
+                "name: \"work task\"\npriority: 1\nactivities: w := workshop; moveTo w;",
+                factory, new ArrayList<>());
+        List<Task> tasks2 = TaskParser.parseTasksFromString(
+                "name: \"work task\"\npriority: 1\nactivities: w := enemy; follow w;",
+                factory, new ArrayList<>());
+        assertNotNull(tasks);
+        assertNotNull(tasks2);
+
+    }
+
+
 }

@@ -12,6 +12,7 @@ import hillbillies.part3.programs.ITaskFactory;
 import hillbillies.part3.programs.SourceLocation;
 import hillbillies.model.programs.expression.*;
 import hillbillies.model.programs.statement.*;
+import sun.plugin.dom.exception.InvalidStateException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,17 +30,26 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
 
     @Override
     public List<Task> createTasks(String name, int priority, Statement activity, List<int[]> selectedCubes) {
+        List<Task> ret;
+
         if (selectedCubes.isEmpty())
-            return Collections.singletonList(new Task(name, priority, activity, null));
-        return selectedCubes.stream()
+            ret =  Collections.singletonList(new Task(name, priority, activity, null));
+        else
+            ret = selectedCubes.stream()
                 .map(cube -> new Task(name, priority, activity, new IntVector(cube)))
                 .collect(Collectors.toList());
+        varTypeMap.clear();
+        return ret;
     }
 
     //<editor-fold desc="Statements">
     @Override
     public Statement createAssignment(String variableName, Expression<?> value, SourceLocation sourceLocation) {
-        varTypeMap.put(variableName, value.getRead(variableName));
+        if (!varTypeMap.containsKey(variableName)) {
+            varTypeMap.put(variableName, value.getRead(variableName));
+        } else {
+            // TODO: the type of read in varMap must be equal to value
+        }
         return new AssignStatement<>(variableName, value);
     }
 
@@ -109,6 +119,8 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
     //<editor-fold desc="Expressions">
     @Override
     public Expression<?> createReadVariable(String variableName, SourceLocation sourceLocation) {
+        if (!varTypeMap.containsKey(variableName))
+            throw new InvalidStateException("var read");
         return varTypeMap.get(variableName);
     }
 
