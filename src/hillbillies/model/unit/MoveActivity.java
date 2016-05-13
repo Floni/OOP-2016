@@ -198,7 +198,7 @@ class MoveActivity extends Activity {
      * @post    The speed is calculated to move to the next cube.
      *
      * @effect  Sets the orientation of the unit in the direction of the next cube.
-     *          | setOrientation()
+     *          | setOrientation(TODO)
      *
      * @throws  InvalidPositionException
      *          Throws when the neighbour position is not a valid position.
@@ -216,7 +216,7 @@ class MoveActivity extends Activity {
      * Moves to specified neighbour cube.
      *
      * @effect  Move to the next neighbour.
-     *          | moveToNeighbour(curPos.add(dx, dy, dz))
+     *          | moveToNeighbour(getUnit().getPosition().toIntVector().add(dx, dy, dz))
      */
     private void moveToNeighbour(int dx, int dy, int dz) throws InvalidPositionException {
         IntVector curPos = getUnit().getPosition().toIntVector();
