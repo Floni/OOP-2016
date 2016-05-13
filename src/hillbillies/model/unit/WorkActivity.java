@@ -110,7 +110,7 @@ class WorkActivity extends Activity {
             } else if (getUnit().getWorld().getTerrain().getCubeType(getLocation()) == Terrain.Type.ROCK) {
                 getUnit().getWorld().getTerrain().breakCube(getLocation());
             } else {
-                this.finishActivity();;
+                this.finishActivity();
                 return; // no xp may be added because no job is completed
             }
             getUnit().addXp(10);
