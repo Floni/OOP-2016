@@ -238,7 +238,7 @@ public class Unit {
     //<editor-fold desc="advanceTime">
     /**
      * Updates the units state.
-     * TODO
+     * TODO: make Activity.advanceTime() model -> use in this comment block.
      *
      * @param   dt
      *          The time step taken between frames.
@@ -305,12 +305,14 @@ public class Unit {
 
         getCurrentActivity().advanceTime(dt);
 
-        setRestMinuteTimer(getRestMinuteTimer()-dt);
+        // rest
+        setRestMinuteTimer(getRestMinuteTimer() - dt);
         if (getRestMinuteTimer() <= 0 && this.canSwitchActivity()) {
             setRestMinuteTimer(getRestMinuteTimer() + REST_MINUTE);
             rest();
         }
 
+        // fall
         if (!isStablePosition(getPosition().toIntVector()) && !isFalling()) {
             getCurrentActivity().pause();
             getCurrentActivity().reset();
