@@ -135,7 +135,7 @@ abstract class Activity {
      * @param   dt
      *          Time since last frame.
      */
-    @Model // TODO: for all activities
+    @Model
     abstract void advanceTime(double dt);
 
     /**

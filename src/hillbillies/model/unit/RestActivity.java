@@ -38,7 +38,7 @@ class RestActivity extends Activity {
      * @post    Else if the unit does not have full stamina his stamina will regen.
      * @post    Else the unit will stop resting.
      */
-    @Override
+    @Override @Model
     void advanceTime(double dt) {
         this.setRestTimer(this.getRestTimer() - dt);
         if (this.getRestTimer() <= 0) {

@@ -1,6 +1,8 @@
 package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
+import be.kuleuven.cs.som.annotate.Model;
+import com.sun.org.glassfish.gmbal.ManagedAttribute;
 import hillbillies.model.Terrain;
 import hillbillies.model.World;
 import hillbillies.model.exceptions.InvalidPositionException;
@@ -35,7 +37,7 @@ class FollowActivity extends MoveActivity{
      *          The given time step.
      *
      * @post    If the other unit exists and the unit is standing in the centre of a cube
-     * @post    then if the unit is standing on a position next to the other unit or the other unit is dead,
+     *          then if the unit is standing on a position next to the other unit or the other unit is dead,
      *          the unit will finish following the other unit.
      * @post    Else if the the unit is not standing on the same cube as the other unit,
      *          the unit will update his target to the cube of the other unit.
@@ -43,7 +45,7 @@ class FollowActivity extends MoveActivity{
      * @effect  Advances the parent move activity of this follow activity
      *          | super.advanceTime(dt)
      */
-    @Override
+    @Override @Model
     void advanceTime(double dt) {
         if (getOther() != null &&
                 getUnit().getPosition().subtract(getUnit().getPosition().toIntVector().toVector())

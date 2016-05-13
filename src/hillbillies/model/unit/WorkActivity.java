@@ -81,15 +81,17 @@ class WorkActivity extends Activity {
      * @effect  If work is done, the unit receives 10 xp.
      *          | addXp(10)
      */
-    @Override
+    @Override @Model
     void advanceTime(double dt) {
         workTimer -= dt;
         if (this.getWorkTimer() <= 0) {
             if (getUnit().isCarryingLog() || getUnit().isCarryingBoulder()){ //BOULDER OR LOG
-                if (!Terrain.isSolid(getUnit().getWorld().getTerrain().getCubeType(getLocation())))
+                if (!Terrain.isSolid(getUnit().getWorld().getTerrain().getCubeType(getLocation()))) {
                     getUnit().dropCarry(getLocation());
-                else
-                    return; // don't add xp
+                } else {
+                    this.finishActivity();
+                    return; // no xp may be added because no job is completed
+                }
             } else if (getUnit().getWorld().getTerrain().getCubeType(getLocation()) == Terrain.Type.WORKSHOP &&
                        getUnit().getWorld().getTerrain().getLogs(getLocation()).size() >= 1 &&
                        getUnit().getWorld().getTerrain().getBoulders(getLocation()).size() >= 1) {
@@ -107,6 +109,9 @@ class WorkActivity extends Activity {
                 getUnit().getWorld().getTerrain().breakCube(getLocation());
             } else if (getUnit().getWorld().getTerrain().getCubeType(getLocation()) == Terrain.Type.ROCK) {
                 getUnit().getWorld().getTerrain().breakCube(getLocation());
+            } else {
+                this.finishActivity();;
+                return; // no xp may be added because no job is completed
             }
             getUnit().addXp(10);
 
