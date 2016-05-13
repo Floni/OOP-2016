@@ -377,7 +377,7 @@ public class World {
      *
      * @effect  The world of the unit is set to this world
      *          | unit.setWorld(this)
-     *
+     *  TODO: control if unit is in world and on valid pos -> unit.setpos(unit.getpos) and add comments + throws + cascade throws
      */
     public void addUnit(Unit unit) {
         if (this.getTotalUnits() >= MAX_UNITS)
