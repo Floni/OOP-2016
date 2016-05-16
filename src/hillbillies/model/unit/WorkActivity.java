@@ -130,16 +130,6 @@ class WorkActivity extends Activity {
         return true;
     }
 
-    @Override
-    void pause() {
-    }
-
-    @Override
-    void resume() {
-        this.workTimer  = 500.0 / getUnit().getStrength();
-    }
-
-
     /**
      * Resets the work activity.
      *
@@ -153,6 +143,7 @@ class WorkActivity extends Activity {
      */
     @Override
     void reset() {
+        // TODO: interrupt task?
         this.location = null;
         this.workTimer = 0;
     }

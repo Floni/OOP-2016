@@ -88,7 +88,7 @@ class MoveActivity extends Activity {
             getUnit().setPosition(this.getTargetNeighbour());
             getUnit().addXp(1);
             if (getPendingActivity() != null) {
-                getUnit().switchActivity(getPendingActivity());
+                getUnit().setCurrentActivity(getPendingActivity());
                 setPendingActivity(null);
             } else if (this.getTarget() == null || isAtTarget()) {
                 getUnit().finishCurrentActivity();
@@ -114,19 +114,8 @@ class MoveActivity extends Activity {
     }
 
     @Override
-    void pause() {
-        this.getUnit().setSpeed(null);
-        getUnit().setSprinting(false);
-    }
-
-    @Override
-    void resume() {
-        if (this.getTarget() != null)
-            this.updateTarget(this.getTarget());
-
-        Vector speed = this.calculateSpeed(this.targetNeighbour);
-        this.getUnit().setSpeed(speed);
-        this.getUnit().setOrientation(Math.atan2(speed.getY(), speed.getX()));
+    void switchActivity(Activity newActivity) {
+        this.setPendingActivity(newActivity);
     }
 
     /**
@@ -134,10 +123,13 @@ class MoveActivity extends Activity {
      *
      * @post    The target is cleared.
      *          | new.getTarget() == null
-     * @post    The target neightbour is cleared.
+     * @post    The target neighbour is cleared.
      */
     @Override @Raw
     void reset() {
+        getUnit().setSprinting(false);
+        getUnit().setSpeed(null);
+
         this.target = null;
         this.targetNeighbour = null;
         sprintStaminaTimer = 0;
@@ -338,7 +330,7 @@ class MoveActivity extends Activity {
      * Returns the target the unit is moving towards.
      */
     @Basic @Model
-    private IntVector getTarget() {
+    IntVector getTarget() {
         return this.target;
     }
 

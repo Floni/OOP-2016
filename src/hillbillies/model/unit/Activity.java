@@ -49,6 +49,12 @@ abstract class Activity {
         return this.unit;
     }
 
+    void switchActivity(Activity newActivity) {
+        if (newActivity != getUnit().getCurrentActivity())
+            getUnit().getCurrentActivity().reset();
+        getUnit().setCurrentActivity(newActivity);
+    }
+
     /**
      * Does the required work for this activity.
      *
@@ -64,20 +70,8 @@ abstract class Activity {
     abstract boolean canSwitch();
 
     /**
-     * Pauses the activity, called when the unit is interrupted.
-     * After this, the activity can be resumed or finished (reset).
-     */
-    abstract void pause();
-
-    /**
-     * Called after pause when the activity is resumed.
-     */
-    abstract void resume();
-
-    /**
      * Resumes the activity when it was interrupted.
      */
     @Raw
-    abstract void reset();
-
+    abstract void reset(); // TODO: interrupt task, if activity is interrupted
 }

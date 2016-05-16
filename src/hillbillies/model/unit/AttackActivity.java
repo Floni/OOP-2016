@@ -2,6 +2,7 @@ package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
+import hillbillies.model.exceptions.InvalidActionException;
 import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.vector.Vector;
 
@@ -103,13 +104,9 @@ class AttackActivity extends Activity {
     }
 
     @Override
-    void pause() {
-
-    }
-
-    @Override
-    void resume() {
-
+    void switchActivity(Activity newActivity) {
+        // Shouldn't happen, canSwitch returns false
+        assert false;
     }
 
     /**

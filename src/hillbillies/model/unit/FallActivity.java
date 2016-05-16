@@ -79,19 +79,15 @@ class FallActivity extends Activity {
      * @return  Always false.
      *          | !result
      */
-    @Override @Basic
+    @Override
     boolean canSwitch() {
         return false;
     }
 
     @Override
-    void pause() {
-        // NOP
-    }
-
-    @Override
-    void resume() {
-        // NOP
+    void switchActivity(Activity newActivity) {
+        // Shouldn't happen, canSwitch returns false
+        assert false;
     }
 
     /**

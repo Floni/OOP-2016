@@ -9,7 +9,7 @@ import hillbillies.model.programs.expression.PositionExpression;
 /**
  * Class for work.
  */
-public class WorkStatement implements Statement, ActivityTracker {
+public class WorkStatement implements Statement {
 
     private final PositionExpression position;
     private boolean done;
@@ -37,20 +37,9 @@ public class WorkStatement implements Statement, ActivityTracker {
 
         try {
             task.getAssignedUnit().workAt(this.position.getValue(task));
-            task.getAssignedUnit().setActivityTracker(this);
         } catch (InvalidActionException | InvalidPositionException err) {
             throw new TaskInterruptException(err.getMessage());
         }
         task.await();
-    }
-
-    @Override
-    public void setDone() {
-        done = true;
-    }
-
-    @Override
-    public void setInterrupt() {
-        interrupted = true;
     }
 }

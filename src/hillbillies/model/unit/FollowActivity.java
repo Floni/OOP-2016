@@ -82,6 +82,7 @@ class FollowActivity extends MoveActivity{
 
     /**
      * The activity is only controllable by default behaviour so the default behaviour can always switch activities.
+     *
      * @return  Always returns true
      *          | result == true
      */

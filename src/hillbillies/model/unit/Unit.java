@@ -95,7 +95,6 @@ public class Unit {
     private final AttackActivity attackActivity = new AttackActivity(this);
 
     private Activity currentActivity = noneActivity;
-    private Activity lastActivity = noneActivity;
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
@@ -188,7 +187,6 @@ public class Unit {
             this.dropCarry(this.getPosition().toIntVector());
 
         this.setCurrentActivity(null);
-        this.setLastActivity(null);
 
         if (hasAssignedTask())
             getAssignedTask().interrupt();
@@ -270,17 +268,10 @@ public class Unit {
 
         // fall
         if (!isStablePosition(getPosition().toIntVector()) && !isFalling()) {
-            getCurrentActivity().pause();
             getCurrentActivity().reset();
             this.getFallActivity().startFalling();
             setCurrentActivity(this.getFallActivity());
-
-            getLastActivity().pause();
-            getLastActivity().reset();
-            setLastActivity(this.getNoneActivity());
         }
-
-
     }
     //</editor-fold>
 
@@ -359,7 +350,7 @@ public class Unit {
      *          | new.getCurrentActivity() == newActivity
      */
     @Model
-    private void setCurrentActivity(Activity newActivity) {
+    void setCurrentActivity(Activity newActivity) {
         this.currentActivity = newActivity;
     }
 
@@ -381,83 +372,33 @@ public class Unit {
      *          The new activity.
      *
      * TODO
-     * @post    If we are moving and the newActivity is not moveActivity, we set the pendingActivity.
-     *          Otherwise we set the currentActivity and update the lastActivity.
-     *          | if (this.getCurrentActivity() == this.getMoveActivity() &&
-     *          |     newActivity != this.getMoveActivity() &&
-     *          |     newActivity != this.getMoveActivity().getPendingActivity())
-     *          |   then new.getMoveActivity().getPendingActivity() == newActivity
-     *          | else
-     *          |   ((if (this.getCurrentActivity() != newActivity
-     *          |       then new.lastActivity == this.getCurrentActivity())
-     *          |    then new.getLastActivity() == this.getCurrentActivity())
-     *          |  && new.getCurrentActivity() == newActivity)
      *
      * @throws  InvalidActionException
      *          If the unit can't switch activities
      *          | !this.canSwitchActivity()
      */
     @Model
-    void switchActivity(Activity newActivity) throws InvalidActionException {
+    private void switchActivity(Activity newActivity) throws InvalidActionException {
         if (!canSwitchActivity())
             throw new InvalidActionException("can't change activity");
-
-        if (getCurrentActivity() == getMoveActivity() && newActivity != getMoveActivity().getPendingActivity()) {
-            if (newActivity != getMoveActivity()) {
-                if (getMoveActivity().getPendingActivity() != null)
-                    getMoveActivity().getPendingActivity().reset();
-                getMoveActivity().setPendingActivity(newActivity);
-            }
-        } else if (newActivity != getCurrentActivity()) {
-            if (getLastActivity() != newActivity)
-                getLastActivity().reset();
-            setLastActivity(getCurrentActivity());
-            getLastActivity().pause();
-            setCurrentActivity(newActivity);
-            getCurrentActivity().resume();
-        }
+        getCurrentActivity().switchActivity(newActivity);
     }
 
     /**
      * Finishes the current activity.
-     * @effect  Pauses and resets the currentActivity.
-     *          | this.getCurrentActivity().pause() && this.getCurrentActivity().reset()
-     * @effect  Switch to the last activity and resume it.
-     *          | this.setCurrentActivity(this.getLastActivity()) && this.getLastActivity().resume()
-     * @effect  Clear the lastActivity.
-     *          | this.setLastActivity(this.getNoneActivity())
+     * TODO
+     *
+     * @effect  Resets the currentActivity.
+     *          | this.getCurrentActivity().reset()
      */
     void finishCurrentActivity() {
-        getCurrentActivity().pause();
         getCurrentActivity().reset();
+        // TODO: mark task statement done?
 
-        setCurrentActivity(getLastActivity());
-        getCurrentActivity().resume();
-
-        setLastActivity(this.getNoneActivity());
-    }
-
-
-    /**
-     * Returns the last activity.
-     */
-    @Basic
-    Activity getLastActivity() {
-        return lastActivity;
-    }
-
-    /**
-     * Sets the last Activity.
-     *
-     * @param   lastActivity
-     *          The last activity to be set.
-     *
-     * @post    The lastActivity will be set.
-     *          | new.getLastActivity() == lastActivity
-     */
-    @Model
-    private void setLastActivity(Activity lastActivity) {
-        this.lastActivity = lastActivity;
+        if (this.getCurrentActivity() != this.getMoveActivity() && this.getMoveActivity().getTarget() != null)
+            setCurrentActivity(this.getMoveActivity());
+        else
+            setCurrentActivity(this.getNoneActivity());
     }
     //</editor-fold>
 
@@ -1333,13 +1274,9 @@ public class Unit {
      *          | this.addXp(...)
      * @effect  Turns the units towards each other.
      *          | this.setOrientation()
-     * @effect  Pauses the current activity.
-     *          | this.getCurrentActivity().pause()
-     * @efect   Resumes the current activity.
-     *          | this.getCurrentActivity().resume()
      */
     void defend(Unit attacker) {
-        getCurrentActivity().pause();
+        // TODO: interrupt currentActivity? except move?
         double probabilityDodge = 0.20 * (this.getAgility() / attacker.getAgility());
         if (Math.random() < probabilityDodge) {
             Vector randPos;
@@ -1364,7 +1301,6 @@ public class Unit {
                 this.addXp(20);
             }
         }
-        getCurrentActivity().resume();
     }
     //</editor-fold>
 

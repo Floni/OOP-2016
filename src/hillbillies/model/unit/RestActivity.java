@@ -78,18 +78,6 @@ class RestActivity extends Activity {
         return !this.isInitialRest();
     }
 
-    @Override
-    void pause() {
-        // NOP
-    }
-
-    @Override
-    void resume() {
-        this.setRestTimer(REST_DELAY);
-        this.restDiff = 0;
-    }
-
-
     /**
      * Resets the rest.
      *

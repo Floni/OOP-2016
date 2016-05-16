@@ -46,9 +46,7 @@ class NoneActivity extends Activity {
      */
     @Override @Model
     void advanceTime(double dt) {
-        if (getUnit().getLastActivity() != this) {
-            getUnit().finishCurrentActivity(); // we still have an interrupted activity
-        } else if (getUnit().isDefaultEnabled()) {
+        if (getUnit().isDefaultEnabled()) {
             if (getUnit().hasAssignedTask()) {
                 getUnit().getAssignedTask().advanceTime(dt);
             } else if (getUnit().getFaction().getScheduler().isTaskAvailable()) {
@@ -106,17 +104,6 @@ class NoneActivity extends Activity {
     boolean canSwitch() {
         return true;
     }
-
-    @Override
-    void pause() {
-        // NOP
-    }
-
-    @Override
-    void resume() {
-        // NOP
-    }
-
 
     /**
      * Resets the activity, which does nothing.
