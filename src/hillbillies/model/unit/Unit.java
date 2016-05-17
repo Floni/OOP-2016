@@ -604,7 +604,7 @@ public class Unit {
      */
     @Model
     private int getCarryWeight() {
-        return (isCarryingBoulder() ? getCarryBoulder().getWeight() : (isCarryingLog() ? getCarryBoulder().getWeight() : 0));
+        return (isCarryingBoulder() ? getCarryBoulder().getWeight() : (isCarryingLog() ? getCarryLog().getWeight() : 0));
     }
 
     /**
@@ -1465,11 +1465,11 @@ public class Unit {
      */
     @Model
     private void levelUp() {
-        int nLeveLUps = this.getXpDiff() / 10;
+        int nLevelUps = this.getXpDiff() / 10;
         this.setXpDiff(this.getXpDiff() % 10);
 
         // TODO: fix
-        for (int i = 0; i < nLeveLUps; i++) {
+        for (int i = 0; i < nLevelUps; i++) {
             ArrayList<Integer> attributes = new ArrayList<>();
             if (this.getStrength() < MAX_ATTRIBUTE)
                 attributes.add(0);

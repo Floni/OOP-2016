@@ -285,7 +285,15 @@ public class UnitTest {
         unit.rest();
         advanceTimeFor(unit, 60, 0.1);
         assertEquals(unit.getMaxPoints(), unit.getStamina());
-        // TODO: test rest minute.
+    }
+
+    @Test
+    public void testRestMinuteTimer() throws Exception {
+        unit.setPosition(Vector.IDENT);
+        unit.moveTo(new IntVector(15, 15, 0));
+        unit.setSprinting(true);
+        advanceTimeFor(unit, 3*60+1, 0.1);
+        assertTrue(unit.isResting());
     }
 
     @Test
@@ -320,22 +328,28 @@ public class UnitTest {
     public void isAlive() throws Exception {
         Unit test = new Unit("Test", 0, 0, 0, 50, 50, 50, 50);
         world.addUnit(test);
+        Boulder boulder = new Boulder(world, IntVector.ZERO);
+        world.addGameObject(boulder);
+        test.workAt(IntVector.ZERO);
+        advanceTimeFor(test, 15, 0.1);
+        assertTrue(test.isCarryingBoulder());
+        assertTrue(world.getTerrain().getBoulders(IntVector.ZERO).isEmpty());
         test.terminate();
+        assertFalse(world.getTerrain().getBoulders(IntVector.ZERO).isEmpty());
         assertFalse(test.isAlive());
         assertFalse(world.getUnits().contains(test));
-        // TODO: test drop carry
-        // TODO:
     }
 
     @Test
     public void testWorkAtLog() throws Exception {
         world.getTerrain().setCubeType(new IntVector(0, 0, 0), Terrain.Type.TREE);
         unit.setPosition(new Vector(1.5, 1.5, 0.5));
+        int oldXp = unit.getXp();
         unit.workAt(new IntVector(0, 0, 0));
         advanceTimeFor(unit, 500.0 / unit.getStrength() + 1.0, 0.1);
         assertFalse(unit.isWorking());
         assertEquals(Terrain.Type.AIR, world.getTerrain().getCubeType(new IntVector(0, 0, 0)));
-        // TODO: check Xp gains
+        assertEquals(10, unit.getXp() - oldXp);
     }
 
 
@@ -357,10 +371,39 @@ public class UnitTest {
         unit.workAt(log.getPosition().toIntVector());
         advanceTimeFor(unit,  500.0 / unit.getStrength() + 1.0, 0.1);
         assertTrue(unit.isCarryingLog());
-        // TODO: test drop
-        // TODO: test drop when dead
-        // TODO: test speed when carrying
-        // TODO: test weight when carrying.
+        unit.workAt(IntVector.ZERO);
+        advanceTimeFor(unit,  500.0 / unit.getStrength() + 1.0, 0.1);
+        assertFalse(unit.isCarryingBoulder());
+    }
+
+    @Test
+    public void CarryingWeight() throws Exception {
+        Log log = new Log(world, new IntVector(0, 0, 0));
+        world.addGameObject(log);
+        unit.setPosition(new Vector(1.5, 1.5, 0.5));
+        int oldWeight = unit.getWeight();
+        unit.workAt(log.getPosition().toIntVector());
+        advanceTimeFor(unit,  500.0 / unit.getStrength() + 1.0, 0.1);
+        assertTrue(unit.isCarryingLog());
+        assertTrue(oldWeight + log.getWeight() <= unit.getWeight());
+    }
+
+    @Test
+    public void CarryingSpeed() throws Exception {
+        Log log = new Log(world, new IntVector(0, 0, 0));
+        world.addGameObject(log);
+        unit.setPosition(new Vector(2.5, 2.5, 0.5));
+        unit.moveTo(new IntVector(1, 1, 0));
+        advanceTimeFor(unit, 0.1, 0.1);
+        double oldSpeed = unit.getSpeedScalar();
+        advanceTimeFor(unit, 5, 0.1);
+        unit.workAt(log.getPosition().toIntVector());
+        advanceTimeFor(unit,  500.0 / unit.getStrength() + 1.0, 0.1);
+        assertTrue(unit.isCarryingLog());
+        unit.moveTo(new IntVector(2, 2, 0));
+        advanceTimeFor(unit, 0.1, 0.1);
+        assertTrue(oldSpeed >= unit.getSpeedScalar() );
+
     }
 
     @Test
@@ -387,13 +430,14 @@ public class UnitTest {
         Unit unit = new Unit("Test", 0, 0, 0, 50, 50, 50, 50);
         world.addUnit(unit);
         unit.setPosition(new Vector(2.5, 2.5, 2.5));
+        int oldHp = unit.getHitPoints();
         advanceTimeFor(unit, 0.2, 0.1);
         assertTrue(unit.isMoving()); // we are falling
         assertTrue(unit.isFalling());
         assertEquals(3.0, unit.getSpeedScalar(), 1e-6);
         advanceTimeFor(unit, 10, 0.1);
         assertEquals(new Vector(2.5, 2.5, 0.5), unit.getPosition());
-        // TODO: test HitPoints
+        assertEquals(oldHp - (2 * 10), unit.getHitPoints());
     }
 
     @Test
