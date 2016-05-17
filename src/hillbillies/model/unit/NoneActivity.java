@@ -4,6 +4,7 @@ import be.kuleuven.cs.som.annotate.Model;
 import hillbillies.model.Terrain;
 import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.exceptions.UnreachableTargetException;
+import hillbillies.model.util.Util;
 import hillbillies.model.vector.IntVector;
 
 import java.util.List;
@@ -52,12 +53,12 @@ class NoneActivity extends Activity {
             } else if (getUnit().getFaction().getScheduler().isTaskAvailable()) {
                 getUnit().assignTask(getUnit().getFaction().getScheduler().getTask(getUnit()));
             } else  {
-                int random = (int)Math.floor(Math.random()*4);
+                int random = Util.randomInt(4);
                 switch (random) {
                     case 0: // work
                         List<IntVector> neighbours = Terrain.getNeighbours(getUnit().getPosition().toIntVector())
                                 .filter(v -> getUnit().getWorld().getTerrain().isValidPosition(v)).collect(Collectors.toList());
-                        getUnit().workAt(neighbours.get((int)(Math.random() * neighbours.size())));
+                        getUnit().workAt(neighbours.get(Util.randomInt(neighbours.size())));
                         break;
                     case 1: // rest
                         getUnit().rest();
@@ -77,9 +78,9 @@ class NoneActivity extends Activity {
                         IntVector randPos;
                         do {
                             randPos = new IntVector(
-                                    Math.random()*getUnit().getWorld().getTerrain().getMaxX(),
-                                    Math.random()*getUnit().getWorld().getTerrain().getMaxY(),
-                                    Math.random()*getUnit().getWorld().getTerrain().getMaxZ()
+                                    Util.randomInt(getUnit().getWorld().getTerrain().getMaxX()),
+                                    Util.randomInt(getUnit().getWorld().getTerrain().getMaxY()),
+                                    Util.randomInt(getUnit().getWorld().getTerrain().getMaxZ())
                             );
                             if (getUnit().isValidPosition(randPos)) {
                                 try {

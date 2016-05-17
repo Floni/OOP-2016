@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-// TODO: check comments
 
 /**
  * Class managing terrain and cubes of a World.

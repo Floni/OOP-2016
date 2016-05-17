@@ -223,7 +223,6 @@ public class WorldTest {
         world.addUnit(unit);
         assertTrue(world.getFactions().contains(unit.getFaction()));
         assertTrue(world.getUnits().contains(unit));
-        // TODO: test faction and min faction.
     }
 
     @Test
@@ -238,7 +237,7 @@ public class WorldTest {
         assertEquals(5, world.getFactions().size());
     }
 
-        @Test
+    @Test
     public void testRemoveUnit() throws Exception {
         Unit unit = world.spawnUnit(false);
         assertTrue(world.getUnits().contains(unit));
@@ -247,6 +246,19 @@ public class WorldTest {
         assertFalse(world.getUnits().contains(unit));
         assertFalse(world.getFactions().contains(oldFaction));
         assertNull(unit.getFaction());
+
+    }
+
+    @Test
+    public void testFactionAssignment() throws Exception {
+        for (int i = 0; i < 50; i++) {
+            world.spawnUnit(false);
+        }
+        Faction faction = world.getFactions().iterator().next();
+        faction.getUnits().iterator().next().terminate();
+        faction.getUnits().iterator().next().terminate();
+        Unit unit = world.spawnUnit(false);
+        assertEquals(faction, unit.getFaction());
 
     }
 

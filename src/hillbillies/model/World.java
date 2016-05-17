@@ -7,6 +7,7 @@ import hillbillies.model.exceptions.InvalidCubeTypeException;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.util.PathFinder;
+import hillbillies.model.util.Util;
 import hillbillies.model.vector.IntVector;
 import hillbillies.part2.listener.TerrainChangeListener;
 
@@ -91,6 +92,7 @@ public class World {
         this.gameObjects = new HashSet<>();
         this.workshops = new HashSet<>();
 
+        // TODO: init break cube, work.getTerrain() is invalid
         this.terrain = new Terrain(this, terrainTypes, modelListener);
 
         this.pathFinder = new PathFinder<>(new PathFinder.PathGlue<IntVector>() {
@@ -323,7 +325,7 @@ public class World {
      */
     @Model
     private static int getRandomAttribute() {
-        return (int)Math.floor(25 + 76*Math.random());
+        return Util.randomExclusive(25, 101);
     }
 
     /**
@@ -343,9 +345,9 @@ public class World {
     public Unit spawnUnit(boolean defaultBehaviour) {
         IntVector randPos;
         do {
-            randPos = new IntVector(Math.random()*this.getTerrain().getMaxX(),
-                    Math.random()*this.getTerrain().getMaxY(),
-                    Math.random()*this.getTerrain().getMaxZ());
+            randPos = new IntVector(Util.randomInt(this.getTerrain().getMaxX()),
+                    Util.randomInt(this.getTerrain().getMaxY()),
+                    Util.randomInt(this.getTerrain().getMaxZ()));
         } while (!this.getTerrain().isValidPosition(randPos) // must be within world bounds
                 || (randPos.getZ() != 0 && !Terrain.isSolid(this.getTerrain().getCubeType(randPos.add(0, 0, -1)))) // floor must be solid.
                 || Terrain.isSolid(this.getTerrain().getCubeType(randPos))); // the randPos can't be solid.

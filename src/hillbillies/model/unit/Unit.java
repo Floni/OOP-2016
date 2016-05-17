@@ -612,7 +612,7 @@ public class Unit {
      */
     @Model
     private int getCarryWeight() {
-        return (isCarryingBoulder() ? getCarryBoulder().getWeight() : (isCarryingLog() ? getCarryBoulder().getWeight() : 0));
+        return (isCarryingBoulder() ? getCarryBoulder().getWeight() : (isCarryingLog() ? getCarryLog().getWeight() : 0));
     }
 
     /**
@@ -1289,8 +1289,8 @@ public class Unit {
         if (Math.random() < probabilityDodge) {
             Vector randPos;
             do {
-                randPos = new Vector(getPosition().getX() -1 + Math.random() * 2,
-                        getPosition().getY() -1 + Math.random() * 2,
+                randPos = new Vector(getPosition().getX() -1 + Util.randomInt(2),
+                        getPosition().getY() -1 + Util.randomInt(2),
                         getPosition().getZ());
             } while (!isValidPosition(randPos.toIntVector()));
             setPosition(randPos);
@@ -1473,11 +1473,11 @@ public class Unit {
      */
     @Model
     private void levelUp() {
-        int nLeveLUps = this.getXpDiff() / 10;
+        int nLevelUps = this.getXpDiff() / 10;
         this.setXpDiff(this.getXpDiff() % 10);
 
         // TODO: fix
-        for (int i = 0; i < nLeveLUps; i++) {
+        for (int i = 0; i < nLevelUps; i++) {
             ArrayList<Integer> attributes = new ArrayList<>();
             if (this.getStrength() < MAX_ATTRIBUTE)
                 attributes.add(0);
@@ -1489,7 +1489,7 @@ public class Unit {
             if (attributes.isEmpty())
                 return;
 
-            int rand = (int) Math.floor(Math.random()*attributes.size());
+            int rand = Util.randomInt(attributes.size());
             int attr = attributes.get(rand);
 
             if (attr == 0)
