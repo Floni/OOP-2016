@@ -27,5 +27,35 @@ public final class Util {
         return x;
     }
 
-    // TODO: randint, inclusive and exclusive.
+
+    /**
+     * Returns an integer between the given min and max.
+     *
+     * @param   min
+     *          The given minimum for the random integer.
+     * @param   max
+     *          The given maximum for the given integer.
+     *
+     * @return  An integer larger than or equal to min and smaller than max.
+     *          | result == min + randomInt(max - min)
+     */
+    public static int randomExclusive(int min, int max) {
+        return min + randomInt(max - min);
+    }
+
+
+    /**
+     * Returns an random integer between 0 and the given max.
+     *
+     * @param   max
+     *          The upper boundary for the random integer.
+     *
+     * @return  Returns a random integer larger than or equal to 0 and smaller than the given max.
+     *          | result == Math.floor(Math.random()*max)
+     */
+    public static int randomInt(int max) {
+        return (int) Math.floor(Math.random()*max);
+    }
+
+
 }

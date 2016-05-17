@@ -4,6 +4,7 @@ package hillbillies.model;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
 import hillbillies.model.exceptions.InvalidPositionException;
+import hillbillies.model.util.Util;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
 
@@ -44,7 +45,7 @@ public abstract class GameObject {
     protected GameObject(World world, IntVector location) throws InvalidPositionException {
         this.world = world;
         setPosition(location.toVector().add(Terrain.Lc/2));
-        this.weight = (int)Math.floor(Math.random()*41 + 10);
+        this.weight = Util.randomExclusive(10, 51);
         this.falling = false;
     }
 

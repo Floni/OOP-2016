@@ -1281,8 +1281,8 @@ public class Unit {
         if (Math.random() < probabilityDodge) {
             Vector randPos;
             do {
-                randPos = new Vector(getPosition().getX() -1 + Math.random() * 2,
-                        getPosition().getY() -1 + Math.random() * 2,
+                randPos = new Vector(getPosition().getX() -1 + Util.randomInt(2),
+                        getPosition().getY() -1 + Util.randomInt(2),
                         getPosition().getZ());
             } while (!isValidPosition(randPos.toIntVector()));
             setPosition(randPos);
@@ -1481,7 +1481,7 @@ public class Unit {
             if (attributes.isEmpty())
                 return;
 
-            int rand = (int) Math.floor(Math.random()*attributes.size());
+            int rand = Util.randomInt(attributes.size());
             int attr = attributes.get(rand);
 
             if (attr == 0)
