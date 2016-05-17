@@ -22,7 +22,7 @@ class MoveActivity extends Activity {
     private static final double SPRINT_CHANCE = 0.001;
 
 
-    protected IntVector target; // the final target
+    private IntVector target; // the final target
 
     private Vector targetNeighbour; // the next neighbour to reach
 
@@ -113,6 +113,15 @@ class MoveActivity extends Activity {
         return this.getTarget() != null;
     }
 
+    /**
+     * Switch to a new Activity.
+     *
+     * @param   newActivity
+     *          The new Activity the unit will execute.
+     *
+     * @effect  Set the pending Activity.
+     *          | this.setPendingActivity(newActivity)
+     */
     @Override
     void switchActivity(Activity newActivity) {
         this.setPendingActivity(newActivity);
@@ -121,24 +130,31 @@ class MoveActivity extends Activity {
     /**
      * Resumes the moving activity, which does nothing since the target would only be updated.
      *
-     * @post    The target is cleared.
-     *          | new.getTarget() == null
-     * @post    The target neighbour is cleared.
+     * @post    The path will be cleared.
+     *          | new.getPath() == null
+     * @post    Clear the target and targetNeighbour.
+     *          | new.getTarget() == null && new.getTargetNeighbour() == null
+     * @post    Clear the pendingActivity.
+     *          | new.getPendingActivity() == null
+     *
+     * @effect  Stop the unit sprinting and clear the unit's speed.
+     *          | this.getUnit().setSprinting(false) && this.getUnit().setSpeed(null)
      */
     @Override @Raw
     void reset() {
         getUnit().setSprinting(false);
         getUnit().setSpeed(null);
 
-        this.target = null;
-        this.targetNeighbour = null;
-        sprintStaminaTimer = 0;
+        this.setTarget(null);
+        this.setTargetNeighbour(null);
+
+        this.sprintStaminaTimer = 0; // TODO
         this.path = null;
         this.pendingActivity = null;
     }
 
     /**
-     * Checks whether the unit has arrived at the target
+     * Checks whether the unit has arrived at the target.
      *
      * @return  True if the getUnit()'s position equals the target position.
      *          | result == this.position.isEqualTo(this.target, POS_EPS)
@@ -151,22 +167,28 @@ class MoveActivity extends Activity {
      * Checks whether we arrived at the target neighbour.
      *
      * @param   newPosition
-     *          The position after advanceTime
+     *          The position after advanceTime.
      *
-     * @return  True if we are going to be further from the target in the next step
-     *          | result == dist(newPosition, targetNeighbour) > dist(position, targetNeighbour)
+     * @return  True if we are going to be further from or onto the target in the next step.
+     *          | result == newPosition.distance(this.getTargetNeighbour()) == 0 ||
+     *          |           newPosition.distance(this.getTargetNeighbour())
+     *          |               > this.getUnit().getPosition().distance(this.getTargetNeighbour())
      */
     private boolean isAtNeighbour(Vector newPosition) {
-        double dist_new = newPosition.subtract(this.getTargetNeighbour()).norm();
-        double dist_cur = getUnit().getPosition().subtract(this.getTargetNeighbour()).norm();
+        double dist_new = newPosition.distance(this.getTargetNeighbour());
+        double dist_cur = getUnit().getPosition().distance(this.getTargetNeighbour());
         return dist_new > dist_cur || dist_new == 0;
     }
 
     /**
-     * Move to the next neighbour in the path and move the index of the path.
+     * Move to the next neighbour in the path.
      *
-     * @effect  Move to the next neighbour.
-     *          | moveToNeighbour(path.get(idx))
+     * @effect  If the next position in the path became unreachable, update the path.
+     *          | if ( !this.getUnit().isStablePosition(this.path.getFirst()) ||
+     *          |      !this.getUnit().isValidPosition(this.path.getFirst()) )
+     *          | then ( this.updateTarget(this.getTarget() )
+     *          Otherwise move to the next neighbour.
+     *          | else ( this.moveToNeighbour(this.path.pop()) )
      */
     private void goToNextNeighbour() {
         IntVector next = path.getFirst(); // examine next position
@@ -183,20 +205,24 @@ class MoveActivity extends Activity {
      * @param   neighbour
      *          The neighbour to move to.
      *
-     * @post    The speed is calculated to move to the next cube.
-     *
-     * @effect  Sets the orientation of the unit in the direction of the next cube.
-     *          | setOrientation(TODO)
+     * @effect  Set the target neighbour.
+     *          | this.setTargetNeighbour(neighbour.toVector().add(Terrain.Lc/2))
+     * @effect  Set the unit's speed.
+     *          | this.getUnit().setSpeed(this.calculateSpeed(this.getTargetNeighbour()))
+     * @effect  Update the unit's orientation.
+     *          | this.getUnit().setOrientation(Math.atan2(this.getUnit().getSpeed().getY(),
+     *          |                                          this.getUnit().getSpeed().getX()))
      *
      * @throws  InvalidPositionException
      *          Throws when the neighbour position is not a valid position.
+     *          | !this.getUnit().isStablePosition(neighbour) || !this.getUnit().isValidPosition(neighbour)
      */
     private void moveToNeighbour(IntVector neighbour) throws InvalidPositionException {
         if (!getUnit().isStablePosition(neighbour) || !getUnit().isValidPosition(neighbour))
             throw new InvalidPositionException("Invalid neighbour: ", neighbour);
 
-        this.targetNeighbour = neighbour.toVector().add(Terrain.Lc/2);
-        this.getUnit().setSpeed(calculateSpeed(this.targetNeighbour));
+        this.setTargetNeighbour(neighbour.toVector().add(Terrain.Lc/2));
+        this.getUnit().setSpeed(calculateSpeed(this.getTargetNeighbour()));
         getUnit().setOrientation(Math.atan2(this.getUnit().getSpeed().getY(), this.getUnit().getSpeed().getX()));
     }
 
@@ -206,6 +232,7 @@ class MoveActivity extends Activity {
      * @effect  Move to the next neighbour.
      *          | moveToNeighbour(getUnit().getPosition().toIntVector().add(dx, dy, dz))
      */
+    @Model // for updateAdjacent
     private void moveToNeighbour(int dx, int dy, int dz) throws InvalidPositionException {
         IntVector curPos = getUnit().getPosition().toIntVector();
         moveToNeighbour(curPos.add(dx, dy, dz));
@@ -222,8 +249,11 @@ class MoveActivity extends Activity {
      * @param   dz
      *          The z direction to move to.
      *
+     * @post    The path will be cleared.
+     *          | new.getPath() == null
+     *
      * @effect  Move the unit to the given neighbour cube.
-     *          | moveToNeighbour(dx, dy, dz)
+     *          | this.moveToNeighbour(dx, dy, dz)
      */
     void updateAdjacent(int dx, int dy, int dz) throws InvalidPositionException {
         moveToNeighbour(dx, dy, dz);
@@ -237,18 +267,25 @@ class MoveActivity extends Activity {
      * @param   newTarget
      *          The new target to move to.
      *
-     * @post    The route will be recalculated.
+     * @post    The route will be calculated.
+     *          | new.getPath() ==
+     *          |       this.getUnit().getPathFinder().getPath(this.getUnit().getPosition().toIntVector(),
+     *          |                                              new.getTarget())
      *
      * @effect  If the unit is executing a task, and the target is changed, interrupt the task.
-     *          | if (this.getUnit().hasTracker()) then (this.getUnit().interruptTask())
+     *          | if (this.getUnit().hasTracker()) then ( this.getUnit().interruptTask() )
+     * @effect  Set the new Target.
+     *          | this.setTarget(newTarget)
      * @effect  Move to the new next neighbour.
-     *          | goToNextNeighbour(TODO).
+     *          | goToNextNeighbour().
      *
      * @throws  InvalidPositionException
      *          The given target is invalid.
+     *          | !this.getUnit().isValidPosition(newTarget)
      *
      * @throws  UnreachableTargetException
      *          Throws if the target can't be reached.
+     *          | !this.getUnit().getPathFinder().isReachable(this.getUnit().getPosition().toIntVector(), newTarget)
      */
     void updateTarget(IntVector newTarget) throws InvalidPositionException, UnreachableTargetException {
         if (!getUnit().isValidPosition(newTarget))
@@ -262,12 +299,13 @@ class MoveActivity extends Activity {
         // get path:
         this.path = getUnit().getPathFinder().getPath(getUnit().getPosition().toIntVector(), this.getTarget());
         if (path == null) {
-            if (getUnit().getCurrentActivity() == this)
+            if (getUnit().getCurrentActivity() == this) // TODO: comment?
                 getUnit().finishCurrentActivity();
             throw new UnreachableTargetException();
         }
 
-        // check if we first need to center the unit:
+        // add the current position to the path:
+        // TODO: move to PathFinder
         this.path.push(getUnit().getPosition().toIntVector());
 
         // TEST:
@@ -288,6 +326,7 @@ class MoveActivity extends Activity {
      * @param   target
      *          The target position which the unit is moving to.
      *
+     * TODO
      * @return  The result is the speed vector which would move the unit to the target.
      *          | this.getPosition().add(result.multiply(getPosition().subtract(target).norm()
      *          | / getSpeedScalar())).isEqualTo(target)
@@ -318,15 +357,15 @@ class MoveActivity extends Activity {
      * @post    The new pending activity will be set.
      *          | new.getPendingActivity() == pendingActivity
      */
-    void setPendingActivity(Activity pendingActivity) {
+    private void setPendingActivity(Activity pendingActivity) {
         this.pendingActivity = pendingActivity;
     }
 
     /**
      * Returns the pending activity
      */
-    @Basic
-    Activity getPendingActivity() {
+    @Basic @Model
+    private Activity getPendingActivity() {
         return this.pendingActivity;
     }
 
@@ -371,5 +410,13 @@ class MoveActivity extends Activity {
      */
     private void setTargetNeighbour(Vector targetNeighbour) {
         this.targetNeighbour = targetNeighbour;
+    }
+
+    /**
+     * Returns the path.
+     */
+    @Basic @Model
+    public Deque<IntVector> getPath() {
+        return path;
     }
 }

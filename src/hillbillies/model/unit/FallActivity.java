@@ -2,6 +2,7 @@ package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
+import be.kuleuven.cs.som.annotate.Raw;
 import hillbillies.model.Terrain;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
@@ -11,7 +12,7 @@ import hillbillies.model.World;
  * The activity for falling, is a subclass of MoveActivity.
  */
 class FallActivity extends Activity {
-    static final Vector FALL_SPEED = new Vector(0, 0, -3.0);
+    private static final Vector FALL_SPEED = new Vector(0, 0, -3.0);
 
     private Vector startPosition;
 
@@ -31,8 +32,10 @@ class FallActivity extends Activity {
     /**
      * Start the falling.
      *
-     * @effect  The start position will be set.
-     *          | this.setStartPosition(this.getUnit().getPosition())
+     * @post    The start position will be set.
+     *          | new.getStartPosition() == this.getUnit().getPosition()
+     * @effect  Set the unit's speed.
+     *          | this.getUnit().setSpeed(FallActivity.FALL_SPEED)
      */
     void startFalling() {
         this.setStartPosition(this.getUnit().getPosition()); // we use target as the starting position
@@ -77,7 +80,7 @@ class FallActivity extends Activity {
      * Returns whether the unit can switch activities.
      *
      * @return  Always false.
-     *          | !result
+     *          | result == false
      */
     @Override
     boolean canSwitch() {
@@ -94,16 +97,15 @@ class FallActivity extends Activity {
     @Override
     void switchActivity(Activity newActivity) {
         // Shouldn't happen, canSwitch returns false
-        assert false; // TODO: remove
     }
 
     /**
      * Resets the fall activity.
      *
-     * @effect  The start position will be cleared.
-     *          | this.setStartPosition(null)
+     * @post    The start position will be cleared.
+     *          | new.getStartPosition() == null
      */
-    @Override
+    @Override @Raw
     void reset() {
         this.setStartPosition(null);
     }
@@ -117,7 +119,6 @@ class FallActivity extends Activity {
      * @post    The start position will be set.
      *          | new.getStartPosition() == startPosition
      */
-    @Model
     private void setStartPosition(Vector startPosition) {
         this.startPosition = startPosition;
     }
@@ -125,7 +126,7 @@ class FallActivity extends Activity {
     /**
      * Returns the start position, where the unit started falling.
      */
-    @Basic
+    @Basic @Model
     private Vector getStartPosition() {
         return this.startPosition;
     }

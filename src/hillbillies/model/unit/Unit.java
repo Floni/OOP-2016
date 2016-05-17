@@ -31,6 +31,8 @@ import java.util.ArrayList;
 
 // TODO: reread model chapter. (canSwitch, getWeight)
 
+// TODO; check RAW's in every constructor except: Unit, World.
+
 /**
  * The unit class, this class keeps tracks of the unit's position, speed and other attributes.
  * It provides methods to move, to attack and to rest.
@@ -390,10 +392,14 @@ public class Unit {
 
     /**
      * Finishes the current activity.
-     * TODO
      *
+     * @effect  Marks the unit's tracker done, if it has one.
+     *          | if (this.hasTracker()) then (this.getTracker().setDone() && this.setTracker(null))
      * @effect  Resets the currentActivity.
      *          | this.getCurrentActivity().reset()
+     * @effect  If the moveActivity was interrupted, continue moving otherwise stop doing anything.
+     *          | if ( this.getMoveActivity().getTarget() != null) then (this.setCurrentActivity(this.getMoveActivity()) )
+     *          | else ( this.setCurrentActivity(this.getNoneActivity()) )
      */
     void finishCurrentActivity() {
         if (this.hasTracker()) {
@@ -504,6 +510,7 @@ public class Unit {
      *          When the given position is not valid or not effective.
      *          | !isValidPosition(position) || !isEffectivePosition(position)
      */
+    @Raw
     public void setPosition(Vector position) throws InvalidPositionException {
         if (!isEffectivePosition(position) || !isValidPosition(position.toIntVector()))
             throw new InvalidPositionException(position);
@@ -624,7 +631,7 @@ public class Unit {
      * @post    The new weight is weight clamped between (strength + agility / 2) and MAX_ATTRIBUTE
      *          | new.getBasicWeight() == Util.clamp(((this.getStrength() + this.getAgility()) / 2), MAX_ATTRIBUTE)
      */
-    @Model
+    @Model @Raw
     public void setWeight(int weight) {
         int min = (this.getStrength() + this.getAgility()) / 2;
         weight = Util.clamp(weight, min, MAX_ATTRIBUTE);
@@ -932,7 +939,7 @@ public class Unit {
         if (Math.abs(dx) > 1 || Math.abs(dy) > 1 || Math.abs(dz) > 1)
             throw new IllegalArgumentException("Illegal dx, dy and/or dz");
 
-        this.getMoveActivity().updateAdjacent(dx, dy, dz); // TODO: comment?
+        this.getMoveActivity().updateAdjacent(dx, dy, dz); // TODO: comment, & moveTo & Follow
         this.switchActivity(this.getMoveActivity());
     }
 
@@ -956,7 +963,7 @@ public class Unit {
     public void moveTo(IntVector target)
             throws InvalidPositionException, InvalidActionException, UnreachableTargetException {
 
-        this.getMoveActivity().updateTarget(target); // TODO: comment?
+        this.getMoveActivity().updateTarget(target);
         this.switchActivity(this.getMoveActivity());
     }
 
@@ -981,7 +988,7 @@ public class Unit {
     public void follow(Unit other) throws InvalidActionException,
             InvalidPositionException, UnreachableTargetException, InvalidUnitException {
 
-        this.getFollowActivity().setOther(other); // TODO: comment?
+        this.getFollowActivity().setOther(other);
         this.switchActivity(this.getFollowActivity());
     }
     //</editor-fold>
@@ -1346,6 +1353,7 @@ public class Unit {
      * @post    The timer will be set.
      *          | new.getRestMinuteTimer() == val
      */
+    @Raw
     private void setRestMinuteTimer(double val) {
         this.restMinuteTimer = val;
     }
@@ -1399,7 +1407,7 @@ public class Unit {
      * @post    The xp difference will be set to zero.
      *          | new.getXpDiff() == 0
      */
-    @Model
+    @Model @Raw
     private void resetXp() {
         this.xp = 0;
         this.xpDiff = 0;
@@ -1465,7 +1473,7 @@ public class Unit {
      *
      *
      * @effect  A random attribute will be updated xpDiff / 10 times.
-     *          | for (i from 0 .. this.getXpDiff() / 10):
+     *          | for (i from 0 to this.getXpDiff() / 10):
      *          |   this.set...(this.get...() + 1) TODO
      *
      * @effect  Set the new xp difference to less than 10.

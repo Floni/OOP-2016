@@ -120,7 +120,7 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
     @Override
     public Expression<?> createReadVariable(String variableName, SourceLocation sourceLocation) {
         if (!varTypeMap.containsKey(variableName))
-            throw new InvalidStateException("var read");
+            throw new InvalidStateException("var read"); // TODO: remove throw
         return varTypeMap.get(variableName);
     }
 

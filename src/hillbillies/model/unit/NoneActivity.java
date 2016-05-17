@@ -1,6 +1,7 @@
 package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Model;
+import be.kuleuven.cs.som.annotate.Raw;
 import hillbillies.model.Terrain;
 import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.exceptions.UnreachableTargetException;
@@ -35,7 +36,7 @@ class NoneActivity extends Activity {
      * @param   dt
      *          The time step to update the activity with.
      *
-     * @post    If the unit still has an unfinished activity, he will reset this activity.
+     * TODO: 1 post, and reread
      * @post    Else if default behavior is enabled and the unit has an assigned task, the task will be updated with time step dt.
      * @post    Else if default behavior is enabled and the unit has no assigned task, the unit will get the task with the highest
      *          priority from the scheduler of his faction.
@@ -109,7 +110,7 @@ class NoneActivity extends Activity {
     /**
      * Resets the activity, which does nothing.
      */
-    @Override
+    @Override @Raw
     void reset() {
     }
 }

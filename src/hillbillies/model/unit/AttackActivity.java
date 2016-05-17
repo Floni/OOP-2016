@@ -2,6 +2,7 @@ package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
+import be.kuleuven.cs.som.annotate.Raw;
 import hillbillies.model.exceptions.InvalidActionException;
 import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.vector.Vector;
@@ -96,7 +97,7 @@ class AttackActivity extends Activity {
      * Returns whether the unit can switch activities, which is always false.
      *
      * @return  Always false.
-     *          | !result
+     *          | result == false
      */
     @Override
     boolean canSwitch() {
@@ -106,7 +107,6 @@ class AttackActivity extends Activity {
     @Override
     void switchActivity(Activity newActivity) {
         // Shouldn't happen, canSwitch returns false
-        assert false;
     }
 
     /**
@@ -118,7 +118,7 @@ class AttackActivity extends Activity {
      * @effect  The tracker is interrupted.
      *          | this.interruptTracker()
      */
-    @Override
+    @Override @Raw
     void reset() {
         this.attackTimer = 0; // reset attack timer
     }

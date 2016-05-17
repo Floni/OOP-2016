@@ -34,6 +34,7 @@ class RestActivity extends Activity {
      * @param   dt
      *          The time step that is given.
      *
+     * TODO: one post!!!!!!, use getUnit(), redo comment
      * @post    If the unit does not have full hitpoints his hitpoints will regen.
      * @post    Else if the unit does not have full stamina his stamina will regen.
      * @post    Else the unit will stop resting.
@@ -71,7 +72,7 @@ class RestActivity extends Activity {
      * Returns true if the unit can switch activities.
      *
      * @return  The unit may switch when the activity isn't in the initial rest.
-     *          | !this.isInitialRest()
+     *          | result == !this.isInitialRest()
      */
     @Override
     boolean canSwitch() {

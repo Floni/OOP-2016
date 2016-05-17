@@ -2,6 +2,7 @@ package hillbillies.model.unit;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
+import be.kuleuven.cs.som.annotate.Raw;
 import com.sun.org.glassfish.gmbal.ManagedAttribute;
 import hillbillies.model.Terrain;
 import hillbillies.model.World;
@@ -53,7 +54,7 @@ class FollowActivity extends MoveActivity{
             if (this.getUnit().getPosition().isNextTo(getOther().getPosition()) || !other.isAlive()) {
                 getUnit().finishCurrentActivity();
                 return;
-            } else if (!other.getPosition().toIntVector().equals(this.target)) {
+            } else if (!other.getPosition().toIntVector().equals(this.getTarget())) {
                 this.updateTarget(other.getPosition().toIntVector());
             }
         }
@@ -66,14 +67,17 @@ class FollowActivity extends MoveActivity{
      * @param   other
      *          The unit to follow
      *
+     * @post    Sets the other unit.
+     *          | new.getOther() == other
+     *
      * @effect  Updates the target to follow.
-     *          | updateTarget(ot
+     *          | this.updateTarget(other.getPosition().toIntVector())
      *
      * @throws  UnreachableTargetException
      *          Throws if the other unit is null or not alive.
      *          | other == null || !other.isAlive()
      */
-    public void setOther(Unit other) throws UnreachableTargetException, InvalidUnitException {
+    void setOther(Unit other) throws UnreachableTargetException, InvalidUnitException {
         if (other == null || !other.isAlive())
             throw new InvalidUnitException("The other unit is not valid");
         this.other = other;
@@ -91,13 +95,26 @@ class FollowActivity extends MoveActivity{
         return true;
     }
 
-    @Override
+    /**
+     * Resets the current activity.
+     *
+     * @post    Clear the other unit.
+     *          | new.getOther() == null
+     *
+     * @effect  Call the MoveActivity's reset.
+     *          | super.reset()
+     */
+    @Override @Raw
     void reset() {
         super.reset();
         other = null;
     }
 
-    public Unit getOther() {
+    /**
+     * Returns the other unit the unit is following.
+     */
+    @Basic @Model
+    private Unit getOther() {
         return other;
     }
 }

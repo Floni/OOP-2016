@@ -32,36 +32,6 @@ class WorkActivity extends Activity {
     }
 
     /**
-     * Starts the work activity for the given unit at the given position.
-     *
-     * @param   location
-     *          The location at which the unit starts working.
-     *
-     * @effect  Initialize the Activity with the given unit
-     *          | super(unit);
-     * @effect  Makes the unit face in the direction of the working location
-     *          | setOrientation()
-     *
-     * @throws  InvalidPositionException
-     *          Thrown if the location is invalid or the location isn't next to the unit.
-     *          | !unit.isValidPosition(location) || dist(unit.getPosition(), location) > 1
-     */
-    void workAt(IntVector location) throws IllegalArgumentException, InvalidPositionException {
-        if (!getUnit().getWorld().getTerrain().isValidPosition(location))
-            throw new InvalidPositionException(location);
-
-        if (!location.isNextTo(getUnit().getPosition().toIntVector()))
-            throw new InvalidPositionException("Work location too far: ", location);
-
-        this.workTimer  = 500.0 / getUnit().getStrength();
-        this.location = location;
-
-        Vector diff = location.toVector().add(Terrain.Lc/2).subtract(getUnit().getPosition());
-        getUnit().setOrientation(Math.atan2(diff.getY(), diff.getX()));
-    }
-
-
-    /**
      * Updates the working of the unit in function of the time.
      *
      * @param   dt
@@ -137,14 +107,44 @@ class WorkActivity extends Activity {
      *          | new.getLocation() == null
      * @post    The timer will be reset.
      *          | new.getWorkTimer() == 0
-     *
-     * @effect  Interrupt the tracker.
-     *          | this.interruptTracker()
      */
     @Override
     void reset() {
         this.location = null;
         this.workTimer = 0;
+    }
+
+
+    /**
+     * Starts the work activity for the given unit at the given position.
+     *
+     * @param   location
+     *          The location at which the unit starts working.
+     *
+     * @post    The workTimer will be initialized.
+     *          | new.getWorkTimer() == 500.0 / this.getUnit().getStrength()
+     * @post    The work location is set.
+     *          | new.getLocation() == location
+     *
+     * @effect  Makes the unit face in the direction of the working location.
+     *          | setOrientation(TODO)
+     *
+     * @throws  InvalidPositionException
+     *          Thrown if the location is invalid or the location isn't next to the unit.
+     *          | !unit.isValidPosition(location) || !location.isNextTo(this.getUnit().getPosition().toIntVector())
+     */
+    void workAt(IntVector location) throws IllegalArgumentException, InvalidPositionException {
+        if (!getUnit().getWorld().getTerrain().isValidPosition(location))
+            throw new InvalidPositionException(location);
+
+        if (!location.isNextTo(getUnit().getPosition().toIntVector()))
+            throw new InvalidPositionException("Work location too far: ", location);
+
+        this.workTimer  = 500.0 / getUnit().getStrength();
+        this.location = location;
+
+        Vector diff = location.toVector().add(Terrain.Lc/2).subtract(getUnit().getPosition());
+        getUnit().setOrientation(Math.atan2(diff.getY(), diff.getX()));
     }
 
     /**
