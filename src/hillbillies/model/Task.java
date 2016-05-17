@@ -326,12 +326,12 @@ public class Task implements Comparable<Task> {
      * @effect  The execution will be stopped and reset.
      *          | this.reset()
      *          | this.await()
+     * @effect  Each scheduler this task belongs to will have its list of tasks rebuild to reflect the change in priority.
+     *          | foreach (scheduler in this.getSchedulers()) do (scheduler.rebuildTask(this))
      */
     public void interrupt() {
-        if (this.isAssigned()) {
-            this.await();
+        if (this.isAssigned())
             this.getAssignedUnit().assignTask(null);
-        }
         setAssignedUnit(null);
 
         this.await();

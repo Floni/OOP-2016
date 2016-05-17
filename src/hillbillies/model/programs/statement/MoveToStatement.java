@@ -12,7 +12,7 @@ import hillbillies.model.programs.expression.PositionExpression;
 /**
  * Class for moveTo
  */
-public class MoveToStatement implements Statement {
+public class MoveToStatement implements Statement, StateTracker {
     private final PositionExpression expression;
     private boolean done;
     private boolean interrupted;
@@ -40,6 +40,7 @@ public class MoveToStatement implements Statement {
         IntVector target = getExpression().getValue(task);
         try {
             task.getAssignedUnit().moveTo(target);
+            task.getAssignedUnit().setTracker(this);
         } catch (UnreachableTargetException | InvalidActionException | InvalidPositionException err) {
             if (!task.getAssignedUnit().getWorld().getTerrain().isValidPosition(target))
                 throw new TaskErrorException(err.getMessage());
@@ -52,5 +53,10 @@ public class MoveToStatement implements Statement {
 
     private PositionExpression getExpression() {
         return expression;
+    }
+
+    @Override
+    public void setDone() {
+        this.done = true;
     }
 }

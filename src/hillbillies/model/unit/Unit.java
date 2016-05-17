@@ -9,6 +9,7 @@ import hillbillies.model.exceptions.InvalidActionException;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.exceptions.UnreachableTargetException;
+import hillbillies.model.programs.statement.StateTracker;
 import hillbillies.model.util.PathFinder;
 import hillbillies.model.util.Util;
 import hillbillies.model.vector.IntVector;
@@ -95,6 +96,7 @@ public class Unit {
     private final AttackActivity attackActivity = new AttackActivity(this);
 
     private Activity currentActivity = noneActivity;
+    private StateTracker tracker;
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
@@ -268,9 +270,10 @@ public class Unit {
 
         // fall
         if (!isStablePosition(getPosition().toIntVector()) && !isFalling()) {
-            getCurrentActivity().reset();
+            this.interruptTask();
+            this.getCurrentActivity().reset();
             this.getFallActivity().startFalling();
-            setCurrentActivity(this.getFallActivity());
+            this.setCurrentActivity(this.getFallActivity());
         }
     }
     //</editor-fold>
@@ -371,7 +374,8 @@ public class Unit {
      * @param   newActivity
      *          The new activity.
      *
-     * TODO
+     * @effect  Call the switchActivity on the currentActivity.
+     *          | this.getCurrentActivity().switchActivity(newActivity)
      *
      * @throws  InvalidActionException
      *          If the unit can't switch activities
@@ -392,10 +396,14 @@ public class Unit {
      *          | this.getCurrentActivity().reset()
      */
     void finishCurrentActivity() {
-        getCurrentActivity().reset();
-        // TODO: mark task statement done?
+        if (this.hasTracker()) {
+            this.getTracker().setDone();
+            this.setTracker(null);
+        }
 
-        if (this.getCurrentActivity() != this.getMoveActivity() && this.getMoveActivity().getTarget() != null)
+        getCurrentActivity().reset();
+
+        if (this.getMoveActivity().getTarget() != null)
             setCurrentActivity(this.getMoveActivity());
         else
             setCurrentActivity(this.getNoneActivity());
@@ -1518,7 +1526,6 @@ public class Unit {
     //</editor-fold>
 
     //<editor-fold desc="Tasks">
-
     /**
      * Returns whether the unit has an assigned task.
      *
@@ -1551,6 +1558,21 @@ public class Unit {
     }
 
     /**
+     * Interrupts the current task.
+     *
+     * @effect  Clear the unit's tracker.
+     *          | this.setTracker(null)
+     * @effect  Call interrupt the current task
+     *          | if (this.hasAssignedTask())
+     *          |   this.getAssignedTask().interrupt()
+     */
+    void interruptTask() {
+        this.setTracker(null);
+        if (this.hasAssignedTask())
+            this.getAssignedTask().interrupt();
+    }
+
+    /**
      * Returns whether the unit is falling.
      *
      * @return  True if the unit is falling.
@@ -1558,6 +1580,37 @@ public class Unit {
      */
     public boolean isFalling() {
         return this.getCurrentActivity() == this.getFallActivity();
+    }
+
+    /**
+     * Sets The current activities tracker.
+     *
+     * @param   tracker
+     *          | The tracker for this unit.
+     *
+     * @post    The units tracker will be set.
+     *          | new.getTracker() == tracker
+     */
+    public void setTracker(StateTracker tracker) {
+        this.tracker = tracker;
+    }
+
+    /**
+     * Returns true if the unit has a tracker.
+     *
+     * @return  True if the unit's tracker is effective.
+     *          | result == (this.getTracker() != null)
+     */
+    public boolean hasTracker() {
+        return this.getTracker() != null;
+    }
+
+    /**
+     * Returns the unit's current tracker.
+     */
+    @Basic
+    public StateTracker getTracker() {
+        return tracker;
     }
     //</editor-fold>
 }

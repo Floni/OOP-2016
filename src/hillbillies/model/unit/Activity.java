@@ -5,8 +5,6 @@ import be.kuleuven.cs.som.annotate.Immutable;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 
-// TODO: a task isn't interrupted until noneActivity becomes active again.
-
 /**
  * The abstract base class for all activities, providing shared methods.
  *
@@ -49,9 +47,27 @@ abstract class Activity {
         return this.unit;
     }
 
+    /**
+     * Switches the units activity.
+     *
+     * @param   newActivity
+     *          The new Activity the unit will execute.
+     *
+     * @effect  If the unit has a tracker, and thus is executing a task, interrupt it.
+     *          | if (this.getUnit().hasTracker()) then (this.getUnit().interruptTask())
+     * @effect  Reset The current activity if it isn't the same as the newActivity.
+     *          | if (newActivity != this.getUnit().getCurrentActivity())
+     *          | then (this.getUnit().getCurrentActivity().reset())
+     * @effect  Set the unit's currentActivity to the newActivity.
+     *          | this.getUnit().setCurrentActivity(newActivity)
+     */
     void switchActivity(Activity newActivity) {
+        if (getUnit().hasTracker())
+            getUnit().interruptTask();
+
         if (newActivity != getUnit().getCurrentActivity())
             getUnit().getCurrentActivity().reset();
+
         getUnit().setCurrentActivity(newActivity);
     }
 
@@ -70,8 +86,8 @@ abstract class Activity {
     abstract boolean canSwitch();
 
     /**
-     * Resumes the activity when it was interrupted.
+     * Resets the activity when it was interrupted.
      */
     @Raw
-    abstract void reset(); // TODO: interrupt task, if activity is interrupted
+    abstract void reset();
 }

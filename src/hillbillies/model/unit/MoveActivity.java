@@ -89,7 +89,7 @@ class MoveActivity extends Activity {
             getUnit().addXp(1);
             if (getPendingActivity() != null) {
                 getUnit().setCurrentActivity(getPendingActivity());
-                setPendingActivity(null);
+                this.setPendingActivity(null);
             } else if (this.getTarget() == null || isAtTarget()) {
                 getUnit().finishCurrentActivity();
             } else {
@@ -239,8 +239,10 @@ class MoveActivity extends Activity {
      *
      * @post    The route will be recalculated.
      *
+     * @effect  If the unit is executing a task, and the target is changed, interrupt the task.
+     *          | if (this.getUnit().hasTracker()) then (this.getUnit().interruptTask())
      * @effect  Move to the new next neighbour.
-     *          | goToNextNeighbour().
+     *          | goToNextNeighbour(TODO).
      *
      * @throws  InvalidPositionException
      *          The given target is invalid.
@@ -251,6 +253,9 @@ class MoveActivity extends Activity {
     void updateTarget(IntVector newTarget) throws InvalidPositionException, UnreachableTargetException {
         if (!getUnit().isValidPosition(newTarget))
             throw new InvalidPositionException(newTarget);
+
+        if (getUnit().hasTracker())
+            getUnit().interruptTask();
 
         this.setTarget(newTarget);
 

@@ -9,7 +9,7 @@ import hillbillies.model.programs.expression.UnitExpression;
 /**
  * Class for attack
  */
-public class AttackStatement implements Statement {
+public class AttackStatement implements Statement, StateTracker {
 
     private final UnitExpression unitExpr;
 
@@ -37,9 +37,15 @@ public class AttackStatement implements Statement {
             throw new TaskInterruptException("attack was interrupted, shouldn't happen");
         try {
             task.getAssignedUnit().attack(this.unitExpr.getValue(task));
+            task.getAssignedUnit().setTracker(this);
         } catch (InvalidActionException | InvalidUnitException err) {
             throw new TaskInterruptException(err.getMessage());
         }
         task.await();
+    }
+
+    @Override
+    public void setDone() {
+        this.done = true;
     }
 }

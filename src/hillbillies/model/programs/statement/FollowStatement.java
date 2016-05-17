@@ -12,7 +12,7 @@ import hillbillies.model.programs.expression.UnitExpression;
 /**
  * Class for the follow statement.
  */
-public class FollowStatement implements Statement {
+public class FollowStatement implements Statement, StateTracker {
 
     private final UnitExpression unitExpr;
 
@@ -40,9 +40,15 @@ public class FollowStatement implements Statement {
             throw new TaskInterruptException("Following interrupted");
         try {
             task.getAssignedUnit().follow(unitExpr.getValue(task));
+            task.getAssignedUnit().setTracker(this);
         } catch (InvalidActionException | InvalidUnitException | UnreachableTargetException err) {
             throw new TaskInterruptException(err.getMessage());
         }
         task.await();
+    }
+
+    @Override
+    public void setDone() {
+        this.done = true;
     }
 }

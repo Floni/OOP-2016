@@ -84,10 +84,17 @@ class FallActivity extends Activity {
         return false;
     }
 
+
+    /**
+     * Doesn't do anything. The fallActivity can't be interrupted.
+     *
+     * @param   newActivity
+     *          The new Activity the unit will execute.
+     */
     @Override
     void switchActivity(Activity newActivity) {
         // Shouldn't happen, canSwitch returns false
-        assert false;
+        assert false; // TODO: remove
     }
 
     /**

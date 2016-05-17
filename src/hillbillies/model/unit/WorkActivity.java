@@ -143,7 +143,6 @@ class WorkActivity extends Activity {
      */
     @Override
     void reset() {
-        // TODO: interrupt task?
         this.location = null;
         this.workTimer = 0;
     }
