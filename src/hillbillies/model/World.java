@@ -92,6 +92,7 @@ public class World {
         this.gameObjects = new HashSet<>();
         this.workshops = new HashSet<>();
 
+        // TODO: init break cube, work.getTerrain() is invalid
         this.terrain = new Terrain(this, terrainTypes, modelListener);
 
         this.pathFinder = new PathFinder<>(new PathFinder.PathGlue<IntVector>() {
