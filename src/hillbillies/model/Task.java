@@ -205,6 +205,7 @@ public class Task implements Comparable<Task> {
      */
     public void setPriority(int priority) {
         this.priority = priority;
+        // TODO: update all schedulers?
     }
 
     /**

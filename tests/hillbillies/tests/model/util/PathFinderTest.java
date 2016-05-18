@@ -1,4 +1,4 @@
-package hillbillies.tests.model;
+package hillbillies.tests.model.util;
 
 import hillbillies.model.Terrain;
 import hillbillies.model.util.PathFinder;

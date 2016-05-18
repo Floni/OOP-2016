@@ -1,11 +1,8 @@
 package hillbillies.tests.model;
 
-import hillbillies.model.Boulder;
-import hillbillies.model.GameObject;
-import hillbillies.model.Log;
+import hillbillies.model.*;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
-import hillbillies.model.World;
 import ogp.framework.util.ModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,8 +10,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Created by timo on 3/24/16.
- *
+ * Tests for GameObject.
  */
 public class GameObjectTest {
 
@@ -36,9 +32,16 @@ public class GameObjectTest {
 
     @Test
     public void testAdvanceTime() throws Exception {
+        world.getTerrain().setCubeType(new IntVector(2, 2, 0), Terrain.Type.ROCK);
         object.setPosition(new Vector(2.5, 2.5, 4.5));
+
+        world.getTerrain().setCubeType(new IntVector(2, 2, 3), Terrain.Type.ROCK);
         advanceTimeFor(object, 2, 0.1);
-        assertEquals(new Vector(2.5, 2.5, 0.5), object.getPosition());
+        assertEquals(new Vector(2.5, 2.5, 4.5), object.getPosition());
+
+        world.getTerrain().setCubeType(new IntVector(2, 2, 3), Terrain.Type.AIR);
+        advanceTimeFor(object, 2, 0.1);
+        assertEquals(new Vector(2.5, 2.5, 1.5), object.getPosition());
     }
 
     @Test
@@ -56,5 +59,4 @@ public class GameObjectTest {
             object.advanceTime(step);
         object.advanceTime(time - n * step);
     }
-    // TODO: test falling
 }

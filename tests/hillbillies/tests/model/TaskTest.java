@@ -1,62 +1,104 @@
 package hillbillies.tests.model;
 
+import hillbillies.model.Scheduler;
+import hillbillies.model.Task;
+import hillbillies.model.unit.Unit;
+import hillbillies.model.vector.IntVector;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Collection;
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 
 /**
- * Created by timo on 5/18/16.
+ * Tests for Task.
  */
 public class TaskTest {
-    @Before
-    public void setUp() throws Exception {
-
-    }
 
     @Test
     public void getSelectedPosition() throws Exception {
-
+        Task task = new Task("Test1", 12, null, new IntVector(12, 12, 12));
+        assertEquals(task.getSelectedPosition().orElse(null), new IntVector(12, 12, 12));
+        task = new Task("Test2", 12, null, null);
+        assertFalse(task.getSelectedPosition().isPresent());
     }
 
     @Test
     public void getName() throws Exception {
-
+        Task task = new Task("Test1", 12, null, null);
+        assertEquals("Test1", task.getName());
+        task = new Task("", 12, null, null);
+        assertEquals("", task.getName());
     }
 
     @Test
     public void isWellFormed() throws Exception {
-
+        // TODO: only test in Factory?
     }
 
     @Test
     public void addScheduler() throws Exception {
-
+        Task task = new Task("Test1", 12, null, null);
+        Scheduler scheduler1 = new Scheduler();
+        Scheduler scheduler2 = new Scheduler();
+        task.addScheduler(scheduler1);
+        task.addScheduler(scheduler2);
+        assertTrue(task.getSchedulers().contains(scheduler1));
+        assertTrue(task.getSchedulers().contains(scheduler2));
     }
 
     @Test
     public void removeScheduler() throws Exception {
+        Task task = new Task("Test1", 12, null, null);
+        Scheduler scheduler1 = new Scheduler();
+        Scheduler scheduler2 = new Scheduler();
+        task.addScheduler(scheduler1);
+        task.addScheduler(scheduler2);
+        assertTrue(task.getSchedulers().contains(scheduler1));
+        assertTrue(task.getSchedulers().contains(scheduler2));
+        task.removeScheduler(scheduler1);
+        assertFalse(task.getSchedulers().contains(scheduler1));
+        assertTrue(task.getSchedulers().contains(scheduler2));
 
     }
 
     @Test
     public void getSchedulers() throws Exception {
+        Task task1 = new Task("Test1", 12, null, null);
+        Task task2 = new Task("Test2", 1, null, null);
+        Scheduler scheduler1 = new Scheduler();
+        Scheduler scheduler2 = new Scheduler();
 
+        scheduler1.schedule(task1);
+        scheduler1.schedule(task2);
+
+        scheduler2.schedule(task1);
+
+        assertTrue(task1.getSchedulers().contains(scheduler1));
+        assertTrue(task1.getSchedulers().contains(scheduler2));
+
+        assertTrue(task2.getSchedulers().contains(scheduler1));
+        assertFalse(task2.getSchedulers().contains(scheduler2));
+        scheduler2.schedule(task2);
+        assertTrue(task2.getSchedulers().contains(scheduler2));
     }
 
     @Test
     public void isAssigned() throws Exception {
-
+        Task task1 = new Task("Test1", 12, null, null);
+        assertFalse(task1.isAssigned());
+        task1.setAssignedUnit(new Unit("Test", 0, 0, 0, 0, 0, 0, 0));
+        assertTrue(task1.isAssigned());
+        task1.setAssignedUnit(null);
+        assertFalse(task1.isAssigned());
     }
 
     @Test
     public void getAssignedUnit() throws Exception {
-
-    }
-
-    @Test
-    public void setAssignedUnit() throws Exception {
-
+        Task task1 = new Task("Test1", 12, null, null);
+        assertNull(task1.getAssignedUnit());
     }
 
     @Test

@@ -85,9 +85,13 @@ public class Scheduler {
      *
      * @post    The task will be removed from the scheduler.
      *          | !new.getAllTasks().contains(task)
+     *
+     * @effect  Remove this scheduler from the task.
+     *          | task.removeScheduler(this)
      */
     public void removeTask(Task task) {
         allTasks.remove(task);
+        task.removeScheduler(this);
     }
 
     /**

@@ -1,4 +1,4 @@
-package hillbillies.tests.model.list;
+package hillbillies.tests.model.util;
 
 import hillbillies.model.util.SortedLinkedList;
 import org.junit.Before;
