@@ -8,9 +8,6 @@ import hillbillies.model.programs.exceptions.TaskInterruptException;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.vector.IntVector;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
  * Class for next_to expression
  */

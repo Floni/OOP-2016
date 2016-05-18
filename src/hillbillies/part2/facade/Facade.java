@@ -84,7 +84,11 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
 
     @Override
     public void addUnit(Unit unit, World world) throws ModelException {
-        world.addUnit(unit);
+        try {
+            world.addUnit(unit);
+        } catch (InvalidPositionException e) {
+            throw new ModelException(e.getMessage(), e);
+        }
     }
 
     @Override

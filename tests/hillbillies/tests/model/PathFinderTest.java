@@ -44,7 +44,7 @@ public class PathFinderTest {
     @Test
     public void testGetPath() throws Exception {
         Deque<IntVector> path = pathFinder.getPath(new IntVector(0, 0, 0), new IntVector(2, 1, 1));
-        IntVector last = new IntVector(2, 1, 1); // end
+        IntVector last = new IntVector(0, 0, 0); // start
         for (IntVector pos : path) {
             IntVector diff = pos.subtract(last);
             assertTrue(Math.abs(diff.getX()) <= 1 && Math.abs(diff.getY()) <= 1 && Math.abs(diff.getZ()) <= 1);

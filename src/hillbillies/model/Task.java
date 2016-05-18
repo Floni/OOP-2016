@@ -7,9 +7,9 @@ import hillbillies.model.programs.exceptions.BreakException;
 import hillbillies.model.programs.exceptions.TaskErrorException;
 import hillbillies.model.programs.exceptions.TaskInterruptException;
 import hillbillies.model.programs.statement.BreakChecker;
-import hillbillies.model.vector.IntVector;
-import hillbillies.model.unit.Unit;
 import hillbillies.model.programs.statement.Statement;
+import hillbillies.model.unit.Unit;
+import hillbillies.model.vector.IntVector;
 
 import java.util.*;
 
@@ -41,11 +41,9 @@ public class Task implements Comparable<Task> {
      * A map from string to Object (IntVector, Boolean or Unit).
      *
      * @invar   Each Object must be effective
-     *          | ..
-     * @invar   Each Object must be either a Boolean, IntVector or Unit.
-     *          | ..
+     *          | foreach (value in variableTable): ( value != null )
      */
-    private Map<String, Object> variableTable;
+    private final Map<String, Object> variableTable;
     //</editor-fold>
 
     //<editor-fold desc="Constructor">

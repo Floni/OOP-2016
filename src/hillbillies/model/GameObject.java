@@ -31,9 +31,9 @@ public abstract class GameObject {
      * Creates a new gameObject in a given world an at a given location.
      *
      * @param   world
-     *          The world in which the gameobject needs to be created.
+     *          The world in which the gameObject needs to be created.
      * @param   location
-     *          The location at which the gameobject needs to be created.
+     *          The location at which the gameObject needs to be created.
      *
      * @post    The position is set to the middle of the cube of the given position.
      * @post    The weight of the object is random between 10 and 50.

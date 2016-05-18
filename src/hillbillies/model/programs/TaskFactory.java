@@ -5,13 +5,13 @@ import hillbillies.model.Task;
 import hillbillies.model.World;
 import hillbillies.model.programs.exceptions.TaskErrorException;
 import hillbillies.model.programs.exceptions.TaskInterruptException;
+import hillbillies.model.programs.expression.*;
+import hillbillies.model.programs.statement.*;
 import hillbillies.model.unit.Unit;
-import hillbillies.model.vector.*;
+import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
 import hillbillies.part3.programs.ITaskFactory;
 import hillbillies.part3.programs.SourceLocation;
-import hillbillies.model.programs.expression.*;
-import hillbillies.model.programs.statement.*;
 import sun.plugin.dom.exception.InvalidStateException;
 
 import java.util.*;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  */
 public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task> {
 
-    private Map<String, Expression<?>> varTypeMap;
+    private final Map<String, Expression<?>> varTypeMap;
 
     public TaskFactory() {
         varTypeMap = new HashMap<>();
@@ -47,10 +47,11 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
     public Statement createAssignment(String variableName, Expression<?> value, SourceLocation sourceLocation) {
         if (!varTypeMap.containsKey(variableName)) {
             varTypeMap.put(variableName, value.getRead(variableName));
+            return new AssignStatement<>(variableName, value);
         } else {
-            // TODO: the type of read in varMap must be equal to value
+            Expression<?> expression = varTypeMap.get(variableName);
+            return new AssignStatement<>(variableName, expression.castExpr(value));
         }
-        return new AssignStatement<>(variableName, value);
     }
 
     @Override

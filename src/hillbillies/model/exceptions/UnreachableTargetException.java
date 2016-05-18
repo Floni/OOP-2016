@@ -1,9 +1,7 @@
 package hillbillies.model.exceptions;
 
-import java.nio.channels.UnresolvedAddressException;
-
 /**
- * Created by timo on 4/18/16.
+ * Exception indicating an unreachable target.
  */
 public class UnreachableTargetException extends RuntimeException {
     public UnreachableTargetException() {

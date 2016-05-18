@@ -100,35 +100,58 @@ public class Terrain {
      *
      * @param   world
      *          The world this terrain belongs to.
-     * @param   terrainTypes
-     *          The initial types of the terrain.
+     * @param   maxX
+     *          The size of the world in the X direction.
+     * @param   maxY
+     *          The size of the world in the Y direction.
+     * @param   maxZ
+     *          The size of the world in the Z direction.
+     *
      * @param   modelListener
      *          The listener for terrain changes.
      *
      * @post    The getMaxX(), getMaxY() and getMaxZ() functions will return the size of the terrain.
-     * @post    A new cube is created for each position in the terrain, the type is set to the supplied type.
-     * @post    Any cube that isn't connected to the border will cave in at start.
      *
      * @throws  IllegalArgumentException
-     *          If the terrainTypes or the modelListener aren't effective.
+     *          If the modelListener isn't effective.
      * @throws  InvalidCubeTypeException
      *          If any of the supplied terrainTypes are invalid.
      */
-    public Terrain(World world, int[][][] terrainTypes, TerrainChangeListener modelListener)
+    public Terrain(World world, int maxX, int maxY, int maxZ, TerrainChangeListener modelListener)
             throws IllegalArgumentException, InvalidCubeTypeException {
 
-        if (terrainTypes == null|| modelListener == null)
-            throw new IllegalArgumentException("no terrain types or model listener given");
+        if (modelListener == null)
+            throw new IllegalArgumentException("no model listener given");
         this.updateListener = modelListener;
         this.world = world;
 
-        this.maxX = terrainTypes.length;
-        this.maxY = terrainTypes[0].length;
-        this.maxZ = terrainTypes[0][0].length;
+        this.maxX = maxX;
+        this.maxY = maxY;
+        this.maxZ = maxZ;
 
         this.cubes = new Cube[maxX][maxY][maxZ];
 
         connectedToBorder = new ConnectedToBorder(maxX, maxY, maxZ);
+
+    }
+
+    /**
+     * Sets the terrain types.
+     *
+     * @param   terrainTypes
+     *          A list with the types of all cubes.
+     *
+     * @post    A new cube is created for each position in the terrain, the type is set to the supplied type.
+     * @post    Any cube that isn't connected to the border will cave in at start.
+     *
+     * @throws  IllegalArgumentException
+     *          | if the terrainTypes isn't effective or the size doesn't match.
+     */
+    public void setTerrain(int[][][] terrainTypes) throws IllegalArgumentException {
+        if (terrainTypes == null || terrainTypes.length != maxX
+                || terrainTypes[0].length != maxY || terrainTypes[0][0].length != maxZ)
+            throw new IllegalArgumentException("invalid terrainTypes given");
+
         Set<IntVector> startCaveIn = new HashSet<>();
 
         for (int x = 0; x < maxX; x++) {

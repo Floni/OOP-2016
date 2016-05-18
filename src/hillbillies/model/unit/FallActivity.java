@@ -6,7 +6,6 @@ import be.kuleuven.cs.som.annotate.Raw;
 import hillbillies.model.Terrain;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
-import hillbillies.model.World;
 
 /**
  * The activity for falling, is a subclass of MoveActivity.

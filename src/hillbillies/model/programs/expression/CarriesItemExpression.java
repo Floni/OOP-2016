@@ -1,8 +1,6 @@
 package hillbillies.model.programs.expression;
 
 import hillbillies.model.Task;
-import hillbillies.model.programs.exceptions.TaskErrorException;
-import hillbillies.model.programs.exceptions.TaskInterruptException;
 
 /**
  * Class for carries item expression

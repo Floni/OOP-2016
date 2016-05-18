@@ -36,15 +36,15 @@ class NoneActivity extends Activity {
      * @param   dt
      *          The time step to update the activity with.
      *
-     * TODO: 1 post, and reread
-     * @post    Else if default behavior is enabled and the unit has an assigned task, the task will be updated with time step dt.
-     * @post    Else if default behavior is enabled and the unit has no assigned task, the unit will get the task with the highest
-     *          priority from the scheduler of his faction.
-     * @post    Else if default behavior is enabled and there are no tasks available, the unit does with an equal chance one of the following things.
-     *          - The unit works on a neighbouring cube.
-     *          - The unit starts resting.
-     *          - The unit attacks an enemy unit that is in range.
-     *          - The unit moves to a random valid position in the world which the unit can reach.
+     * @post    If default behavior is enabled and the unit has an assigned task, the task will be updated with time step dt.
+     *          Else if default behavior is enabled and the unit has no assigned task,
+     *            the unit will get the task with the highest priority from the scheduler of his faction.
+     *          Else if default behavior is enabled and there are no tasks available,
+     *           the unit does with an equal chance one of the following things:
+     *             - The unit works on a neighbouring cube.
+     *             - The unit starts resting.
+     *             - The unit attacks an enemy unit that is in range.
+     *             - The unit moves to a random valid position in the world which the unit can reach.
      */
     @Override @Model
     void advanceTime(double dt) {

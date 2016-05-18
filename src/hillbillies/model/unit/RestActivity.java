@@ -34,10 +34,9 @@ class RestActivity extends Activity {
      * @param   dt
      *          The time step that is given.
      *
-     * TODO: one post!!!!!!, use getUnit(), redo comment
-     * @post    If the unit does not have full hitpoints his hitpoints will regen.
-     * @post    Else if the unit does not have full stamina his stamina will regen.
-     * @post    Else the unit will stop resting.
+     * @post    If the unit does not have full hitPoints his hitPoints will regen.
+     *          Else if the unit does not have full stamina his stamina will regen.
+     *          Else the unit will stop resting.
      */
     @Override @Model
     void advanceTime(double dt) {
@@ -45,21 +44,21 @@ class RestActivity extends Activity {
         if (this.getRestTimer() <= 0) {
             this.setRestTimer(this.getRestTimer() + REST_DELAY);
 
-            if (unit.getHitPoints() != unit.getMaxPoints()) {
-                restDiff += (unit.getToughness()/200.0);
+            if (getUnit().getHitPoints() != getUnit().getMaxPoints()) {
+                restDiff += (getUnit().getToughness()/200.0);
                 // recover at least 1 HP
                 if (getRestDiff() >= 1) {
                     this.resetInitialRest();
                     restDiff -= 1;
-                    unit.setHitPoints(unit.getHitPoints()+1);
+                    getUnit().setHitPoints(getUnit().getHitPoints()+1);
                 }
-            } else if (unit.getStamina() != unit.getMaxPoints()) {
+            } else if (getUnit().getStamina() != getUnit().getMaxPoints()) {
                 this.resetInitialRest();
-                restDiff += (unit.getToughness()/100.0);
+                restDiff += (getUnit().getToughness()/100.0);
 
                 if (getRestDiff() >= 1) {
                     restDiff -= 1;
-                    unit.setStamina(unit.getStamina() + 1);
+                    getUnit().setStamina(getUnit().getStamina() + 1);
                 }
             } else {
                 getUnit().finishCurrentActivity();

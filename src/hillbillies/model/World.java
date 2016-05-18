@@ -90,8 +90,9 @@ public class World {
         this.gameObjects = new HashSet<>();
         this.workshops = new HashSet<>();
 
-        // TODO: init break cube, work.getTerrain() is invalid
-        this.terrain = new Terrain(this, terrainTypes, modelListener);
+        this.terrain = new Terrain(this, terrainTypes.length,
+                                         terrainTypes[0].length, terrainTypes[0][0].length, modelListener);
+        this.terrain.setTerrain(terrainTypes);
 
         this.pathFinder = new PathFinder<>(new PathFinder.PathGlue<IntVector>() {
             @Override
@@ -359,7 +360,7 @@ public class World {
         if (this.getTotalUnits() >= MAX_UNITS)
             unit.terminate();
         else
-            this.addUnit(unit);
+            this.addUnit(unit); // shouldn't throw, position is valid.
 
         return unit;
     }
@@ -377,12 +378,15 @@ public class World {
      *
      * @effect  The world of the unit is set to this world
      *          | unit.setWorld(this)
-     *  TODO: unit outside world -> total / ignore unit / defensive: throw.
+     *
+     * @throws  InvalidPositionException
+     *          If the given unit's position isn't valid.
      */
-    public void addUnit(Unit unit) {
+    public void addUnit(Unit unit) throws InvalidPositionException {
+        if (!this.getTerrain().isValidPosition(unit.getPosition().toIntVector()))
+            throw new InvalidPositionException(unit.getPosition());
         if (this.getTotalUnits() >= MAX_UNITS)
             return;
-
         unit.setWorld(this);
         if (factions.size() < MAX_FACTIONS) {
             Faction newFaction = this.addFaction();

@@ -2,7 +2,6 @@ package hillbillies.model.programs.expression;
 
 import hillbillies.model.Task;
 import hillbillies.model.Terrain;
-import hillbillies.model.World;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.programs.exceptions.TaskErrorException;
 import hillbillies.model.programs.exceptions.TaskInterruptException;

@@ -258,7 +258,7 @@ public class UnitTest {
         other.setPosition(unit.getPosition().add(1, 1, 0));
         unit.attack(other);
         assertTrue(unit.isAttacking());
-        assertEquals(Math.PI/4.0, unit.getOrientation(), 1e-6);
+        assertEquals(unit.getOrientation() % Math.PI, other.getOrientation() % Math.PI, Util.DEFAULT_EPSILON);
     }
 
     @Test (expected = InvalidUnitException.class)
@@ -289,7 +289,7 @@ public class UnitTest {
 
     @Test
     public void testRestMinuteTimer() throws Exception {
-        unit.setPosition(Vector.IDENT);
+        unit.setPosition(Vector.IDENTITY);
         unit.moveTo(new IntVector(15, 15, 0));
         unit.setSprinting(true);
         advanceTimeFor(unit, 3*60+1, 0.1);

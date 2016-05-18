@@ -4,15 +4,13 @@ import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 import hillbillies.model.Terrain;
+import hillbillies.model.World;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.UnreachableTargetException;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
-import hillbillies.model.World;
-import sun.plugin.dom.exception.InvalidStateException;
 
 import java.util.Deque;
-import java.util.List;
 
 /**
  * The activity for moving to either a distant cube or a neighbour.
@@ -136,6 +134,8 @@ class MoveActivity extends Activity {
      *          | new.getTarget() == null && new.getTargetNeighbour() == null
      * @post    Clear the pendingActivity.
      *          | new.getPendingActivity() == null
+     * @post    Reset the sprintStaminaTimer.
+     *          | new.getSprintStaminaTimer() == 0
      *
      * @effect  Stop the unit sprinting and clear the unit's speed.
      *          | this.getUnit().setSprinting(false) && this.getUnit().setSpeed(null)
@@ -148,7 +148,7 @@ class MoveActivity extends Activity {
         this.setTarget(null);
         this.setTargetNeighbour(null);
 
-        this.sprintStaminaTimer = 0; // TODO
+        this.sprintStaminaTimer = 0;
         this.path = null;
         this.pendingActivity = null;
     }
@@ -193,7 +193,7 @@ class MoveActivity extends Activity {
     private void goToNextNeighbour() {
         IntVector next = path.getFirst(); // examine next position
         if (!getUnit().isStablePosition(next) || !getUnit().isValidPosition(next)) {
-            this.updateTarget(this.getTarget()); // recalc path
+            this.updateTarget(this.getTarget()); // recalculate path
             return;
         }
         moveToNeighbour(path.pop());
@@ -255,6 +255,7 @@ class MoveActivity extends Activity {
      * @effect  Move the unit to the given neighbour cube.
      *          | this.moveToNeighbour(dx, dy, dz)
      */
+    @Model
     void updateAdjacent(int dx, int dy, int dz) throws InvalidPositionException {
         moveToNeighbour(dx, dy, dz);
         this.path = null;
@@ -278,6 +279,11 @@ class MoveActivity extends Activity {
      *          | this.setTarget(newTarget)
      * @effect  Move to the new next neighbour.
      *          | goToNextNeighbour().
+     * @effect  If the target is unreachable and this activity is the current activity, then finish the activity.
+     *          | if ( this.getUnit().getCurrentActivity() == this &&
+     *          |      !this.getUnit().getPathFinder().isReachable(this.getUnit().getPosition().toIntVector(),
+     *          |                                                  newTarget) )
+     *          | then ( this.getUnit().finishCurrentActivity() )
      *
      * @throws  InvalidPositionException
      *          The given target is invalid.
@@ -287,6 +293,7 @@ class MoveActivity extends Activity {
      *          Throws if the target can't be reached.
      *          | !this.getUnit().getPathFinder().isReachable(this.getUnit().getPosition().toIntVector(), newTarget)
      */
+    @Model
     void updateTarget(IntVector newTarget) throws InvalidPositionException, UnreachableTargetException {
         if (!getUnit().isValidPosition(newTarget))
             throw new InvalidPositionException(newTarget);
@@ -299,14 +306,11 @@ class MoveActivity extends Activity {
         // get path:
         this.path = getUnit().getPathFinder().getPath(getUnit().getPosition().toIntVector(), this.getTarget());
         if (path == null) {
-            if (getUnit().getCurrentActivity() == this) // TODO: comment?
+            if (getUnit().getCurrentActivity() == this)
                 getUnit().finishCurrentActivity();
             throw new UnreachableTargetException();
         }
 
-        // add the current position to the path:
-        // TODO: move to PathFinder
-        this.path.push(getUnit().getPosition().toIntVector());
 
         // TEST:
         /*
@@ -326,7 +330,6 @@ class MoveActivity extends Activity {
      * @param   target
      *          The target position which the unit is moving to.
      *
-     * TODO
      * @return  The result is the speed vector which would move the unit to the target.
      *          | this.getPosition().add(result.multiply(getPosition().subtract(target).norm()
      *          | / getSpeedScalar())).isEqualTo(target)
@@ -418,5 +421,13 @@ class MoveActivity extends Activity {
     @Basic @Model
     public Deque<IntVector> getPath() {
         return path;
+    }
+
+    /**
+     * Returns the sprintStaminaTimer.
+     */
+    @Basic
+    public double getSprintStaminaTimer() {
+        return sprintStaminaTimer;
     }
 }

@@ -1,12 +1,14 @@
 package hillbillies.model.util;
 
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 /**
  * A Linked List that is kept sorted.
  */
 public class SortedLinkedList<T extends Comparable<? super T>> extends AbstractCollection<T> {
-    private LinkedList<T> backend;
+    private final LinkedList<T> backend;
 
     /**
      * Creates a new sorted linked list.

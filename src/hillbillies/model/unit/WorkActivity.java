@@ -72,9 +72,9 @@ class WorkActivity extends Activity {
                 getUnit().setWeight(getUnit().getWeight() + 1);
                 getUnit().setToughness(getUnit().getToughness() + 1);
             } else if (getUnit().getWorld().getTerrain().getBoulders(getLocation()).size() >= 1) {
-                getUnit().pickUpBoulder(getUnit().getWorld().getTerrain().getBoulders(getLocation()).iterator().next());
+                getUnit().pickUpGameObject(getUnit().getWorld().getTerrain().getBoulders(getLocation()).iterator().next());
             } else if (getUnit().getWorld().getTerrain().getLogs(getLocation()).size() >= 1) {
-                getUnit().pickUpLog(getUnit().getWorld().getTerrain().getLogs(getLocation()).iterator().next());
+                getUnit().pickUpGameObject(getUnit().getWorld().getTerrain().getLogs(getLocation()).iterator().next());
             } else if (getUnit().getWorld().getTerrain().getCubeType(getLocation()) == Terrain.Type.TREE) {
                 getUnit().getWorld().getTerrain().breakCube(getLocation());
             } else if (getUnit().getWorld().getTerrain().getCubeType(getLocation()) == Terrain.Type.ROCK) {
@@ -127,7 +127,8 @@ class WorkActivity extends Activity {
      *          | new.getLocation() == location
      *
      * @effect  Makes the unit face in the direction of the working location.
-     *          | setOrientation(TODO)
+     *          | this.setOrientation(Math.atan2(new.getLocation().subtract(this.getUnit().getPosition()).getY(),
+     *          |                                new.getLocation().subtract(this.getUnit().getPosition()).getX()))
      *
      * @throws  InvalidPositionException
      *          Thrown if the location is invalid or the location isn't next to the unit.

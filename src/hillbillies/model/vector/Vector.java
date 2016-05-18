@@ -11,7 +11,7 @@ import ogp.framework.util.Util;
 @Value
 public class Vector {
     public static final Vector ZERO = new Vector(0, 0, 0);
-    public static final Vector IDENT = new Vector(1, 1, 1);
+    public static final Vector IDENTITY = new Vector(1, 1, 1);
 
     private final double X;
     private final double Y;
@@ -59,7 +59,7 @@ public class Vector {
     /**
      * Multiplies the vector with the given constant
      * @param   scalar
-     *          | The constant with which each coordinate is muliplied
+     *          | The constant with which each coordinate is multiplied
      * @return  A new vector ...
      *          | result.getX() == this.getX() * scalar &&
      *          | result.getY() == this.getY() * scalar &&
@@ -160,11 +160,11 @@ public class Vector {
     }
 
     /**
-     * Compares two vectors
+     * Compares two vectors.
      * @param   other
-     *          | The vector with which this vector is compared
+     *          | The vector with which this vector is compared.
      * @param   eps
-     *          | The maximum possible difference between each coordinats
+     *          | The maximum possible difference between each coordinates.
      * @return  True if the two vectors are equal and the other vector is effective, False otherwise.
      *          | result == (other != null
      *          |            && Util.fuzzyEquals(this.getX(), other.getX(), eps)
@@ -178,7 +178,7 @@ public class Vector {
     }
 
     /**
-     * Converts the vector to an array of doubles
+     * Converts the vector to an array of doubles.
      * @return  An array with length three where each element is either x, y or z.
      *          | result.length == 3 &&
      *          | result[0] == this.getX() &&

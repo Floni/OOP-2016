@@ -29,8 +29,6 @@ import java.util.ArrayList;
  *
  */
 
-// TODO: reread model chapter. (canSwitch, getWeight)
-
 // TODO; check RAW's in every constructor except: Unit, World.
 
 /**
@@ -82,8 +80,7 @@ public class Unit {
     private Faction faction;
     private World world;
 
-    private Log carryLog;
-    private Boulder carryBoulder;
+    private GameObject carryGameObject;
 
     private Task task;
 
@@ -610,16 +607,14 @@ public class Unit {
      * Returns the weight of the gameObject which the unit is carrying.
      *
      * @return  Returns the weight which the unit is carrying.
-     *          | if (this.isCarryingBoulder())
-     *          |   then result == this.getCarryBoulder().getWeight()
-     *          | else if (isCarryingLog())
-     *          |   then result == this.getCarryLog().getWeight()
+     *          | if (this.getCarryGameObject() != null)
+     *          |   then result == this.getCarryGameObject().getWeight()
      *          | else
      *          |   result == 0
      */
     @Model
     private int getCarryWeight() {
-        return (isCarryingBoulder() ? getCarryBoulder().getWeight() : (isCarryingLog() ? getCarryLog().getWeight() : 0));
+        return (this.getCarryGameObject() != null ? this.getCarryGameObject().getWeight() : 0);
     }
 
     /**
@@ -922,6 +917,8 @@ public class Unit {
      * @param   dz
      *          the z direction
      *
+     * @effect  Set the moveActivity's target.
+     *          | this.getMoveActivity().updateAdjacent(dx, dy, dz)
      * @effect  Change the activity to MoveActivity.
      *          | this.switchActivity(this.getMoveActivity())
      *
@@ -939,7 +936,7 @@ public class Unit {
         if (Math.abs(dx) > 1 || Math.abs(dy) > 1 || Math.abs(dz) > 1)
             throw new IllegalArgumentException("Illegal dx, dy and/or dz");
 
-        this.getMoveActivity().updateAdjacent(dx, dy, dz); // TODO: comment, & moveTo & Follow
+        this.getMoveActivity().updateAdjacent(dx, dy, dz);
         this.switchActivity(this.getMoveActivity());
     }
 
@@ -950,6 +947,8 @@ public class Unit {
      * @param   target
      *          The coordinates of the target cubes.
      *
+     * @effect  Change the moveActivity's target.
+     *          | this.getMoveActivity().updateTarget(target)
      * @effect  Change the current activity to MoveActivity.
      *          | this.switchActivity(this.getMoveActivity())
      *
@@ -974,6 +973,8 @@ public class Unit {
      * @param   other
      *          The unit to be followed.
      *
+     * @effect  Set the followActivity's other unit.
+     *          | this.getFollowActivity().setOther(other)
      * @effect  The current activity will be set to FollowActivity.
      *          | this.switchActivity(this.getFollowActivity())
      *
@@ -1090,48 +1091,25 @@ public class Unit {
         this.switchActivity(this.getWorkActivity());
     }
 
-    // TODO: either throw or unify Log & Boulder
-
     /**
-     * Returns the log the unit is carrying or null.
+     * Returns the gameObject the unit is carrying or null.
      */
     @Basic @Model
-    private Log getCarryLog() {
-        return carryLog;
+    private GameObject getCarryGameObject() {
+        return this.carryGameObject;
     }
 
     /**
      * Sets the log the unit is carrying.
      *
-     * @param   carryLog
-     *          The log to carry
+     * @param   carryGameObject
+     *          The gameObject to carry.
      *
-     * @post    The unit will be carrying carryLog
-     *          | new.getCarryLog() == carryLog
+     * @post    The unit will be carrying carryGameObject.
+     *          | new.getCarryGameObject() == carryGameObject
      */
-    private void setCarryLog(Log carryLog) {
-        this.carryLog = carryLog;
-    }
-
-    /**
-     * Returns the Boulder the unit is carrying or null.
-     */
-    @Basic @Model
-    private Boulder getCarryBoulder() {
-        return carryBoulder;
-    }
-
-    /**
-     * Sets the boulder the unit is carrying.
-     *
-     * @param   carryBoulder
-     *          The boulder to carry
-     *
-     * @post    The unit will be carrying carryBoulder
-     *          | new.getCarryBoulder() == carryBoulder
-     */
-    private void setCarryBoulder(Boulder carryBoulder) {
-        this.carryBoulder = carryBoulder;
+    private void setCarryGameObject(GameObject carryGameObject) {
+        this.carryGameObject = carryGameObject;
     }
 
     /**
@@ -1141,7 +1119,7 @@ public class Unit {
      *              | result == (this.getCarryLog() == null)
      */
     public boolean isCarryingLog() {
-        return this.getCarryLog() != null;
+        return this.getCarryGameObject() instanceof Log;
     }
 
     /**
@@ -1151,7 +1129,7 @@ public class Unit {
      *              | result == (this.getCarryBoulder() == null)
      */
     public boolean isCarryingBoulder()  {
-        return this.getCarryBoulder() != null;
+        return this.getCarryGameObject() instanceof  Boulder;
     }
 
     /**
@@ -1161,58 +1139,35 @@ public class Unit {
      *          The location to drop the object.
      *
      * @effect  If the unit is carrying a log, set it position to the workLoc and add it to the world.
-     *          | if (this.isCarryingLog()) then
-     *          |   this.getCarryLog().setPosition(workLoc.toVector().add(Terrain.Lc/2)) &&
-     *          |   this.getWorld().addGameObject(this.getCarryLog()) && this.setCarryLog(null)
-     *          Otherwise, if the unit is carrying a boulder, do the same with the boulder.
-     *          | else if (this.isCarryingBoulder()) then
-     *          |   this.getCarryBoulder().setPosition(workLoc.toVector().add(Terrain.Lc/2)) &&
-     *          |   this.getWorld().addGameObject(this.getCarryBoulder()) && this.setCarryBoulder(null)
+     *          | if (this.getCarryGameObject() != null) then
+     *          |   ( this.getCarryGameObject().setPosition(workLoc.toVector().add(Terrain.Lc/2)) &&
+     *          |     this.getWorld().addGameObject(this.getGameObject()) && this.setGameObject(null) )
      */
     void dropCarry(IntVector workLoc) {
-        if (isCarryingLog()) {
-            this.getCarryLog().setPosition(workLoc.toVector().add(Terrain.Lc/2));
-            getWorld().addGameObject(this.getCarryLog());
-            this.setCarryLog(null);
-        } else if (isCarryingBoulder()) {
-            this.getCarryBoulder().setPosition(workLoc.toVector().add(Terrain.Lc/2));
-            getWorld().addGameObject(this.getCarryBoulder());
-            this.setCarryBoulder(null);
+        if (this.getCarryGameObject() != null) {
+            this.getCarryGameObject().setPosition(workLoc.toVector().add(Terrain.Lc/2));
+            getWorld().addGameObject(this.getCarryGameObject());
+            this.setCarryGameObject(null);
         }
     }
 
     /**
      * Picks up the given log.
      *
-     * @param   log
-     *          The log to pick up.
+     * @param   gb
+     *          The GameObject to pick up.
      *
-     * @post    The unit will carry the log.
-     *          | new.getCarryLog() == log
+     * @post    The unit will carry the GameObject.
+     *          | new.getGameObject() == gb
      *
-     * @effect  Remove The log from the world.
-     *          | this.getWorld().removeGameObject(log)
+     * @effect  Remove the GameObject from the world.
+     *          | this.getWorld().removeGameObject(gb)
      */
-    void pickUpLog(Log log) {
-        this.setCarryLog(log);
-        getWorld().removeGameObject(log);
+    void pickUpGameObject(GameObject gb) {
+        this.setCarryGameObject(gb);
+        getWorld().removeGameObject(gb);
     }
 
-    /**
-     * Picks up the given boulder.
-     *
-     * @param   boulder
-     *          The boulder to pick up.
-     *
-     * @post    The unit will carry the boulder.
-     *          | new.getCarryBoulder() == boulder
-     * @effect  Remove the Boulder from the world.
-     *          | this.getWorld().removeGameObject(boulder)
-     */
-    void pickUpBoulder(Boulder boulder) {
-        this.setCarryBoulder(boulder);
-        getWorld().removeGameObject(boulder);
-    }
     //</editor-fold>
 
     //<editor-fold desc="Fighting">
@@ -1264,34 +1219,34 @@ public class Unit {
      * @param   attacker
      *          The unit that attacks this unit.
      *
+     * TODO: make effect
      * @post    If the unit dodges the attack he jumps in the x and y direction
      *          both with a distance in range of -1 to 1 to a valid position.
      *          and the new position can not be equal to the original.
      *          The unit does not take any damage.
      *          The unit receives xp and the units look at each other.
      *          | if (random < (0.20 * this.getAgility() / attacker.getAgility()) )
-     *          |   then (new.getPosition()[0] == old.getPosition[0] + 2 * Math.random -1 &&
-     *          |       new.getPosition()[1] == old.getPosition[1] + 2 * Math.random -1) &&
-     *          |       (new.getHitPoints == old.getHitPoints) &&
+     *          |   then ( (new.getPosition()[0] == old.getPosition[0] + 2 * Math.random -1 &&
+     *          |           new.getPosition()[1] == old.getPosition[1] + 2 * Math.random -1) &&
+     *          |          (new.getHitPoints == old.getHitPoints) && new.getXp() == this.getXp() + 20 && TODO: orientation )
      *          Else if the attack is blocked, the unit will not take any damage and will get xp.
      *          | else if ( random < (0.25 * (this.getStrength + this.getAgility)/(other.getStrength + other.getAgility)))
-     *          |   then ( new.getHitPoints == old.getHitPoints)
+     *          |   then ( new.getHitPoints == old.getHitPoints && new.getXp() == this.getXp() + 20 )
      *          Else if the attack hit the unit, it will take damage equal to the attacker's strength/10 and the attackers receives xp.
-     *          | Else
-     *          |   ( deduceHitPoints (attacker.getStrength() / 10) )
+     *          | else
+     *          |   ( TODO &&
+     *          |     (new attacker).getXp() == attacker.getXp() + 20 )
      *
-     * @effect  Sets the position to the random position after dodging.
-     *          | this.setPosition()
-     * @effect  Deduces the given amount of hit points from the unit's hp.
-     *          | this.deduceHitPoints()
-     * @effect  Adds xp for dodge, block and successful attack.
-     *          | if (...)
-     *          | this.addXp(...)
-     * @effect  Turns the units towards each other.
-     *          | this.setOrientation()
+     * @effect  If the unit is working or resting, interrupt it.
+     *          | if ( this.getCurrentActivity() == this.getWorkActivity() ||
+     *          |      this.getCurrentActivity() == this.getRestActivity() )
+     * @effect  If the xp is changed, call levelUp.
+     *          | if (new.getXp() != this.getXp()) then ( this.levelUp() )
      */
     void defend(Unit attacker) {
-        // TODO: interrupt currentActivity? except move?
+        if (this.getCurrentActivity() == this.getWorkActivity() || this.getCurrentActivity() == this.getRestActivity())
+            this.switchActivity(this.getNoneActivity());
+
         double probabilityDodge = 0.20 * (this.getAgility() / attacker.getAgility());
         if (Math.random() < probabilityDodge) {
             Vector randPos;
@@ -1302,7 +1257,7 @@ public class Unit {
             } while (!isValidPosition(randPos.toIntVector()));
             setPosition(randPos);
             // update orientation:
-            Vector diff = attacker.getPosition().subtract(this.position);
+            Vector diff = attacker.getPosition().subtract(this.getPosition());
             this.setOrientation(Math.atan2(diff.getY(), diff.getX()));
             attacker.setOrientation(Math.atan2(-diff.getY(), -diff.getX()));
             this.addXp(20);
@@ -1425,9 +1380,8 @@ public class Unit {
      *          | new.getXpDiff() == xp + this.getXpDiff()
      */
     void addXp(int xp) {
-        int oldXp = this.getXp();
-        this.setXp(oldXp + xp);
-        this.setXpDiff(oldXp + xp);
+        this.setXp(this.getXp() + xp);
+        this.setXpDiff(this.getXpDiff() + xp);
         levelUp();
     }
 
@@ -1474,7 +1428,7 @@ public class Unit {
      *
      * @effect  A random attribute will be updated xpDiff / 10 times.
      *          | for (i from 0 to this.getXpDiff() / 10):
-     *          |   this.set...(this.get...() + 1) TODO
+     *          |   this.increaseRandomAttribute();
      *
      * @effect  Set the new xp difference to less than 10.
      *          | this.setXpDiff(this.getXpDiff() % 10)
@@ -1484,29 +1438,45 @@ public class Unit {
         int nLevelUps = this.getXpDiff() / 10;
         this.setXpDiff(this.getXpDiff() % 10);
 
-        // TODO: fix
-        for (int i = 0; i < nLevelUps; i++) {
-            ArrayList<Integer> attributes = new ArrayList<>();
-            if (this.getStrength() < MAX_ATTRIBUTE)
-                attributes.add(0);
-            if (this.getAgility() < MAX_ATTRIBUTE)
-                attributes.add(1);
-            if (this.getToughness() < MAX_ATTRIBUTE)
-                attributes.add(2);
+        for (int i = 0; i < nLevelUps; i++)
+            increaseRandomAttribute();
+    }
 
-            if (attributes.isEmpty())
-                return;
+    /**
+     * Increases a random attribute which isn't on its maximum value.
+     *
+     * @post    If strength isn't at its maximum value, it may increase.
+     *          | if (this.getStrength() < MAX_ATTRIBUTE)
+     *          | then ( new.getStrength() == this.getStrength() + random(1 or 0) )
+     *          if agility isn't at its maximum value and strength hasn't increased, it may increase.
+     *          | if (this.getAgility() < MAX_ATTRIBUTE && this.getStrength() == new.getStrength())
+     *          | then ( new.getAgility() == this.getAgility() + random( 0 or 1) )
+     *          if toughness isn't at its maximum value and strength and agility haven't increased, it may increase.
+     *          | if (this.getToughness() < MAX_ATTRIBUTE &&
+     *          |     this.getStrength() == new.getStrength() && this.getAgility() == new.getAgility())
+     *          | then ( new.getToughness() == this.getToughness() + random(0 or 1) )
+     */
+    private void increaseRandomAttribute() {
+        ArrayList<Integer> attributes = new ArrayList<>();
+        if (this.getStrength() < MAX_ATTRIBUTE)
+            attributes.add(0);
+        if (this.getAgility() < MAX_ATTRIBUTE)
+            attributes.add(1);
+        if (this.getToughness() < MAX_ATTRIBUTE)
+            attributes.add(2);
 
-            int rand = Util.randomInt(attributes.size());
-            int attr = attributes.get(rand);
+        if (attributes.isEmpty())
+            return;
 
-            if (attr == 0)
-                this.setStrength(this.getStrength() + 1);
-            else if (attr == 1)
-                this.setAgility(this.getAgility() + 1);
-            else if (attr == 2)
-                this.setToughness(this.getToughness() + 1);
-        }
+        int rand = Util.randomInt(attributes.size());
+        int attr = attributes.get(rand);
+
+        if (attr == 0)
+            this.setStrength(this.getStrength() + 1);
+        else if (attr == 1)
+            this.setAgility(this.getAgility() + 1);
+        else if (attr == 2)
+            this.setToughness(this.getToughness() + 1);
     }
     //</editor-fold>
 

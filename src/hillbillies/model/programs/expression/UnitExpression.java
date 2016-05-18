@@ -10,4 +10,9 @@ public interface UnitExpression extends Expression<Unit> {
     default UnitExpression getRead(String variable) {
         return t -> (Unit)t.getVariable(variable);
     }
+
+    @Override
+    default Expression<Unit> castExpr(Expression<?> value) {
+        return (UnitExpression)value;
+    }
 }

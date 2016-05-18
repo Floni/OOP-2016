@@ -23,7 +23,7 @@ public interface Expression<T> {
      */
     T getValue(Task task) throws TaskInterruptException, TaskErrorException;
 
-    default Expression<T> getRead(String variable) {
-        throw new IllegalStateException("invalid variable creation"); // should never happen.
-    }
+    Expression<T> getRead(String variable);
+
+    Expression<T> castExpr(Expression<?> value);
 }

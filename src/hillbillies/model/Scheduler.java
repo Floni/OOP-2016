@@ -1,10 +1,12 @@
 package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
-import hillbillies.model.util.SortedLinkedList;
 import hillbillies.model.unit.Unit;
+import hillbillies.model.util.SortedLinkedList;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 /**

@@ -3,10 +3,8 @@ package hillbillies.model.unit;
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
-import com.sun.org.glassfish.gmbal.ManagedAttribute;
 import hillbillies.model.Terrain;
 import hillbillies.model.World;
-import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.exceptions.UnreachableTargetException;
 import hillbillies.model.vector.Vector;
@@ -77,6 +75,7 @@ class FollowActivity extends MoveActivity{
      *          Throws if the other unit is null or not alive.
      *          | other == null || !other.isAlive()
      */
+    @Model
     void setOther(Unit other) throws UnreachableTargetException, InvalidUnitException {
         if (other == null || !other.isAlive())
             throw new InvalidUnitException("The other unit is not valid");

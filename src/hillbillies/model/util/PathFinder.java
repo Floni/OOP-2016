@@ -1,5 +1,8 @@
 package hillbillies.model.util;
 
+import be.kuleuven.cs.som.annotate.Basic;
+import jdk.nashorn.internal.ir.annotations.Immutable;
+
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -18,14 +21,15 @@ public class PathFinder<T> {
      */
     private class PriorityData implements Comparable<PriorityData> {
 
-        private int priority;
-        private T vector;
+        private final int priority;
+        private final T vector;
 
         PriorityData(int priority, T vector) {
             this.vector = vector;
             this.priority = priority;
         }
 
+        @Basic @Immutable
         public T getData() {
             return vector;
         }
@@ -111,6 +115,7 @@ public class PathFinder<T> {
             if (current == null)
                 return null;
         }
+        path.push(start);
         return path;
     }
 

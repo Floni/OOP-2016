@@ -13,7 +13,7 @@ import be.kuleuven.cs.som.annotate.Raw;
  *
  */
 abstract class Activity {
-    protected final Unit unit;
+    private final Unit unit;
 
     /**
      * Initialize a new Activity from the given unit.

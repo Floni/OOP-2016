@@ -62,7 +62,7 @@ public class IntVector {
     /**
      * Multiplies the vector with the given constant
      * @param   scalar
-     *          | The constant with which each coordinate is muliplied
+     *          | The constant with which each coordinate is multiplied
      * @return  A new vector ...
      *          | result.getX() == this.getX() * scalar &&
      *          | result.getY() == this.getY() * scalar &&

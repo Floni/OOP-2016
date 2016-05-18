@@ -1,7 +1,7 @@
 package hillbillies.model.programs.exceptions;
 
 /**
- * Created by timo on 4/20/16.
+ * Class representing a break signal. Thrown when a while loop should be interrupted.
  */
 public class BreakException extends RuntimeException {
 }

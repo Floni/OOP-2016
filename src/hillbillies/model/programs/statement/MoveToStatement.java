@@ -6,8 +6,8 @@ import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.UnreachableTargetException;
 import hillbillies.model.programs.exceptions.TaskErrorException;
 import hillbillies.model.programs.exceptions.TaskInterruptException;
-import hillbillies.model.vector.IntVector;
 import hillbillies.model.programs.expression.PositionExpression;
+import hillbillies.model.vector.IntVector;
 
 /**
  * Class for moveTo
