@@ -4,14 +4,20 @@ import hillbillies.model.*;
 import hillbillies.model.exceptions.InvalidActionException;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.InvalidUnitException;
+import hillbillies.model.programs.exceptions.BreakException;
+import hillbillies.model.programs.exceptions.TaskErrorException;
+import hillbillies.model.programs.exceptions.TaskInterruptException;
+import hillbillies.model.programs.statement.SequenceStatement;
+import hillbillies.model.programs.statement.Statement;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
-import ogp.framework.util.ModelException;
 import ogp.framework.util.Util;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Collections;
 
 import static hillbillies.tests.util.PositionAsserts.assertDoublePositionEquals;
 import static hillbillies.tests.util.PositionAsserts.assertIntegerPositionEquals;
@@ -309,7 +315,7 @@ public class UnitTest {
         assertFalse(unit.isDefaultEnabled());
     }
 
-    private static void advanceTimeFor( Unit unit, double time, double step) throws ModelException {
+    private static void advanceTimeFor( Unit unit, double time, double step) {
         int n = (int) (time / step);
         for (int i = 0; i < n; i++)
             unit.advanceTime(step);
@@ -473,5 +479,76 @@ public class UnitTest {
         assertEquals(50, unit3.getWeight());
     }
     // TODO: test change activity
+
+    @Test(expected = InvalidActionException.class)
+    public void testChangeActivity() throws Exception {
+        Unit test = new Unit("Test", 0, 0, 0, 0, 0, 0, 0);
+        unit.attack(test);
+        assertTrue(unit.isAttacking());
+        advanceTimeFor(unit, 0.5, 0.1);
+        unit.rest();
+    }
+
+    @Test(expected = InvalidActionException.class)
+    public void testInitRest() throws Exception {
+        unit.rest();
+        advanceTimeFor(unit, 0.05, 0.01);
+        unit.workAt(IntVector.ZERO);
+    }
+
+    @Test
+    public void testMovePending() throws Exception {
+        unit.moveTo(new IntVector(25, 25, 0));
+        unit.setSprinting(true); // drain stamina
+        advanceTimeFor(unit, 4, 0.1);
+        assertTrue(unit.isMoving());
+
+        unit.rest(); // start resting
+        advanceTimeFor(unit, 1, 0.01);
+        assertTrue(unit.isResting());
+        advanceTimeFor(unit, 30, 0.1); // finish resting
+
+        assertTrue(unit.isMoving()); // continue moving
+        advanceTimeFor(unit, 60, 0.1);
+        assertFalse(unit.isMoving());
+        assertEquals(new IntVector(25, 25, 0), unit.getPosition().toIntVector()); // finish moving
+    }
+
+    @Test
+    public void testTasks() throws Exception {
+        assertFalse(unit.hasAssignedTask());
+        Task task = new Task("Test", 10, new SequenceStatement(Collections.emptyList()), null);
+        unit.assignTask(task);
+        assertTrue(unit.hasAssignedTask());
+        assertEquals(task, unit.getAssignedTask());
+    }
+
+    @Test
+    public void testTaskExecute() throws Exception {
+        final boolean[] ran = new boolean[]{false};
+        assertFalse(unit.hasAssignedTask());
+        Task task = new Task("Test", 10, new Statement() {
+            @Override
+            public void reset() {
+
+            }
+
+            @Override
+            public boolean isDone(Task task) {
+                return false;
+            }
+
+            @Override
+            public void execute(Task task) throws TaskErrorException, TaskInterruptException, BreakException {
+                ran[0] = true;
+            }
+        }, null);
+        unit.assignTask(task);
+        unit.startDefaultBehaviour();
+        advanceTimeFor(unit, 5, 0.1);
+        assertTrue(ran[0]);
+    }
+
     // TODO: test levelUp
+    // TODO: test follow
 }
