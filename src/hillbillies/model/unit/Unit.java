@@ -150,8 +150,8 @@ public class Unit {
 
         setToughness(Util.clamp(toughness, 25, 100));
         setAgility(Util.clamp(agility, 25, 100));
-        setWeight(Util.clamp(weight, 25, 100));
         setStrength(Util.clamp(strength, 25, 100));
+        setWeight(Util.clamp(weight, 25, 100));
 
         resetXp();
 
@@ -1214,34 +1214,63 @@ public class Unit {
     }
 
     /**
+     * Returns a random new position within 1 length of the unit's current position.
+     *
+     * @return  A valid position close to the unit's position.
+     *          | this.isValidPosition(result) &&
+     *          | result.subtract(this.getPosition()).getX() < 1 &&
+     *          | result.subtract(this.getPosition()).getY() < 1 &&
+     *          | result.subtract(this.getPosition()).get2() < 1
+     */
+    private Vector getRandomDodgePosition() {
+        Vector randPos;
+        do {
+            randPos = new Vector(getPosition().getX() -1 + Util.randomInt(2),
+                    getPosition().getY() -1 + Util.randomInt(2),
+                    getPosition().getZ());
+        } while (!isValidPosition(randPos.toIntVector()));
+        return randPos;
+    }
+
+    /**
+     * Makes the unit face the other position.
+     *
+     * @param   other
+     *          The position to lookAt.
+     *
+     * @effect  Set the unit's orientation.
+     *          | this.setOrientation(Math.atan2( other.subtract(this.getPosition()).getY(),
+     *          |                                 other.subtract(this.getPosition()).getX() ))
+     */
+    void lookAt(Vector other) {
+        Vector diff = other.subtract(this.getPosition());
+        this.setOrientation(Math.atan2(diff.getY(), diff.getX()));
+    }
+
+    /**
      * Defends against another unit's attack.
      *
      * @param   attacker
      *          The unit that attacks this unit.
      *
-     * TODO: make effect
-     * @post    If the unit dodges the attack he jumps in the x and y direction
+     * @effect  If the unit is working or resting, interrupt the unit.
+     *          | if ( this.getCurrentActivity() == this.getWorkActivity() ||
+     *          |      this.switchActivity(this.getNoneActivity())
+     * @effect  If the unit dodges the attack he jumps in the x and y direction
      *          both with a distance in range of -1 to 1 to a valid position.
      *          and the new position can not be equal to the original.
      *          The unit does not take any damage.
      *          The unit receives xp and the units look at each other.
-     *          | if (random < (0.20 * this.getAgility() / attacker.getAgility()) )
-     *          |   then ( (new.getPosition()[0] == old.getPosition[0] + 2 * Math.random -1 &&
-     *          |           new.getPosition()[1] == old.getPosition[1] + 2 * Math.random -1) &&
-     *          |          (new.getHitPoints == old.getHitPoints) && new.getXp() == this.getXp() + 20 && TODO: orientation )
+     *          | if (random < (0.20 * this.getAgility() / attacker.getAgility()))
+     *          |   then ( this.addXp(20) &&
+     *          |          this.setPosition(this.getRandomDodgePosition()) &&
+     *          |          this.lookAt(attacker.getPosition() && attacker.lookAt(this.getPosition()) )
      *          Else if the attack is blocked, the unit will not take any damage and will get xp.
-     *          | else if ( random < (0.25 * (this.getStrength + this.getAgility)/(other.getStrength + other.getAgility)))
-     *          |   then ( new.getHitPoints == old.getHitPoints && new.getXp() == this.getXp() + 20 )
+     *          | else if (random < (0.25 * (this.getStrength() + this.getAgility())/(other.getStrength() + other.getAgility())))
+     *          |   then ( this.addXp(20) )
      *          Else if the attack hit the unit, it will take damage equal to the attacker's strength/10 and the attackers receives xp.
      *          | else
-     *          |   ( TODO &&
-     *          |     (new attacker).getXp() == attacker.getXp() + 20 )
-     *
-     * @effect  If the unit is working or resting, interrupt it.
-     *          | if ( this.getCurrentActivity() == this.getWorkActivity() ||
-     *          |      this.getCurrentActivity() == this.getRestActivity() )
-     * @effect  If the xp is changed, call levelUp.
-     *          | if (new.getXp() != this.getXp()) then ( this.levelUp() )
+     *          |   ( this.deduceHitPoints(attacker.getStrength() / 10) && attacker.addXp(20) )
      */
     void defend(Unit attacker) {
         if (this.getCurrentActivity() == this.getWorkActivity() || this.getCurrentActivity() == this.getRestActivity())
@@ -1249,18 +1278,12 @@ public class Unit {
 
         double probabilityDodge = 0.20 * (this.getAgility() / attacker.getAgility());
         if (Math.random() < probabilityDodge) {
-            Vector randPos;
-            do {
-                randPos = new Vector(getPosition().getX() -1 + Util.randomInt(2),
-                        getPosition().getY() -1 + Util.randomInt(2),
-                        getPosition().getZ());
-            } while (!isValidPosition(randPos.toIntVector()));
-            setPosition(randPos);
-            // update orientation:
-            Vector diff = attacker.getPosition().subtract(this.getPosition());
-            this.setOrientation(Math.atan2(diff.getY(), diff.getX()));
-            attacker.setOrientation(Math.atan2(-diff.getY(), -diff.getX()));
             this.addXp(20);
+
+            setPosition(getRandomDodgePosition());
+            // update orientation:
+            this.lookAt(attacker.getPosition());
+            attacker.lookAt(this.getPosition());
         } else {
             double probabilityBlock = 0.25 *
                     ((this.getStrength()+this.getAgility())/(attacker.getStrength()+attacker.getAgility()));

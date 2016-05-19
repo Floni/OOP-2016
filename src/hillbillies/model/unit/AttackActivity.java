@@ -35,10 +35,8 @@ class AttackActivity extends Activity {
      *          The unit that is attacked.
      *
      * @effect  The unit's will face each other.
-     *          | this.getUnit().setOrientation(atan2((other.getPosition().getY() - this.getUnit().getPosition().getY()),
-     *          |       (other.getPosition().getX() - this.getUnit().getPosition().getX()))
-     *          | other.setOrientation(atan2((this.getUnit().getPosition().getY() - other.getPosition().getY()),
-     *          |       (this.getUnit().getPosition().getX() - other.getPosition().getX()))
+     *          | this.getUnit().lookAt(other.getPosition()) &&
+     *          | other.lookAt(this.getUnit().getPosition())
      * @effect  The defender will defend against the attack
      *          | other.defend(this.getUnit())
      *
@@ -64,9 +62,8 @@ class AttackActivity extends Activity {
 
         attackTimer = ATTACK_DELAY;
 
-        Vector diff = other.getPosition().subtract(getUnit().getPosition());
-        getUnit().setOrientation(Math.atan2(diff.getY(), diff.getX()));
-        other.setOrientation(Math.atan2(-diff.getY(), -diff.getX()));
+        getUnit().lookAt(other.getPosition());
+        other.lookAt(getUnit().getPosition());
 
         other.defend(getUnit());
     }

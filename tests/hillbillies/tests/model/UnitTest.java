@@ -451,6 +451,27 @@ public class UnitTest {
         advanceTimeFor(unit, 10, 0.1);
         assertEquals(new Vector(4.5, 0.5, 0.5), unit.getPosition());
     }
-    // TODO: test constructor clamp
+
+    @Test
+    public void testUnitInit() throws Exception {
+        Unit unit1 = new Unit("Test", 0, 0, 0, 0, 0, 0, 0);
+        assertEquals(25, unit1.getAgility());
+        assertEquals(25, unit1.getToughness());
+        assertEquals(25, unit1.getStrength());
+        assertEquals(25, unit1.getWeight());
+
+        Unit unit2 = new Unit("Test", 0, 0, 0, 1000, 1000, 1000, 1000);
+        assertEquals(100, unit2.getAgility());
+        assertEquals(100, unit2.getToughness());
+        assertEquals(100, unit2.getStrength());
+        assertEquals(100, unit2.getWeight());
+
+        Unit unit3 = new Unit("Test", 0, 0, 0, 50, 50, 50, 50);
+        assertEquals(50, unit3.getAgility());
+        assertEquals(50, unit3.getToughness());
+        assertEquals(50, unit3.getStrength());
+        assertEquals(50, unit3.getWeight());
+    }
     // TODO: test change activity
+    // TODO: test levelUp
 }

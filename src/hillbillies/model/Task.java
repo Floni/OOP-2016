@@ -71,6 +71,9 @@ public class Task implements Comparable<Task> {
      *          | !new.isRunning()
      */
     public Task(String name, int priority, Statement main, IntVector selected) {
+        this.schedulers = new HashSet<>();
+        this.variableTable = new HashMap<>();
+
         this.name = name;
         this.mainStatement = main;
         this.selected = selected;
@@ -78,8 +81,6 @@ public class Task implements Comparable<Task> {
 
         this.running = false;
 
-        this.schedulers = new HashSet<>();
-        this.variableTable = new HashMap<>();
     }
     //</editor-fold>
 
@@ -205,7 +206,7 @@ public class Task implements Comparable<Task> {
      */
     public void setPriority(int priority) {
         this.priority = priority;
-        // TODO: update all schedulers?
+        schedulers.forEach(s -> s.rebuildTask(this));
     }
 
     /**
@@ -337,7 +338,6 @@ public class Task implements Comparable<Task> {
         this.reset();
 
         this.setPriority(this.getPriority() - 1);
-        schedulers.forEach(s -> s.rebuildTask(this));
     }
     //</editor-fold>
 
