@@ -478,7 +478,6 @@ public class UnitTest {
         assertEquals(50, unit3.getStrength());
         assertEquals(50, unit3.getWeight());
     }
-    // TODO: test change activity
 
     @Test(expected = InvalidActionException.class)
     public void testChangeActivity() throws Exception {
@@ -549,6 +548,7 @@ public class UnitTest {
         assertTrue(ran[0]);
     }
 
+    // TODO: test work interrupt no change
     // TODO: test levelUp
     // TODO: test follow
 }
