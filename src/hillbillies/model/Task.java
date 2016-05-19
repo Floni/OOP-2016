@@ -302,7 +302,7 @@ public class Task implements Comparable<Task> {
      *          | for (Scheduler s : this.getSchedulers())
      *          |   s.removeTask(this)
      */
-    public void finish() {
+    private void finish() {
         if (this.isAssigned()) {
             this.getAssignedUnit().assignTask(null);
         }
