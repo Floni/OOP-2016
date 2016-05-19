@@ -5,6 +5,7 @@ import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 import hillbillies.model.Terrain;
 import hillbillies.model.World;
+import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.InvalidUnitException;
 import hillbillies.model.exceptions.UnreachableTargetException;
 import hillbillies.model.vector.Vector;
@@ -71,12 +72,12 @@ class FollowActivity extends MoveActivity{
      * @effect  Updates the target to follow.
      *          | this.updateTarget(other.getPosition().toIntVector())
      *
-     * @throws  UnreachableTargetException
+     * @throws  InvalidUnitException
      *          Throws if the other unit is null or not alive.
      *          | other == null || !other.isAlive()
      */
     @Model
-    void setOther(Unit other) throws UnreachableTargetException, InvalidUnitException {
+    void setOther(Unit other) throws InvalidUnitException, UnreachableTargetException, InvalidPositionException {
         if (other == null || !other.isAlive())
             throw new InvalidUnitException("The other unit is not valid");
         this.other = other;

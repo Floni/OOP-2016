@@ -14,6 +14,11 @@ import java.util.Deque;
 
 /**
  * The activity for moving to either a distant cube or a neighbour.
+ *
+ * @invar   The target must be a valid position.
+ *          | this.getUnit().isValidPosition(this.getTarget())
+ * @invar   The targetNeighbour must be a valid position.
+ *          | this.getUnit().isValidPosition(this.getTargetNeighbour())
  */
 class MoveActivity extends Activity {
     private static final double SPRINT_DELAY = 0.1;
@@ -92,7 +97,7 @@ class MoveActivity extends Activity {
                 getUnit().finishCurrentActivity();
             } else {
                 if (path == null)
-                    updateTarget(this.target);
+                    updateTarget(this.getTarget());
                 goToNextNeighbour();
             }
         } else {

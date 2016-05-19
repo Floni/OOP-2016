@@ -1,8 +1,6 @@
 package hillbillies.part2.facade;
 
-import com.sun.javafx.sg.prism.NGShape;
 import hillbillies.model.*;
-// import hillbillies.part1.facade.Facade;
 import hillbillies.model.exceptions.InvalidActionException;
 import hillbillies.model.exceptions.InvalidCubeTypeException;
 import hillbillies.model.exceptions.InvalidPositionException;
@@ -13,13 +11,19 @@ import ogp.framework.util.ModelException;
 
 import java.util.Set;
 
+// import hillbillies.part1.facade.Facade;
+
 /**
  * Facade
  */
 public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
     @Override
     public World createWorld(int[][][] terrainTypes, TerrainChangeListener modelListener) throws ModelException {
-        return new World(terrainTypes, modelListener);
+        try {
+            return new World(terrainTypes, modelListener);
+        } catch (InvalidCubeTypeException err) {
+            throw new ModelException(err.getMessage(), err);
+        }
     }
 
     @Override
@@ -158,15 +162,5 @@ public class Facade extends hillbillies.part1.facade.Facade implements IFacade {
     @Override
     public Set<Log> getLogs(World world) throws ModelException {
         return world.getLogs();
-    }
-
-    @Override
-    public void advanceTime(Unit unit, double dt) throws ModelException {
-        Facade.super.advanceTime(unit, dt);
-    }
-
-    @Override
-    public void work(Unit unit) throws ModelException {
-        Facade.super.work(unit);
     }
 }

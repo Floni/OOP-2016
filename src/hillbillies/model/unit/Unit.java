@@ -1143,7 +1143,7 @@ public class Unit {
      *          |   ( this.getCarryGameObject().setPosition(workLoc.toVector().add(Terrain.Lc/2)) &&
      *          |     this.getWorld().addGameObject(this.getGameObject()) && this.setGameObject(null) )
      */
-    void dropCarry(IntVector workLoc) {
+    void dropCarry(IntVector workLoc) throws InvalidPositionException {
         if (this.getCarryGameObject() != null) {
             this.getCarryGameObject().setPosition(workLoc.toVector().add(Terrain.Lc/2));
             getWorld().addGameObject(this.getCarryGameObject());
@@ -1602,7 +1602,7 @@ public class Unit {
      * @return  True if the unit's tracker is effective.
      *          | result == (this.getTracker() != null)
      */
-    public boolean hasTracker() {
+    boolean hasTracker() {
         return this.getTracker() != null;
     }
 
@@ -1610,7 +1610,7 @@ public class Unit {
      * Returns the unit's current tracker.
      */
     @Basic
-    public StateTracker getTracker() {
+    private StateTracker getTracker() {
         return tracker;
     }
     //</editor-fold>

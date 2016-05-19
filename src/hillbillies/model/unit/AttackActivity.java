@@ -4,7 +4,6 @@ import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Model;
 import be.kuleuven.cs.som.annotate.Raw;
 import hillbillies.model.exceptions.InvalidUnitException;
-import hillbillies.model.vector.Vector;
 
 /**
  * The activity for attacking another unit.

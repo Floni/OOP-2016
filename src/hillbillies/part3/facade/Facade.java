@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Created by timo on 4/13/16.
+ * Facade for part 3
  */
 public class Facade extends hillbillies.part2.facade.Facade implements IFacade {
     @Override

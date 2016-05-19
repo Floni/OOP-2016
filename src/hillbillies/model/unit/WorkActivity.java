@@ -11,7 +11,7 @@ import hillbillies.model.vector.Vector;
  * The activity for working.
  *
  * @invar   location must be valid & effective
- *          | this.getUnit().getWorld().isValidPosition(location)
+ *          | this.getUnit().getWorld().getTerrain().isValidPosition(location)
  */
 class WorkActivity extends Activity {
 

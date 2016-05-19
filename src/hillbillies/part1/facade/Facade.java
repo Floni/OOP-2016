@@ -1,6 +1,5 @@
 package hillbillies.part1.facade;
 
-import com.sun.javafx.sg.prism.NGShape;
 import hillbillies.model.exceptions.InvalidActionException;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.exceptions.InvalidUnitException;
@@ -8,12 +7,9 @@ import hillbillies.model.exceptions.UnreachableTargetException;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.vector.IntVector;
 import ogp.framework.util.ModelException;
-import org.omg.CORBA.DynAnyPackage.Invalid;
 
 /**
- *
- *
- * Created by timo on 17/02/2016.
+ * Facade for part1.
  */
 public class Facade implements IFacade {
     @Override

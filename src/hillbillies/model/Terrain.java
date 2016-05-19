@@ -118,7 +118,7 @@ public class Terrain {
      *          If any of the supplied terrainTypes are invalid.
      */
     public Terrain(World world, int maxX, int maxY, int maxZ, TerrainChangeListener modelListener)
-            throws IllegalArgumentException, InvalidCubeTypeException {
+            throws IllegalArgumentException {
 
         if (modelListener == null)
             throw new IllegalArgumentException("no model listener given");
@@ -147,7 +147,7 @@ public class Terrain {
      * @throws  IllegalArgumentException
      *          | if the terrainTypes isn't effective or the size doesn't match.
      */
-    public void setTerrain(int[][][] terrainTypes) throws IllegalArgumentException {
+    public void setTerrain(int[][][] terrainTypes) throws IllegalArgumentException, InvalidCubeTypeException {
         if (terrainTypes == null || terrainTypes.length != maxX
                 || terrainTypes[0].length != maxY || terrainTypes[0][0].length != maxZ)
             throw new IllegalArgumentException("invalid terrainTypes given");
@@ -322,12 +322,13 @@ public class Terrain {
      * @param   location
      *          The location of the cube.
      *
-     * @post    The type of the cube at the given location will be AIR.
+     * @effect  Sets the CubeType to air.
+     *          | this.setCubeType(location, Type.Air)
      *
      * @effect  There is a chance to drop an boulder or log.
-     *          | this.getWorld().dropChance(location, getCubeType(location))
+     *          | this.getWorld().dropChance(location, this.getCubeType(location))
      */
-    public void breakCube(IntVector location) {
+    public void breakCube(IntVector location) throws InvalidPositionException {
         Type type = getCubeType(location);
         setCubeType(location, Type.AIR);
         this.getWorld().dropChance(location, type);

@@ -10,6 +10,7 @@ import hillbillies.model.util.PathFinder;
 import hillbillies.model.util.Util;
 import hillbillies.model.vector.IntVector;
 import hillbillies.part2.listener.TerrainChangeListener;
+import javafx.beans.InvalidationListener;
 
 import java.util.AbstractCollection;
 import java.util.HashSet;
@@ -239,8 +240,11 @@ public class World {
      *          Determines the type of object to drop.
      *
      * @post    If a drop occurs a boulder or log will be added at the given position.
+     *
+     * @throws  InvalidPositionException
+     *          If the given location is invalid.
      */
-    public void dropChance(IntVector location, Terrain.Type type) {
+    public void dropChance(IntVector location, Terrain.Type type) throws InvalidPositionException {
         if (Math.random() < DROP_CHANCE) {
             if (type == Terrain.Type.ROCK) {
                 this.addGameObject(new Boulder(this, location));
@@ -258,7 +262,7 @@ public class World {
      *
      * @post    If the cube at the given position has Logs, one log is removed.
      */
-    public void consumeLog(IntVector cubeLoc) {
+    public void consumeLog(IntVector cubeLoc) throws InvalidPositionException {
         Set<Log> cubeLogs = this.getTerrain().getLogs(cubeLoc);
         if (cubeLogs.size() >= 1)
             removeGameObject(cubeLogs.iterator().next());
@@ -272,7 +276,7 @@ public class World {
      *
      * @post    If the cube at the given position has Boulders, one boulder is removed.
      */
-    public void consumeBoulder(IntVector cubeLoc) {
+    public void consumeBoulder(IntVector cubeLoc) throws InvalidPositionException {
         Set<Boulder> boulders = this.getTerrain().getBoulders(cubeLoc);
         if (boulders.size() >= 1)
             removeGameObject(boulders.iterator().next());

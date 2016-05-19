@@ -1,7 +1,5 @@
 package hillbillies.model.programs.expression;
 
-import be.kuleuven.cs.som.annotate.Basic;
-
 /**
  * Interface representing an Expression returning a Boolean.
  */
