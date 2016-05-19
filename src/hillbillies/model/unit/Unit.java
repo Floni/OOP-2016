@@ -150,8 +150,8 @@ public class Unit {
 
         setToughness(Util.clamp(toughness, 25, 100));
         setAgility(Util.clamp(agility, 25, 100));
-        setWeight(Util.clamp(weight, 25, 100));
         setStrength(Util.clamp(strength, 25, 100));
+        setWeight(Util.clamp(weight, 25, 100));
 
         resetXp();
 
