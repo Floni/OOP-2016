@@ -10,7 +10,6 @@ import hillbillies.model.util.PathFinder;
 import hillbillies.model.util.Util;
 import hillbillies.model.vector.IntVector;
 import hillbillies.part2.listener.TerrainChangeListener;
-import javafx.beans.InvalidationListener;
 
 import java.util.AbstractCollection;
 import java.util.HashSet;
