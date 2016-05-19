@@ -7,7 +7,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Created by timo on 4/17/16.
+ * Tests for SortedLinkedList.
  */
 public class SortedLinkedListTest {
     @Before
@@ -54,10 +54,12 @@ public class SortedLinkedListTest {
         assertFalse(test.isSorted());
         Data t = test.get(25);
         Data t2 = test.get(75);
+
         test.remove(t);
         test.remove(t2);
         test.add(t);
         test.add(t2);
+
         assertTrue(test.isSorted());
     }
 

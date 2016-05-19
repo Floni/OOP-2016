@@ -25,7 +25,6 @@ public class SchedulerTest {
         this.scheduler = new Scheduler();
     }
 
-
     @Test
     public void schedule() throws Exception {
         Task task1 = new Task("Test1", 10, null, null);
@@ -121,7 +120,11 @@ public class SchedulerTest {
 
     @Test
     public void getAllTasks() throws Exception {
-        // TODO
+        assertEquals(0, scheduler.getAllTasksStream().count());
+        Task task1 = new Task("Test1", 10, null, null);
+        scheduler.schedule(task1);
+        assertEquals(1, scheduler.getAllTasks().size());
+        assertEquals(task1, scheduler.getAllTasks().get(0));
     }
 
     @Test
