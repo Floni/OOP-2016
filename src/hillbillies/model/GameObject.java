@@ -12,9 +12,9 @@ import hillbillies.model.vector.Vector;
  * Class for general GameObject (Boulder or Log).
  *
  * @invar   The world must be effective
- *          | this.world != null.
+ *          | this.getWorld() != null.
  * @invar   The position must be valid
- *          | this.world.isValidPosition(this.getPosition())
+ *          | this.getWorld().isValidPosition(this.getPosition())
  * @invar   The weight must be between 10 and 50 inclusive.
  *          | this.getWeight() >= 10 && this.getWeight() <= 50
  *
@@ -41,8 +41,14 @@ public abstract class GameObject {
      * @effect  The position is set
      *          | new.setPosition(location.toVector().add(Terrain.Lc/2))
      *
+     * @throws  IllegalArgumentException
+     *          The world isn't effective.
+     *          | world == null
      */
-    protected GameObject(World world, IntVector location) throws InvalidPositionException {
+    protected GameObject(World world, IntVector location) throws InvalidPositionException, IllegalArgumentException {
+        if (world == null)
+            throw new IllegalArgumentException("the world isn't effective.");
+
         this.world = world;
         setPosition(location.toVector().add(Terrain.Lc/2));
         this.weight = Util.randomExclusive(10, 51);
