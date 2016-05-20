@@ -1,9 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="Part2">
-    <output-path>$USER_HOME$/Desktop/</output-path>
-    <root id="archive" name="Part2.jar">
-      <element id="dir-copy" path="$PROJECT_DIR$" />
-      <element id="module-output" name="OGP1516-Hillbillies" />
-    </root>
-  </artifact>
-</component>

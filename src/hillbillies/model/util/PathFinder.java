@@ -1,7 +1,7 @@
 package hillbillies.model.util;
 
 import be.kuleuven.cs.som.annotate.Basic;
-import jdk.nashorn.internal.ir.annotations.Immutable;
+import be.kuleuven.cs.som.annotate.Immutable;
 
 import java.util.*;
 import java.util.stream.Stream;

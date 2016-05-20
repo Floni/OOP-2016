@@ -12,7 +12,6 @@ import hillbillies.model.vector.IntVector;
 import hillbillies.model.vector.Vector;
 import hillbillies.part3.programs.ITaskFactory;
 import hillbillies.part3.programs.SourceLocation;
-import sun.plugin.dom.exception.InvalidStateException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -121,7 +120,7 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
     @Override
     public Expression<?> createReadVariable(String variableName, SourceLocation sourceLocation) {
         if (!varTypeMap.containsKey(variableName))
-            throw new InvalidStateException("var read"); // TODO: remove throw
+            throw new IllegalStateException("var read"); // TODO: remove throw
         return varTypeMap.get(variableName);
     }
 
