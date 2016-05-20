@@ -87,9 +87,8 @@ class MoveActivity extends Activity {
                 getUnit().setSprinting(true);
         }
         Vector newPosition = getUnit().getPosition().add(this.getUnit().getSpeed().multiply(dt));
-        if (isAtNeighbour(newPosition)) {
+        if (checkNeighbourAndXp(newPosition)) {
             getUnit().setPosition(this.getTargetNeighbour());
-            getUnit().addXp(1);
             if (getPendingActivity() != null) {
                 getUnit().setCurrentActivity(getPendingActivity());
                 this.setPendingActivity(null);
@@ -169,20 +168,35 @@ class MoveActivity extends Activity {
     }
 
     /**
-     * Checks whether we arrived at the target neighbour.
+     * Checks whether we arrived at the target neighbour and adds xp if we did.
      *
      * @param   newPosition
      *          The position after advanceTime.
      *
      * @return  True if we are going to be further from or onto the target in the next step.
-     *          | result == newPosition.distance(this.getTargetNeighbour()) == 0 ||
-     *          |           newPosition.distance(this.getTargetNeighbour())
+     *          | result == ( newPosition.distance(this.getTargetNeighbour()) == 0  ) ||
+     *          |           ( newPosition.distance(this.getTargetNeighbour())
      *          |               > this.getUnit().getPosition().distance(this.getTargetNeighbour())
+     *          |               && !(newPosition.toIntVector().equals(getUnit().getPosition().toIntVector()) )
+     *
+     * @effect  Adds 1 xp to the unit if we pass the centre of the next cube.
+     *          | if ( newPosition.distance(this.getTargetNeighbour()) > getUnit().getPosition().distance(this.getTargetNeighbour())
+     *          |       && !( newPosition.toIntVector().equals(getUnit().getPosition().toIntVector()) )
+     *          | then this.getUnit().addXp(1)
      */
-    private boolean isAtNeighbour(Vector newPosition) {
+    private boolean checkNeighbourAndXp(Vector newPosition) {
         double dist_new = newPosition.distance(this.getTargetNeighbour());
         double dist_cur = getUnit().getPosition().distance(this.getTargetNeighbour());
-        return dist_new > dist_cur || dist_new == 0;
+        if (dist_new > dist_cur && !(newPosition.toIntVector().equals(getUnit().getPosition().toIntVector()))) {
+            this.getUnit().addXp(1);
+            return true;
+        } else if (dist_new == 0) {
+            return true;
+        } else {
+            return false;
+        }
+
+        // return dist_new > dist_cur || dist_new == 0;
     }
 
     /**

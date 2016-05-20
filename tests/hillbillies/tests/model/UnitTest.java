@@ -548,6 +548,19 @@ public class UnitTest {
         assertTrue(ran[0]);
     }
 
+    @Test
+    public void testLevelUp() {
+        int oldXp = unit.getXp();
+        unit.setPosition(new Vector(0.5, 0.5, 0.5));
+        unit.moveTo(new IntVector(10, 10, 0));
+        advanceTimeFor(unit, 20, 0.1);
+        int newXp = unit.getXp();
+        assertEquals(oldXp + 10, newXp);
+        assertTrue(unit.getAgility() == 51 || unit.getStrength() == 51 || unit.getToughness() == 51);
+    }
+
+
+
     // TODO: test work interrupt no change
     // TODO: test levelUp
     // TODO: test follow
