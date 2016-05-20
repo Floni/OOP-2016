@@ -8,8 +8,13 @@
 			<accessrule kind="accessible" pattern="javafx/**"/>
 		</accessrules>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/AnnotationsDoclets.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/org.hamcrest:hamcrest-junit:2.0.0.0"/>
+	<classpathentry kind="lib" path="lib/AnnotationsDoclets.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/OOP-project/lib/AnnotationsDoclets.jar!/doc"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/antlr-4.5.3-complete.jar"/>
+	<classpathentry kind="lib" path="lib/junit-4.12.jar"/>
+	<classpathentry kind="lib" path="lib/java-hamcrest-2.0.0.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

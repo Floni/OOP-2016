@@ -4,8 +4,15 @@
 	<contentEntry url="file://$MODULE_DIR$"/>
 	<lib name="AnnotationsDoclets.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/AnnotationsDoclets.jar!/"/>
+		<relative-module-javadoc project-related="jar://$PROJECT_DIR$/lib/AnnotationsDoclets.jar!/doc"/>
 	</lib>
-	<levels>
-		<level name="org.hamcrest:hamcrest-junit:2.0.0.0" value="project"/>
-	</levels>
+	<lib name="antlr-4.5.3-complete.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/antlr-4.5.3-complete.jar!/"/>
+	</lib>
+	<lib name="junit-4.12.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/junit-4.12.jar!/"/>
+	</lib>
+	<lib name="java-hamcrest-2.0.0.0.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/java-hamcrest-2.0.0.0.jar!/"/>
+	</lib>
 </component>
