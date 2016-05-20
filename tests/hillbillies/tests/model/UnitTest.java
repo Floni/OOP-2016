@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.Set;
 
 import static hillbillies.tests.util.PositionAsserts.assertDoublePositionEquals;
 import static hillbillies.tests.util.PositionAsserts.assertIntegerPositionEquals;
@@ -322,6 +323,13 @@ public class UnitTest {
         unit.advanceTime(time - n * step);
     }
 
+    public static void advanceTimeFor( World world, double time, double step) {
+        int n = (int) (time / step);
+        for (int i = 0; i < n; i++)
+            world.advanceTime(step);
+        world.advanceTime(time - n * step);
+    }
+
     @Test(expected = InvalidPositionException.class)
     public void setWorld() throws Exception {
         Unit unit = new Unit("Test", 0, 0, 0, 50, 50, 50, 50);
@@ -559,9 +567,37 @@ public class UnitTest {
         assertTrue(unit.getAgility() == 51 || unit.getStrength() == 51 || unit.getToughness() == 51);
     }
 
+    @Test
+    public void testInterruptWork() {
+        unit.setPosition(Vector.ZERO.add(Terrain.Lc/2));
+        int oldXp = unit.getXp();
+        unit.workAt(IntVector.ZERO);
+        Terrain.Type cubeType = world.getTerrain().getCubeType(IntVector.ZERO);
+        Set boulders = world.getTerrain().getBoulders(IntVector.ZERO);
+        Set logs = world.getTerrain().getLogs(IntVector.ZERO);
+        advanceTimeFor(unit, 2, 0.1);
+        assertTrue(unit.isWorking());
+        unit.rest();
+        advanceTimeFor(unit, 0.1, 0.1);
+        assertFalse(unit.isWorking());
+        int newXp = unit.getXp();
+        assertEquals(oldXp, newXp);
+        assertEquals(cubeType, world.getTerrain().getCubeType(IntVector.ZERO));
+        assertEquals(boulders, world.getTerrain().getBoulders(IntVector.ZERO));
+        assertEquals(logs, world.getTerrain().getLogs(IntVector.ZERO));
 
+    }
 
-    // TODO: test work interrupt no change
-    // TODO: test levelUp
-    // TODO: test follow
+    @Test
+    public void testFollow() {
+        Unit unit2 = new Unit("Test", 10, 10, 0, 50, 50, 50, 50);
+        world.addUnit(unit2);
+        unit.setPosition(Vector.ZERO.add(Terrain.Lc/2));
+        unit.follow(unit2);
+        unit2.moveTo(new IntVector(15, 15, 0));
+        advanceTimeFor(world, 30, 0.1);
+        assertTrue(unit.getPosition().isNextTo(new Vector(15.5, 15.5, 0.5)));
+        assertTrue(unit.getPosition().isNextTo(unit2.getPosition()));
+    }
+
 }
