@@ -26,7 +26,6 @@ import static org.junit.Assert.*;
 
 /**
  * The test for the class Unit.
- *
  */
 public class UnitTest {
 

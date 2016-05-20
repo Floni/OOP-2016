@@ -190,10 +190,8 @@ class MoveActivity extends Activity {
         if (dist_new > dist_cur && !(newPosition.toIntVector().equals(getUnit().getPosition().toIntVector()))) {
             this.getUnit().addXp(1);
             return true;
-        } else if (dist_new == 0) {
-            return true;
         } else {
-            return false;
+            return dist_new == 0;
         }
 
         // return dist_new > dist_cur || dist_new == 0;

@@ -12,8 +12,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.*;
 
 /**
- * Created by timo on 3/18/16.
- *
+ * Tests for World and Terrain.
  */
 public class WorldTest {
 
