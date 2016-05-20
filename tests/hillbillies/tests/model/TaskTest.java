@@ -11,6 +11,7 @@ import hillbillies.model.programs.statement.Statement;
 import hillbillies.model.programs.statement.WhileStatement;
 import hillbillies.model.unit.Unit;
 import hillbillies.model.vector.IntVector;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -21,20 +22,26 @@ import static org.junit.Assert.*;
  * Tests for Task.
  */
 public class TaskTest {
+    private Statement dummyStmt;
+
+    @Before
+    public void setUp() {
+        this.dummyStmt = new SequenceStatement(Collections.emptyList());
+    }
 
     @Test
     public void getSelectedPosition() throws Exception {
-        Task task = new Task("Test1", 12, null, new IntVector(12, 12, 12));
+        Task task = new Task("Test1", 12, dummyStmt, new IntVector(12, 12, 12));
         assertEquals(task.getSelectedPosition().orElse(null), new IntVector(12, 12, 12));
-        task = new Task("Test2", 12, null, null);
+        task = new Task("Test2", 12, dummyStmt, null);
         assertFalse(task.getSelectedPosition().isPresent());
     }
 
     @Test
     public void getName() throws Exception {
-        Task task = new Task("Test1", 12, null, null);
+        Task task = new Task("Test1", 12, dummyStmt, null);
         assertEquals("Test1", task.getName());
-        task = new Task("", 12, null, null);
+        task = new Task("", 12, dummyStmt, null);
         assertEquals("", task.getName());
     }
 
@@ -50,7 +57,7 @@ public class TaskTest {
 
     @Test
     public void addScheduler() throws Exception {
-        Task task = new Task("Test1", 12, null, null);
+        Task task = new Task("Test1", 12, dummyStmt, null);
         Scheduler scheduler1 = new Scheduler();
         Scheduler scheduler2 = new Scheduler();
         task.addScheduler(scheduler1);
@@ -61,7 +68,7 @@ public class TaskTest {
 
     @Test
     public void removeScheduler() throws Exception {
-        Task task = new Task("Test1", 12, null, null);
+        Task task = new Task("Test1", 12, dummyStmt, null);
         Scheduler scheduler1 = new Scheduler();
         Scheduler scheduler2 = new Scheduler();
         task.addScheduler(scheduler1);
@@ -76,8 +83,8 @@ public class TaskTest {
 
     @Test
     public void getSchedulers() throws Exception {
-        Task task1 = new Task("Test1", 12, null, null);
-        Task task2 = new Task("Test2", 1, null, null);
+        Task task1 = new Task("Test1", 12, dummyStmt, null);
+        Task task2 = new Task("Test2", 1, dummyStmt, null);
         Scheduler scheduler1 = new Scheduler();
         Scheduler scheduler2 = new Scheduler();
 
@@ -97,7 +104,7 @@ public class TaskTest {
 
     @Test
     public void isAssigned() throws Exception {
-        Task task1 = new Task("Test1", 12, null, null);
+        Task task1 = new Task("Test1", 12, dummyStmt, null);
         assertFalse(task1.isAssigned());
         task1.setAssignedUnit(new Unit("Test", 0, 0, 0, 0, 0, 0, 0));
         assertTrue(task1.isAssigned());
@@ -107,15 +114,15 @@ public class TaskTest {
 
     @Test
     public void getAssignedUnit() throws Exception {
-        Task task1 = new Task("Test1", 12, null, null);
+        Task task1 = new Task("Test1", 12, dummyStmt, null);
         assertNull(task1.getAssignedUnit());
     }
 
     @Test
     public void getPriority() throws Exception {
         // test get & set priority & check if scheduler lists are still sorted.
-        Task task1 = new Task("Test1", 12, null, null);
-        Task task2 = new Task("Test2", 1, null, null);
+        Task task1 = new Task("Test1", 12, dummyStmt, null);
+        Task task2 = new Task("Test2", 1, dummyStmt, null);
         assertEquals(1, task2.getPriority());
         assertEquals(12, task1.getPriority());
 
@@ -131,8 +138,8 @@ public class TaskTest {
     @Test
     public void compareTo() throws Exception {
         // test neg & pos & 0 for equal, less and bigger priority between 2 tasks.
-        Task task1 = new Task("Test1", 12, null, null);
-        Task task2 = new Task("Test2", 12, null, null);
+        Task task1 = new Task("Test1", 12, dummyStmt, null);
+        Task task2 = new Task("Test2", 12, dummyStmt, null);
         assertEquals(0, task1.compareTo(task2));
         task1.setPriority(11);
         assertTrue( task1.compareTo(task2) > 0);
@@ -271,7 +278,7 @@ public class TaskTest {
     @Test
     public void getVariable() throws Exception {
         // test get & set Variable.
-        Task task = new Task("Test", 10, null, null);
+        Task task = new Task("Test", 10, dummyStmt, null);
         task.setVariable("test", 12);
         assertEquals(12, task.getVariable("test"));
     }

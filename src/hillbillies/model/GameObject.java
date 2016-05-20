@@ -22,9 +22,10 @@ import hillbillies.model.vector.Vector;
 public abstract class GameObject {
     private static final double FALL_SPEED = -3.0;
 
-    private Vector position;
     private final int weight;
     private final World world;
+
+    private Vector position;
     private boolean falling;
 
     /**

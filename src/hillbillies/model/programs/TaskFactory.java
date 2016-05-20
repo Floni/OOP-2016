@@ -119,8 +119,8 @@ public class TaskFactory implements ITaskFactory<Expression<?>, Statement, Task>
     //<editor-fold desc="Expressions">
     @Override
     public Expression<?> createReadVariable(String variableName, SourceLocation sourceLocation) {
-        if (!varTypeMap.containsKey(variableName))
-            throw new IllegalStateException("var read"); // TODO: remove throw
+        if (!varTypeMap.containsKey(variableName)) // can't remove because null can be cast to any type.
+            throw new IllegalStateException("Undeclared variable used at: " + sourceLocation.toString());
         return varTypeMap.get(variableName);
     }
 

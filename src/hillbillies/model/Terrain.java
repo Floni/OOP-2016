@@ -2,6 +2,7 @@ package hillbillies.model;
 
 import be.kuleuven.cs.som.annotate.Basic;
 import be.kuleuven.cs.som.annotate.Immutable;
+import be.kuleuven.cs.som.annotate.Raw;
 import hillbillies.model.exceptions.InvalidCubeTypeException;
 import hillbillies.model.exceptions.InvalidPositionException;
 import hillbillies.model.vector.IntVector;
@@ -117,6 +118,7 @@ public class Terrain {
      * @throws  InvalidCubeTypeException
      *          If any of the supplied terrainTypes are invalid.
      */
+    @Raw
     public Terrain(World world, int maxX, int maxY, int maxZ, TerrainChangeListener modelListener)
             throws IllegalArgumentException {
 
@@ -147,6 +149,7 @@ public class Terrain {
      * @throws  IllegalArgumentException
      *          | if the terrainTypes isn't effective or the size doesn't match.
      */
+    @Raw
     public void setTerrain(int[][][] terrainTypes) throws IllegalArgumentException, InvalidCubeTypeException {
         if (terrainTypes == null || terrainTypes.length != maxX
                 || terrainTypes[0].length != maxY || terrainTypes[0][0].length != maxZ)

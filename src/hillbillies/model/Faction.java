@@ -9,6 +9,8 @@ import java.util.Set;
 /**
  * A class containing a set of units.
  *
+ * @invar   The number of units in this faction must be less than or equal to MAX_UNITS.
+ *          | this.getFactionSize() <= MAX_UNITS
  */
 public class Faction {
 
@@ -18,8 +20,8 @@ public class Faction {
      * The set of units of this faction
      *
      * @invar   each unit in the faction must be effective.
-     * @invar   the set units must be effective.
-     * @invar   The size of the set must be less than MAX_UNITS.
+     * @invar   the set of units must be effective.
+     * @invar   The size of the set must be less than or equal to MAX_UNITS.
      */
     private final Set<Unit> units;
 
@@ -83,10 +85,20 @@ public class Faction {
 
     }
 
+    /**
+     * Returns the scheduler for this faction.
+     */
+    @Basic
     public Scheduler getScheduler() {
         return scheduler;
     }
 
+    /**
+     * Terminates this faction.
+     *
+     * @effect  Terminates each unit in this faction.
+     * @effect  Terminates the scheduler for this unit.
+     */
     public void terminate() {
         this.units.forEach(Unit::terminate);
         this.units.clear();

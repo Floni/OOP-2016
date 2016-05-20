@@ -21,9 +21,11 @@ public interface Statement {
      * execute one step of the statement.
      *
      * @throws  TaskErrorException
-     *          ...
+     *          When the task has an unrecoverable error.
      * @throws  TaskInterruptException
-     *          ....
+     *          When the task needs to be interrupted and another unit may execute it.
+     * @throws  BreakException
+     *          When a while loop breaks, shouldn't happen in an valid program.
      */
     void execute(Task task) throws TaskErrorException, TaskInterruptException, BreakException;
 

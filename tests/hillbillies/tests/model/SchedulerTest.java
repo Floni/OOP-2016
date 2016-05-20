@@ -3,6 +3,7 @@ package hillbillies.tests.model;
 import hillbillies.model.Scheduler;
 import hillbillies.model.Task;
 import hillbillies.model.programs.statement.SequenceStatement;
+import hillbillies.model.programs.statement.Statement;
 import hillbillies.model.unit.Unit;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,16 +20,18 @@ import static org.junit.Assert.*;
  */
 public class SchedulerTest {
     private Scheduler scheduler;
+    private Statement dummyStmt;
 
     @Before
     public void setUp() throws Exception {
         this.scheduler = new Scheduler();
+        this.dummyStmt = new SequenceStatement(Collections.emptyList());
     }
 
     @Test
     public void schedule() throws Exception {
-        Task task1 = new Task("Test1", 10, null, null);
-        Task task2 = new Task("test2", 100, null, null);
+        Task task1 = new Task("Test1", 10, dummyStmt, null);
+        Task task2 = new Task("test2", 100, dummyStmt, null);
         scheduler.schedule(task2);
         scheduler.schedule(task1);
         assertTrue(scheduler.getAllTasks().contains(task1));
@@ -40,7 +43,7 @@ public class SchedulerTest {
     @Test
     public void isTaskAvailable() throws Exception {
         assertFalse(scheduler.isTaskAvailable());
-        Task task1 = new Task("Test1", 10, null, null);
+        Task task1 = new Task("Test1", 10, dummyStmt, null);
         scheduler.schedule(task1);
         assertTrue(scheduler.isTaskAvailable());
     }
@@ -69,8 +72,8 @@ public class SchedulerTest {
 
     @Test
     public void removeTask() throws Exception {
-        Task task1 = new Task("Test1", 10, null, null);
-        Task task2 = new Task("test2", 100, null, null);
+        Task task1 = new Task("Test1", 10, dummyStmt, null);
+        Task task2 = new Task("test2", 100, dummyStmt, null);
         scheduler.schedule(task2);
         scheduler.schedule(task1);
         assertTrue(scheduler.getAllTasks().contains(task1));
@@ -87,8 +90,8 @@ public class SchedulerTest {
 
     @Test
     public void rebuildTask() throws Exception {
-        Task task1 = new Task("Test1", 10, null, null);
-        Task task2 = new Task("test2", 100, null, null);
+        Task task1 = new Task("Test1", 10, dummyStmt, null);
+        Task task2 = new Task("test2", 100, dummyStmt, null);
         scheduler.schedule(task1);
         scheduler.schedule(task2);
 
@@ -103,7 +106,7 @@ public class SchedulerTest {
     @Test
     public void getAllTasksIterator() throws Exception {
         assertFalse(scheduler.getAllTasksIterator().hasNext());
-        Task task1 = new Task("Test1", 10, null, null);
+        Task task1 = new Task("Test1", 10, dummyStmt, null);
         scheduler.schedule(task1);
         assertTrue(scheduler.getAllTasksIterator().hasNext());
         assertEquals(task1, scheduler.getAllTasksIterator().next());
@@ -112,7 +115,7 @@ public class SchedulerTest {
     @Test
     public void getAllTasksStream() throws Exception {
         assertEquals(0, scheduler.getAllTasksStream().count());
-        Task task1 = new Task("Test1", 10, null, null);
+        Task task1 = new Task("Test1", 10, dummyStmt, null);
         scheduler.schedule(task1);
         assertEquals(1, scheduler.getAllTasksStream().count());
         assertEquals(task1, scheduler.getAllTasksStream().findAny().orElse(null));
@@ -121,7 +124,7 @@ public class SchedulerTest {
     @Test
     public void getAllTasks() throws Exception {
         assertEquals(0, scheduler.getAllTasksStream().count());
-        Task task1 = new Task("Test1", 10, null, null);
+        Task task1 = new Task("Test1", 10, dummyStmt, null);
         scheduler.schedule(task1);
         assertEquals(1, scheduler.getAllTasks().size());
         assertEquals(task1, scheduler.getAllTasks().get(0));
@@ -130,8 +133,8 @@ public class SchedulerTest {
     @Test
     public void containsAllTasks() throws Exception {
         assertTrue(scheduler.containsAllTasks(Collections.emptyList()));
-        Task task1 = new Task("Test1", 10, null, null);
-        Task task2 = new Task("test2", 100, null, null);
+        Task task1 = new Task("Test1", 10, dummyStmt, null);
+        Task task2 = new Task("test2", 100, dummyStmt, null);
         scheduler.schedule(task2);
         scheduler.schedule(task1);
 
@@ -146,8 +149,8 @@ public class SchedulerTest {
 
     @Test
     public void replace() throws Exception {
-        Task task1 = new Task("Test1", 10, null, null);
-        Task task2 = new Task("test2", 100, null, null);
+        Task task1 = new Task("Test1", 10, dummyStmt, null);
+        Task task2 = new Task("test2", 100, dummyStmt, null);
         scheduler.schedule(task2);
         assertTrue(scheduler.containsAllTasks(Collections.singleton(task2)));
         scheduler.replace(task2, task1);
@@ -156,8 +159,8 @@ public class SchedulerTest {
 
     @Test
     public void terminate() throws Exception {
-        Task task1 = new Task("Test1", 10, null, null);
-        Task task2 = new Task("test2", 100, null, null);
+        Task task1 = new Task("Test1", 10, dummyStmt, null);
+        Task task2 = new Task("test2", 100, dummyStmt, null);
         scheduler.schedule(task2);
         scheduler.schedule(task1);
 

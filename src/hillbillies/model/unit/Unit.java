@@ -29,8 +29,6 @@ import java.util.ArrayList;
  *
  */
 
-// TODO; check RAW's in every constructor except: Unit, World.
-
 /**
  * The unit class, this class keeps tracks of the unit's position, speed and other attributes.
  * It provides methods to move, to attack and to rest.
@@ -1530,7 +1528,7 @@ public class Unit {
     /**
      * Returns whether the unit has an assigned task.
      *
-     * @return  ...
+     * @return  True when the unit has an assigned task.
      *          | result == this.getAssignedTask() != null
      */
     public boolean hasAssignedTask() {

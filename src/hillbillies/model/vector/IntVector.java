@@ -60,10 +60,12 @@ public class IntVector {
     }
 
     /**
-     * Multiplies the vector with the given constant
+     * Multiplies the vector with the given constant.
+     *
      * @param   scalar
      *          | The constant with which each coordinate is multiplied
-     * @return  A new vector ...
+     *
+     * @return  A new vector where each value is multiplied by the scalar.
      *          | result.getX() == this.getX() * scalar &&
      *          | result.getY() == this.getY() * scalar &&
      *          | result.getZ() == this.getZ() * scalar
@@ -73,10 +75,12 @@ public class IntVector {
     }
 
     /**
-     * Divides the vector with the given constant
+     * Divides the vector with the given constant.
+     *
      * @param   divisor
-     *          | The constant with which each coordinate is divided
-     * @return  A new vector ...
+     *          | The constant with which each coordinate is divided.
+     *
+     * @return  A new vector where each value is divided by divisor.
      *          | result.getX() == this.getX() / divisor &&
      *          | result.getY() == this.getY() / divisor &&
      *          | result.getZ() == this.getZ() / divisor
@@ -91,7 +95,7 @@ public class IntVector {
      * @param   constant
      *          | The constant
      *
-     * @return  A new vector ...
+     * @return  A new vector where the constant is added to each value.
      *          | result.getX() == this.getX() + constant &&
      *          | result.getY() == this.getY() + constant &&
      *          | result.getZ() == this.getZ() + constant
@@ -107,7 +111,7 @@ public class IntVector {
      * @param   dy  the y diff
      * @param   dz  the z diff
      *
-     * @return  A new vector ...
+     * @return  A new vector where dx, dy and dz is added to each value.
      *          | result.getX() == this.getX() + dx &&
      *          | result.getY() == this.getY() + dz &&
      *          | result.getZ() == this.getZ() + dy
@@ -120,7 +124,7 @@ public class IntVector {
      * Adds the given vector to this vector
      * @param   other
      *          | The vector to be added
-     * @return  A new vector ...
+     * @return  A new vector which is the sum of two vectors.
      *          | result.getX() == this.getX() + other.getX() &&
      *          | result.getY() == this.getY() + other.getY() &&
      *          | result.getZ() == this.getZ() + other.getZ()
@@ -133,7 +137,7 @@ public class IntVector {
      * Subtracts the given vector to this vector
      * @param   other
      *          | The vector to be subtracted
-     * @return  A new vector ...
+     * @return  A new vector which is the difference between the two vectors.
      *          | result.getX() == this.getX() - other.getX() &&
      *          | result.getY() == this.getY() - other.getY() &&
      *          | result.getZ() == this.getZ() - other.getZ()
@@ -155,7 +159,8 @@ public class IntVector {
 
     /**
      * Calculates the norm of the vector
-     * @return  The norm
+     *
+     * @return  The norm of this vector.
      *          | result == Math.sqrt(this.dot(this))
      */
     public double norm() {

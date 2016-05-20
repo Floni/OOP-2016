@@ -15,6 +15,9 @@ import java.util.*;
 
 /**
  * Class implementing a task that a unit can execute.
+ *
+ * @invar   The mainStatement must be effective.
+ *          | this.getMainStatement() != null
  */
 public class Task implements Comparable<Task> {
 
@@ -30,8 +33,9 @@ public class Task implements Comparable<Task> {
      * The set of all schedulers this task belongs to.
      *
      * @invar   Each scheduler must be effective.
-     *          | ..
+     *          | foreach (scheduler in this.schedulers): scheduler != null
      * @invar   Each scheduler must contain this task.
+     *          | foreach (scheduler in this.schedulers): scheduler.getAllTasks().contains(this)
      */
     private final Set<Scheduler> schedulers;
 
@@ -69,8 +73,14 @@ public class Task implements Comparable<Task> {
      *          | new.getSchedulers().isEmpty()
      * @post    The task won't be running
      *          | !new.isRunning()
+     *
+     * @throws  IllegalArgumentException
+     *          If the statement isn't effective.
+     *          | main == null
      */
-    public Task(String name, int priority, Statement main, IntVector selected) {
+    public Task(String name, int priority, Statement main, IntVector selected) throws IllegalArgumentException {
+        if (main == null)
+            throw new IllegalArgumentException("Statement was null");
         this.schedulers = new HashSet<>();
         this.variableTable = new HashMap<>();
 
@@ -175,10 +185,11 @@ public class Task implements Comparable<Task> {
 
     /**
      * Sets the assigned unit.
+     *
      * @param   assignedUnit
      *          The new assigned unit.
      *
-     * @post    The unit ...
+     * @post    The task will be assigned the unit.
      *          | new.getAssignedUnit() == assignedUnit
      */
     public void setAssignedUnit(Unit assignedUnit) {
