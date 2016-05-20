@@ -578,7 +578,6 @@ public class Unit {
      *          smaller or equal to MAX_ATTRIBUTE.
      *          | result ==  (weight >= MIN_ATTRIBUTE) && (weight <= MAX_ATTRIBUTE) && (weight >= (getAgility()+getStrength())/2)
      */
-    @SuppressWarnings("unused")
     public boolean canHaveAsWeight(int weight) {
         return (weight >= MIN_ATTRIBUTE) && (weight <= MAX_ATTRIBUTE) && (weight >= (getAgility()+getStrength())/2);
     }
@@ -642,7 +641,6 @@ public class Unit {
      *          and smaller or equal to MAX_ATTRIBUTE.
      *          | result == strength <= MAX_ATTRIBUTE && strength >= MIN_ATTRIBUTE
      */
-    @SuppressWarnings("unused")
     public static boolean isValidAttribute(int attribute) {
         return attribute <= MAX_ATTRIBUTE && attribute >= MIN_ATTRIBUTE;
     }
@@ -731,7 +729,8 @@ public class Unit {
      *          and smaller than or equal to the maximum amount of hitPoints.
      *          | result == (hitPoints <= getMaxPoints()) && (hitPoints >= 0)
      */
-    public boolean canHaveAsHitPoints(int hitPoints) {
+    @Model
+    private boolean canHaveAsHitPoints(int hitPoints) {
         return hitPoints <= getMaxPoints() && hitPoints >= 0;
     }
 
@@ -808,7 +807,8 @@ public class Unit {
      *          and smaller than or equal to the maximum amount of hitPoints.
      *          | result == (stamina <= getMaxPoints()) && (stamina >= 0)
      */
-    public boolean canHaveAsStamina(int stamina) {
+     @Model
+    private boolean canHaveAsStamina(int stamina) {
         return stamina <= getMaxPoints() && stamina >= 0;
     }
 
@@ -862,7 +862,6 @@ public class Unit {
      *          and smaller than 2*PI.
      *          | result == (orientation < 2*Math.PI) && (orientation >= 0)
      */
-    @SuppressWarnings("unused")
     public static boolean isValidOrientation(double orientation) {
         return orientation < 2*Math.PI && orientation >= 0;
     }

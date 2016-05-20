@@ -572,8 +572,8 @@ public class UnitTest {
         int oldXp = unit.getXp();
         unit.workAt(IntVector.ZERO);
         Terrain.Type cubeType = world.getTerrain().getCubeType(IntVector.ZERO);
-        Set boulders = world.getTerrain().getBoulders(IntVector.ZERO);
-        Set logs = world.getTerrain().getLogs(IntVector.ZERO);
+        Set<Boulder> boulders = world.getTerrain().getBoulders(IntVector.ZERO);
+        Set<Log> logs = world.getTerrain().getLogs(IntVector.ZERO);
         advanceTimeFor(unit, 2, 0.1);
         assertTrue(unit.isWorking());
         unit.rest();

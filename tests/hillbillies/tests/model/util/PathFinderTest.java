@@ -13,8 +13,7 @@ import java.util.stream.Stream;
 import static org.junit.Assert.*;
 
 /**
- * Created by timo on 3/24/16.
- *
+ * Tests to test the Pathfinder.
  */
 public class PathFinderTest {
 
