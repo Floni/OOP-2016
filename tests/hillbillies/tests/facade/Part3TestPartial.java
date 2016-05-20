@@ -1,23 +1,22 @@
 package hillbillies.tests.facade;
 
-import static org.junit.Assert.*;
-
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import hillbillies.model.Faction;
 import hillbillies.model.Scheduler;
 import hillbillies.model.Task;
-import hillbillies.model.unit.Unit;
 import hillbillies.model.World;
+import hillbillies.model.unit.Unit;
 import hillbillies.part2.listener.DefaultTerrainChangeListener;
 import hillbillies.part3.facade.Facade;
 import hillbillies.part3.facade.IFacade;
 import hillbillies.part3.programs.TaskParser;
 import ogp.framework.util.ModelException;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class Part3TestPartial {
 

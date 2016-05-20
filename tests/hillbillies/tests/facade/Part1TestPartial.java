@@ -1,19 +1,18 @@
 package hillbillies.tests.facade;
 
+import hillbillies.model.unit.Unit;
+import hillbillies.part1.facade.Facade;
+import hillbillies.part1.facade.IFacade;
+import ogp.framework.util.ModelException;
+import org.junit.Before;
+import org.junit.Test;
+
 import static hillbillies.tests.util.PositionAsserts.assertDoublePositionEquals;
 import static hillbillies.tests.util.PositionAsserts.assertIntegerPositionEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 //edit:
-import hillbillies.part1.facade.Facade;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import hillbillies.model.unit.Unit;
-import hillbillies.part1.facade.IFacade;
-import ogp.framework.util.ModelException;
 
 public class Part1TestPartial {
 

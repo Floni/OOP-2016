@@ -1,8 +1,7 @@
 package hillbillies.tests.util;
 
-import org.junit.Assert;
-
 import ogp.framework.util.Util;
+import org.junit.Assert;
 
 public class PositionAsserts {
 

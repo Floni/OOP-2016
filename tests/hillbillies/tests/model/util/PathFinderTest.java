@@ -3,14 +3,14 @@ package hillbillies.tests.model.util;
 import hillbillies.model.Terrain;
 import hillbillies.model.util.PathFinder;
 import hillbillies.model.vector.IntVector;
-import hillbillies.model.World;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Deque;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests to test the Pathfinder.
