@@ -323,7 +323,7 @@ public class UnitTest {
         unit.advanceTime(time - n * step);
     }
 
-    public static void advanceTimeFor( World world, double time, double step) {
+    private static void advanceTimeFor( World world, double time, double step) {
         int n = (int) (time / step);
         for (int i = 0; i < n; i++)
             world.advanceTime(step);
