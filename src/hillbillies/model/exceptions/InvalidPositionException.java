@@ -7,6 +7,8 @@ import hillbillies.model.vector.Vector;
  * Exception indicating an invalid position.
  */
 public class InvalidPositionException extends RuntimeException {
+    private static final long serialVersionUID = 6531259202840490910L;
+
     /**
      * Create an exception indicating that the given position is invalid.
      *

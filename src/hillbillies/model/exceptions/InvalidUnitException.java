@@ -6,6 +6,8 @@ import hillbillies.model.unit.Unit;
  * Exception indicating an invalid unit was used.
  */
 public class InvalidUnitException extends RuntimeException {
+    private static final long serialVersionUID = 3420911460895425791L;
+
     /**
      * Create an exception indicating that the given unit is invalid.
      *
