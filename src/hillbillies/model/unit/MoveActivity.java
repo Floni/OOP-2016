@@ -89,7 +89,8 @@ class MoveActivity extends Activity {
         Vector newPosition = getUnit().getPosition().add(this.getUnit().getSpeed().multiply(dt));
         if (isAtNeighbour(newPosition)) {
             getUnit().setPosition(this.getTargetNeighbour());
-            getUnit().addXp(1);
+            if (getUnit().getSpeedScalar() != 0)
+                getUnit().addXp(1);
             if (getPendingActivity() != null) {
                 getUnit().setCurrentActivity(getPendingActivity());
                 this.setPendingActivity(null);
