@@ -729,8 +729,7 @@ public class Unit {
      *          and smaller than or equal to the maximum amount of hitPoints.
      *          | result == (hitPoints <= getMaxPoints()) && (hitPoints >= 0)
      */
-    @Model
-    private boolean canHaveAsHitPoints(int hitPoints) {
+    public boolean canHaveAsHitPoints(int hitPoints) {
         return hitPoints <= getMaxPoints() && hitPoints >= 0;
     }
 
@@ -807,8 +806,7 @@ public class Unit {
      *          and smaller than or equal to the maximum amount of hitPoints.
      *          | result == (stamina <= getMaxPoints()) && (stamina >= 0)
      */
-     @Model
-    private boolean canHaveAsStamina(int stamina) {
+    public boolean canHaveAsStamina(int stamina) {
         return stamina <= getMaxPoints() && stamina >= 0;
     }
 
